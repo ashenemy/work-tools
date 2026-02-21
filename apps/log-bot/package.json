@@ -1,0 +1,100 @@
+{
+    "name": "@work-tools/log-bot",
+    "version": "0.0.1",
+    "private": true,
+    "nx": {
+        "targets": {
+            "build": {
+                "executor": "@nx/esbuild:esbuild",
+                "outputs": [
+                    "{options.outputPath}"
+                ],
+                "defaultConfiguration": "production",
+                "options": {
+                    "platform": "node",
+                    "outputPath": "packages/tg/bot/dist",
+                    "format": [
+                        "cjs"
+                    ],
+                    "bundle": false,
+                    "main": "packages/tg/bot/src/main.ts",
+                    "tsConfig": "packages/tg/bot/tsconfig.app.json",
+                    "assets": [
+                        "packages/tg/bot/src/assets"
+                    ],
+                    "esbuildOptions": {
+                        "sourcemap": true,
+                        "outExtension": {
+                            ".js": ".js"
+                        }
+                    }
+                },
+                "configurations": {
+                    "development": {},
+                    "production": {
+                        "esbuildOptions": {
+                            "sourcemap": false,
+                            "outExtension": {
+                                ".js": ".js"
+                            }
+                        }
+                    }
+                }
+            },
+            "prune-lockfile": {
+                "dependsOn": [
+                    "build"
+                ],
+                "cache": true,
+                "executor": "@nx/js:prune-lockfile",
+                "outputs": [
+                    "{workspaceRoot}/packages/tg/bot/dist/package.json",
+                    "{workspaceRoot}/packages/tg/bot/dist/yarn.lock"
+                ],
+                "options": {
+                    "buildTarget": "build"
+                }
+            },
+            "copy-workspace-modules": {
+                "dependsOn": [
+                    "build"
+                ],
+                "cache": true,
+                "outputs": [
+                    "{workspaceRoot}/packages/tg/bot/dist/workspace_modules"
+                ],
+                "executor": "@nx/js:copy-workspace-modules",
+                "options": {
+                    "buildTarget": "build"
+                }
+            },
+            "prune": {
+                "dependsOn": [
+                    "prune-lockfile",
+                    "copy-workspace-modules"
+                ],
+                "executor": "nx:noop"
+            },
+            "serve": {
+                "continuous": true,
+                "executor": "@nx/js:node",
+                "defaultConfiguration": "development",
+                "dependsOn": [
+                    "build"
+                ],
+                "options": {
+                    "buildTarget": "@work-tools/bot:build",
+                    "runBuildTargetDependencies": false
+                },
+                "configurations": {
+                    "development": {
+                        "buildTarget": "@work-tools/bot:build:development"
+                    },
+                    "production": {
+                        "buildTarget": "@work-tools/bot:build:production"
+                    }
+                }
+            }
+        }
+    }
+}

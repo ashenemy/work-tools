@@ -1,0 +1,65 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug @work-tools/scan-files with Nx",
+            "runtimeExecutable": "yarn",
+            "runtimeArgs": ["nx", "serve", "@work-tools/scan-files"],
+            "env": {
+                "NODE_OPTIONS": "--inspect=9229"
+            },
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": ["<node_internals>/**"],
+            "sourceMaps": true,
+            "outFiles": ["${workspaceFolder}/apps/scan-files/dist/**/*.(m|c|)js", "!**/node_modules/**"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug @work-tools/read-files with Nx",
+            "runtimeExecutable": "yarn",
+            "runtimeArgs": ["nx", "serve", "@work-tools/read-files"],
+            "env": {
+                "NODE_OPTIONS": "--inspect=9230"
+            },
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": ["<node_internals>/**"],
+            "sourceMaps": true,
+            "outFiles": ["${workspaceFolder}/apps/read-files/dist/**/*.(m|c|)js", "!**/node_modules/**"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug @work-tools/optimize with Nx",
+            "runtimeExecutable": "yarn",
+            "runtimeArgs": ["nx", "serve", "@work-tools/optimize"],
+            "env": {
+                "NODE_OPTIONS": "--inspect=9231"
+            },
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": ["<node_internals>/**"],
+            "sourceMaps": true,
+            "outFiles": ["${workspaceFolder}/apps/optimize/dist/**/*.(m|c|)js", "!**/node_modules/**"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug @work-tools/log-bot with Nx",
+            "runtimeExecutable": "yarn",
+            "runtimeArgs": ["nx", "serve", "@work-tools/log-bot"],
+            "env": {
+                "NODE_OPTIONS": "--inspect=9232"
+            },
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": ["<node_internals>/**"],
+            "sourceMaps": true,
+            "outFiles": ["${workspaceFolder}/apps/log-bot/dist/**/*.(m|c|)js", "!**/node_modules/**"]
+        }
+    ]
+}
