@@ -1,6 +1,7 @@
 import {File} from './file.class';
 import { extname } from 'path';
 import { ArchiveType } from '../../@types';
+import { AbstractExtractor, RarExtractor, ZipExtractor, SevenZipExtractor } from '@work-tools/bot-runner';
 
 export class ArchiveFile extends File {
     public get isArchive(): boolean {

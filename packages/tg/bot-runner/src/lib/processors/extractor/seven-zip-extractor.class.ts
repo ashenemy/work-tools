@@ -6,8 +6,7 @@ export class SevenZipExtractor extends AbstractExtractor {
         try {
             await fullArchive(this.archivePath, this.outputFolder, { p: this.password });
         } catch (e) {
-            console.error(e);
+            console.error(`❌ 7z ошибка для ${this.archivePath}`, e);
         }
-
     }
 }

@@ -1,4 +1,4 @@
-import { BehaviorSubject, combineLatest, concatMap, debounceTime, finalize, from, Subject, Subscription, tap } from 'rxjs';
+import { BehaviorSubject, concatMap,  finalize, from, Subject, catchError, of, tap } from 'rxjs';
 
 import { QueueStatus } from '../../@types';
 import { ProgressBarRenderer } from './progress-bar-renderer.class';
@@ -6,6 +6,7 @@ import { TaskRunner } from './task-runner.class';
 import { Optional } from '@work-tools/ts';
 import { BaseLogMessage } from '@work-tools/log-message';
 import { TelegramClient } from 'telegram';
+import logSymbols from 'log-symbols';
 
 export class TasksQueue {
     public static _instance: Optional<TasksQueue> = undefined;
@@ -14,7 +15,6 @@ export class TasksQueue {
         if (!TasksQueue._instance) {
             TasksQueue._instance = new TasksQueue();
         }
-
         return TasksQueue._instance;
     }
 
@@ -29,22 +29,25 @@ export class TasksQueue {
         currentTask: null,
     });
 
-    public status$ = this.statusSubject.asObservable();
-
     private renderer: ProgressBarRenderer;
 
     constructor() {
-        this.renderer = new ProgressBarRenderer();
+        this.renderer = ProgressBarRenderer.$;
         this.setupQueueProcessing();
-
-        this.setupAutoRender();
     }
 
     private setupQueueProcessing(): void {
         this.taskSubject
             .pipe(
                 tap(() => this.incrementTotal()),
-                concatMap((taskRunner) => this.executeTask(taskRunner)),
+                concatMap((taskRunner) =>
+                    this.executeTask(taskRunner).pipe(
+                        catchError((err) => {
+                            console.error('Задача упала, но очередь продолжается', err);
+                            return of(null);
+                        }),
+                    ),
+                ),
             )
             .subscribe();
     }
@@ -59,22 +62,8 @@ export class TasksQueue {
     }
 
     private executeTask(taskRunner: TaskRunner) {
-        let stepSub: Subscription | null = null;
-
-        // Подписываемся на обновления шагов задачи
-        stepSub = taskRunner.currentStep$.subscribe({
-            next: (stepEvent) => {
-                this.statusSubject.next({
-                    ...this.statusSubject.value,
-                    currentTask: stepEvent,
-                });
-            },
-            error: (err) => console.error(`[TaskRunner] Ошибка шагов:`, err),
-        });
-
         return from(taskRunner.run()).pipe(
             finalize(() => {
-                stepSub?.unsubscribe();
                 this.completeTask();
             }),
         );
@@ -87,12 +76,16 @@ export class TasksQueue {
             completed: s.completed + 1,
             currentTask: null,
         });
-    }
 
-    private setupAutoRender(): void {
-        combineLatest([this.statusSubject])
-            .pipe(debounceTime(16))
-            .subscribe(([status]) => this.renderer.update(status));
+        // Финальное сообщение о завершении таска
+        if (s.completed + 1 === s.total) {
+            console.log(' ');
+            console.log(' ');
+            console.log(`${logSymbols.success} Все задачи в очереди выполнены (${s.completed + 1}/${s.total})`);
+        } else {
+            console.log(' ');
+            console.log(`${logSymbols.info} остаалось задачь (${s.completed + 1}/${s.total})`);
+        }
     }
 
     public stop(): void {

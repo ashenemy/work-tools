@@ -3,6 +3,7 @@ import { ArchiveFile, BaseLogMessage } from '@work-tools/log-message';
 import { TelegramClient } from 'telegram';
 import { FileDownloadProgress } from '../../@types';
 import { TgFileDownloader } from '../processors/tg-file-downloader.class';
+import { ProgressBarRenderer } from '../queue/progress-bar-renderer.class';
 
 export class DownloadRunnerStep {
 
@@ -15,6 +16,7 @@ export class DownloadRunnerStep {
     public async run(logMessage: BaseLogMessage): Promise<ArchiveFile> {
         const fileDownloader = new TgFileDownloader(logMessage, this.client);
 
+        ProgressBarRenderer.$.startDownloadProgress(this.downloadProgress);
         await fileDownloader.run(this.downloadProgress);
 
         return fileDownloader.archiveFile;

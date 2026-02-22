@@ -1,67 +1,59 @@
-import * as cliProgress from 'cli-progress';
-import chalk from 'chalk';
-import { QueueStatus, StepEvent } from '../../@types';
+import { FileDownloadProgress } from '../../@types';
+import { Subject, Subscription } from 'rxjs';
+import { Optional } from '@work-tools/ts';
+import logUpdate from 'log-update';
+import logSymbols from 'log-symbols';
 
 export class ProgressBarRenderer {
-    private multibar: cliProgress.MultiBar;
-    private queueBar: cliProgress.SingleBar;
-    private taskBar: cliProgress.SingleBar;
-    private downloadBar: cliProgress.SingleBar | null = null;
+    private static _instance: Optional<ProgressBarRenderer> = undefined;
 
-    constructor() {
-        this.multibar = new cliProgress.MultiBar({
-            clearOnComplete: false,
-            hideCursor: true,
-            format: ' {bar} {percentage}% | {value}/{total} | {name}',
-            barCompleteChar: '█',
-            barIncompleteChar: '░',
-            autopadding: true,
-        });
-
-        this.queueBar = this.multibar.create(100, 0, { name: chalk.cyan('Article queues') });
-        this.taskBar = this.multibar.create(100, 0, { name: chalk.magenta('Current task') });
+    public static get $(): ProgressBarRenderer {
+        if (!ProgressBarRenderer._instance) {
+            ProgressBarRenderer._instance = new ProgressBarRenderer();
+        }
+        return ProgressBarRenderer._instance;
     }
 
-    public update(status: QueueStatus): void {
-        const queuePercent = status.total ? Math.floor((status.completed / status.total) * 100) : 0;
-        this.queueBar.update(queuePercent, {
-            name: chalk.cyan(`Article queues  (${status.completed}/${status.total})`),
+    private downloadSub: Subscription | null = null;
+
+    private constructor() {}
+
+    public startDownloadProgress(progress$: Subject<FileDownloadProgress>): void {
+        this.stopDownloadProgress();
+
+        this.downloadSub = progress$.subscribe({
+            next: (p: FileDownloadProgress) => {
+                if (!p.total) return;
+
+                const percent = Math.floor((p.downloaded / p.total) * 100);
+
+                const line = `${logSymbols.warning} Скачивание: ${percent.toString().padStart(3)}%   (${this.formatBytes(p.downloaded)} / ${this.formatBytes(p.total)})`;
+                logUpdate(line);
+            },
+
+            complete: () => {
+                logUpdate.persist(`${logSymbols.success} Скачивание завершено`);
+                this.stopDownloadProgress();
+            },
+
+            error: () => this.stopDownloadProgress(),
         });
+    }
 
-        if (status.currentTask) {
-            const ct: StepEvent = status.currentTask;
+    private stopDownloadProgress(): void {
+        this.downloadSub?.unsubscribe();
+        this.downloadSub = null;
+    }
 
-            this.taskBar.update(ct.taskProgress ?? 0, {
-                name: chalk.magenta(`Task: ${ct.name || '—'}  |  Step ${ct.stepIndex! + 1}/${ct.totalSteps} — ${ct.stepName}`),
-            });
-
-            if (ct.progress !== null && ct.progress !== undefined) {
-                if (!this.downloadBar) {
-                    this.downloadBar = this.multibar.create(100, 0, { name: chalk.yellow('Downloading') });
-                }
-                this.downloadBar.update(ct.progress);
-            } else if (this.downloadBar) {
-                this.downloadBar.stop();
-                this.multibar.remove(this.downloadBar);
-                this.downloadBar = null;
-            }
-        } else {
-            this.taskBar.update(0, { name: chalk.gray('Waiting for next task...') });
-
-            if (this.downloadBar) {
-                this.downloadBar.stop();
-                this.multibar.remove(this.downloadBar);
-                this.downloadBar = null;
-            }
-
-            if (status.completed === status.total && status.total > 0) {
-                this.multibar.stop();
-                console.log(chalk.green.bold('\n✅ All tasks completed successfully!'));
-            }
-        }
+    private formatBytes(bytes: number): string {
+        if (!bytes) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
     }
 
     public stop(): void {
-        this.multibar.stop();
+        this.stopDownloadProgress();
     }
 }

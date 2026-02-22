@@ -1,5 +1,5 @@
 {
-    "name": "@work-tools/log-bot",
+    "name": "@work-tools/test-app",
     "version": "0.0.1",
     "private": true,
     "nx": {
@@ -12,15 +12,15 @@
                 "defaultConfiguration": "production",
                 "options": {
                     "platform": "node",
-                    "outputPath": "apps/log-bot/dist",
+                    "outputPath": "apps/test-app/dist",
                     "format": [
                         "cjs"
                     ],
                     "bundle": false,
-                    "main": "apps/log-bot/src/main.ts",
-                    "tsConfig": "apps/log-bot/tsconfig.app.json",
+                    "main": "apps/test-app/src/main.ts",
+                    "tsConfig": "apps/test-app/tsconfig.app.json",
                     "assets": [
-                        "apps/log-bot/src/assets"
+                        "apps/test-app/src/assets"
                     ],
                     "esbuildOptions": {
                         "sourcemap": true,
@@ -48,8 +48,8 @@
                 "cache": true,
                 "executor": "@nx/js:prune-lockfile",
                 "outputs": [
-                    "{workspaceRoot}/apps/log-bot/dist/package.json",
-                    "{workspaceRoot}/apps/log-bot/dist/yarn.lock"
+                    "{workspaceRoot}/apps/test-app/dist/package.json",
+                    "{workspaceRoot}/apps/test-app/dist/yarn.lock"
                 ],
                 "options": {
                     "buildTarget": "build"
@@ -61,7 +61,7 @@
                 ],
                 "cache": true,
                 "outputs": [
-                    "{workspaceRoot}/apps/log-bot/dist/workspace_modules"
+                    "{workspaceRoot}/apps/test-app/dist/workspace_modules"
                 ],
                 "executor": "@nx/js:copy-workspace-modules",
                 "options": {
@@ -83,15 +83,15 @@
                     "build"
                 ],
                 "options": {
-                    "buildTarget": "@work-tools/log-bot:build",
+                    "buildTarget": "@work-tools/test-app:build",
                     "runBuildTargetDependencies": false
                 },
                 "configurations": {
                     "development": {
-                        "buildTarget": "@work-tools/log-bot:build:development"
+                        "buildTarget": "@work-tools/test-app:build:development"
                     },
                     "production": {
-                        "buildTarget": "@work-tools/log-bot:build:production"
+                        "buildTarget": "@work-tools/test-app:build:production"
                     }
                 }
             }

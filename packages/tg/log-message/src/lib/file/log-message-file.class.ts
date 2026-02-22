@@ -2,6 +2,9 @@ import { Api } from 'telegram';
 import { Optional } from '@work-tools/ts';
 import { isUndefined } from '@work-tools/utils';
 import { join } from 'path';
+import { ArchiveFile } from './archive-file.class';
+import { BaseFile } from './base-file.class';
+import { File } from './file.class';
 
 export class LogMessageFile {
     private static readonly LOG_FILES_ROOT = 'C:\\Projects\\work-tools\\storage\\logs';
@@ -9,7 +12,7 @@ export class LogMessageFile {
     constructor(private readonly _logMessage: Api.Message) {}
 
     public get filePassword(): Optional<string> {
-        const regex = /\.pass:\s*`([^`]+)`/;
+        const regex = /\.pass[:\s]+([^\n\r]+)/i;
 
         const match = this._logMessage.message.match(regex);
         return match ? match[1].trim() : undefined;
@@ -38,6 +41,6 @@ export class LogMessageFile {
     }
 
     public get localFile(): ArchiveFile | File {
-        return BaseFile.fromPath(this.localFilePath);
+        return BaseFile.fromPath(this.localFilePath) as ArchiveFile | File;
     }
 }

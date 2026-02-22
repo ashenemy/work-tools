@@ -13,13 +13,16 @@
             "path": "./apps/log-bot"
         },
         {
-            "path": "./packages/libs/bot"
-        },
-        {
             "path": "./packages/tg/bot-runner"
         },
         {
             "path": "./packages/tg/log-message"
+        },
+        {
+            "path": "./packages/tg/bot"
+        },
+        {
+            "path": "./apps/test-app"
         }
     ]
 }

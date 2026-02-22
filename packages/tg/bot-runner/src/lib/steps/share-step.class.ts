@@ -14,7 +14,8 @@ export class ShareRunnerStep {
     private constructor(private readonly _client: TelegramClient) {}
 
     private async _run(logMessage: BaseLogMessage): Promise<Optional<BaseLogMessage>> {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
+
             if (logMessage.isLogMessage) {
                 const event = new NewMessage({ chats: [BOXED_BOT_GROUP_ID], incoming: true });
 
@@ -27,6 +28,8 @@ export class ShareRunnerStep {
                 };
 
                 this._client.addEventHandler(cb, event);
+
+                await logMessage.share();
             }
 
             return resolve(undefined);

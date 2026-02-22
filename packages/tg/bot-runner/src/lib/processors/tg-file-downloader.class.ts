@@ -1,10 +1,10 @@
 import { ArchiveFile, BaseLogMessage } from '@work-tools/log-message';
 import { TelegramClient } from 'telegram';
 import { open } from 'node:fs/promises';
-import bigInt from 'big-integer';
-import {  Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { FileDownloadProgress } from '../../@types';
 import { isUndefined } from '@work-tools/utils';
+import bigInt = require('big-integer');
 
 export class TgFileDownloader {
     public static CHUNK_SIZE: number = 512 * 1024;
@@ -20,7 +20,7 @@ export class TgFileDownloader {
             throw new Error(`Message not have file`);
         }
 
-        return  this.logMessage.logFile.localFile as ArchiveFile;
+        return this.logMessage.logFile.localFile as ArchiveFile;
     }
 
     private async _download(progress$: Subject<FileDownloadProgress>): Promise<void> {
@@ -30,7 +30,7 @@ export class TgFileDownloader {
             offset = bigInt(this.archiveFile.size);
         }
 
-        const fileHandle = await open(this.archiveFile.fullPath, offset.toJSNumber() > 0n ? 'a' : 'w');
+        const fileHandle = await open(this.archiveFile.fullPath, offset.toJSNumber() > 0 ? 'a' : 'w');
         const writeStream = fileHandle.createWriteStream({ start: Number(offset) });
 
         let downloaded = offset.toJSNumber();
