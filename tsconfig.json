@@ -23,6 +23,36 @@
         },
         {
             "path": "./apps/test-app"
+        },
+        {
+            "path": "./packages/items/stealer-log"
+        },
+        {
+            "path": "./packages/items/ex-file"
+        },
+        {
+            "path": "./packages/libs/task"
+        },
+        {
+            "path": "./packages/libs/extra-fs"
+        },
+        {
+            "path": "./packages/libs/extra-tg"
+        },
+        {
+            "path": "./packages/libs/progress-bar"
+        },
+        {
+            "path": "./packages/libs/slog"
+        },
+        {
+            "path": "./packages/libs/slog"
+        },
+        {
+            "path": "./packages/libs/task-queue"
+        },
+        {
+            "path": "./packages/libs/env-config"
         }
     ]
 }

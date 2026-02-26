@@ -5,6 +5,24 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
+"7z-wasm@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "7z-wasm@npm:1.2.0"
+  dependencies:
+    readline-sync: "npm:^1.4.10"
+  bin:
+    7z-wasm: bin/cli
+  checksum: 10c0/33d953fbf5ab859b86ec89f844a37b47ba0c92648efd09da1421e47a01e59dc5977ac51446abb724dfdc7744bac9a6c48678a3b5e47205a534cc53d71fef5e40
+  languageName: node
+  linkType: hard
+
+"7zip-bin@npm:^5.2.0":
+  version: 5.2.0
+  resolution: "7zip-bin@npm:5.2.0"
+  checksum: 10c0/7f6c69b4cb10c4060fb8fda258ae2ab88d30516b5a52941efa0e2cbd9ce362ab7d8d568549cd85e9f125c1c68f95c7bb076cc314c2f3c0cb306d3b638080c2ce
+  languageName: node
+  linkType: hard
+
 "@angular-devkit/core@npm:19.2.17":
   version: 19.2.17
   resolution: "@angular-devkit/core@npm:19.2.17"
@@ -4325,6 +4343,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/fs-extra@npm:^11":
+  version: 11.0.4
+  resolution: "@types/fs-extra@npm:11.0.4"
+  dependencies:
+    "@types/jsonfile": "npm:*"
+    "@types/node": "npm:*"
+  checksum: 10c0/9e34f9b24ea464f3c0b18c3f8a82aefc36dc524cc720fc2b886e5465abc66486ff4e439ea3fb2c0acebf91f6d3f74e514f9983b1f02d4243706bdbb7511796ad
+  languageName: node
+  linkType: hard
+
 "@types/heic-convert@npm:^2.1.0":
   version: 2.1.0
   resolution: "@types/heic-convert@npm:2.1.0"
@@ -4399,12 +4427,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/jsonfile@npm:*":
+  version: 6.1.4
+  resolution: "@types/jsonfile@npm:6.1.4"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10c0/b12d068b021e4078f6ac4441353965769be87acf15326173e2aea9f3bf8ead41bd0ad29421df5bbeb0123ec3fc02eb0a734481d52903704a1454a1845896b9eb
+  languageName: node
+  linkType: hard
+
 "@types/keyv@npm:^3.1.1":
   version: 3.1.4
   resolution: "@types/keyv@npm:3.1.4"
   dependencies:
     "@types/node": "npm:*"
   checksum: 10c0/ff8f54fc49621210291f815fe5b15d809fd7d032941b3180743440bd507ecdf08b9e844625fa346af568c84bf34114eb378dcdc3e921a08ba1e2a08d7e3c809c
+  languageName: node
+  linkType: hard
+
+"@types/mime-types@npm:^3":
+  version: 3.0.1
+  resolution: "@types/mime-types@npm:3.0.1"
+  checksum: 10c0/61c2056529dc5bc73c25b2a053e21f063fd547c21e12a2be94ca78b89b0f83c9a75afed9a8bda3c78592ee880acc82778302651527f7882cf5ba8e58ab320e29
   languageName: node
   linkType: hard
 
@@ -4952,6 +4996,30 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@work-tools/env-config@workspace:packages/libs/env-config":
+  version: 0.0.0-use.local
+  resolution: "@work-tools/env-config@workspace:packages/libs/env-config"
+  languageName: unknown
+  linkType: soft
+
+"@work-tools/ex-file@workspace:packages/items/ex-file":
+  version: 0.0.0-use.local
+  resolution: "@work-tools/ex-file@workspace:packages/items/ex-file"
+  languageName: unknown
+  linkType: soft
+
+"@work-tools/extra-fs@workspace:packages/libs/extra-fs":
+  version: 0.0.0-use.local
+  resolution: "@work-tools/extra-fs@workspace:packages/libs/extra-fs"
+  languageName: unknown
+  linkType: soft
+
+"@work-tools/extra-tg@workspace:packages/libs/extra-tg":
+  version: 0.0.0-use.local
+  resolution: "@work-tools/extra-tg@workspace:packages/libs/extra-tg"
+  languageName: unknown
+  linkType: soft
+
 "@work-tools/log-bot@workspace:apps/log-bot":
   version: 0.0.0-use.local
   resolution: "@work-tools/log-bot@workspace:apps/log-bot"
@@ -4964,10 +5032,24 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@work-tools/progress-bar@workspace:packages/libs/progress-bar":
+  version: 0.0.0-use.local
+  resolution: "@work-tools/progress-bar@workspace:packages/libs/progress-bar"
+  languageName: unknown
+  linkType: soft
+
+"@work-tools/slog@workspace:packages/libs/slog":
+  version: 0.0.0-use.local
+  resolution: "@work-tools/slog@workspace:packages/libs/slog"
+  languageName: unknown
+  linkType: soft
+
 "@work-tools/source@workspace:.":
   version: 0.0.0-use.local
   resolution: "@work-tools/source@workspace:."
   dependencies:
+    7z-wasm: "npm:^1.2.0"
+    7zip-bin: "npm:^5.2.0"
     "@iarna/toml": "npm:^2.2.5"
     "@inquirer/prompts": "npm:^8.2.1"
     "@nestjs/common": "npm:^11.0.0"
@@ -4988,9 +5070,11 @@ __metadata:
     "@the-node-forge/image-resizer-cli": "npm:^1.1.0"
     "@types/adm-zip": "npm:^0.5.7"
     "@types/cli-progress": "npm:^3.11.6"
+    "@types/fs-extra": "npm:^11"
     "@types/heic-convert": "npm:^2.1.0"
     "@types/imagemin": "npm:^9.0.1"
     "@types/inquirer": "npm:^9.0.9"
+    "@types/mime-types": "npm:^3"
     "@types/node": "npm:20.19.9"
     "@types/prompt-sync": "npm:^4"
     "@types/source-map-support": "npm:^0"
@@ -5005,6 +5089,7 @@ __metadata:
     dotenv: "npm:^17.3.1"
     enquirer: "npm:^2.4.1"
     esbuild: "npm:^0.19.2"
+    fs-extra: "npm:^11.3.3"
     heic-convert: "npm:^2.1.0"
     imagemin: "npm:^9.0.1"
     imagemin-webp: "npm:^8.0.0"
@@ -5012,6 +5097,7 @@ __metadata:
     kleur: "npm:^4.1.5"
     log-symbols: "npm:^7.0.1"
     log-update: "npm:^7.1.0"
+    mime-types: "npm:^3.0.2"
     node-7z: "npm:^3.0.0"
     node-7z-archive: "npm:^1.1.7"
     node-unrar-js: "npm:^2.0.2"
@@ -5030,6 +5116,24 @@ __metadata:
     typescript: "npm:~5.9.3"
     unzipper: "npm:^0.12.3"
     webpack-cli: "npm:^5.1.4"
+  languageName: unknown
+  linkType: soft
+
+"@work-tools/stealer-log@workspace:packages/items/stealer-log":
+  version: 0.0.0-use.local
+  resolution: "@work-tools/stealer-log@workspace:packages/items/stealer-log"
+  languageName: unknown
+  linkType: soft
+
+"@work-tools/task@workspace:packages/libs/task":
+  version: 0.0.0-use.local
+  resolution: "@work-tools/task@workspace:packages/libs/task"
+  languageName: unknown
+  linkType: soft
+
+"@work-tools/taskqueue@workspace:packages/libs/task-queue":
+  version: 0.0.0-use.local
+  resolution: "@work-tools/taskqueue@workspace:packages/libs/task-queue"
   languageName: unknown
   linkType: soft
 
@@ -8601,7 +8705,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fs-extra@npm:^11.2.0":
+"fs-extra@npm:^11.2.0, fs-extra@npm:^11.3.3":
   version: 11.3.3
   resolution: "fs-extra@npm:11.3.3"
   dependencies:
@@ -13255,6 +13359,13 @@ __metadata:
   dependencies:
     picomatch: "npm:^2.2.1"
   checksum: 10c0/6fa848cf63d1b82ab4e985f4cf72bd55b7dcfd8e0a376905804e48c3634b7e749170940ba77b32804d5fe93b3cc521aa95a8d7e7d725f830da6d93f3669ce66b
+  languageName: node
+  linkType: hard
+
+"readline-sync@npm:^1.4.10":
+  version: 1.4.10
+  resolution: "readline-sync@npm:1.4.10"
+  checksum: 10c0/0a4d0fe4ad501f8f005a3c9cbf3cc0ae6ca2ced93e9a1c7c46f226bdfcb6ef5d3f437ae7e9d2e1098ee13524a3739c830e4c8dbc7f543a693eecd293e41093a3
   languageName: node
   linkType: hard
 

@@ -1,4 +1,6 @@
-export type { FileDownloadProgress, QueueStatus, StepEvent, Task, TaskStep, TaskStepType } from './@types';
+export { ArchiveExtractor } from './lib/processors/archive-extractor.class';
+
+export type {  FileDownloadProgress, QueueStatus, StepEvent, Task, TaskStep, TaskStepType } from './@types';
 export { AbstractExtractor } from './lib/processors/extractor/abstract-extractor.class';
 export { RarExtractor } from './lib/processors/extractor/rar-extractor.class';
 export { SevenZipExtractor } from './lib/processors/extractor/seven-zip-extractor.class';
@@ -14,4 +16,3 @@ export { ExtractRunnerStep } from './lib/steps/extract-step.class';
 export { SaveRunnerStep } from './lib/steps/save-step.class';
 export { ShareRunnerStep } from './lib/steps/share-step.class';
 export { BOXED_BOT_GROUP_ID, BOXED_GROUP_ID, BOXER_BOT_NAME, LOG_SAVE_GROUP_ID } from './lib/configs.constants';
-

@@ -1,0 +1,8 @@
+InstalledBrowsers
+InstalledSoftware
+ProcessList
+Environment
+Banshed.txt
+applications
+processes.txt
+Commonpass

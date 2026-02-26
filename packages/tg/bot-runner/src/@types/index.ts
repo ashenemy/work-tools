@@ -31,3 +31,7 @@ export type StepEvent = {
     progress: number | null;
     name: string;
 };
+
+export type SevenZipTask<R> = Promise<R> & {
+    progress: (callback: (files: string[]) => void) => SevenZipTask<R>;
+};

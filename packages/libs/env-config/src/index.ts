@@ -1,0 +1,1 @@
+export { EnvConfig } from './lib/env-config.class';
