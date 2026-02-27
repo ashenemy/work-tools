@@ -1,18 +1,10 @@
 import { Optional } from '@work-tools/ts';
 import { configDotenv } from 'dotenv';
-import { isDefined, toString,  isUndefined, toNumber, toBoolean } from '@work-tools/utils';
-import {resolve} from 'node:path';
-
+import { isDefined, isUndefined, toBoolean, toNumber, toString } from '@work-tools/utils';
+import { resolve } from 'node:path';
 
 export class EnvConfig {
     private static _instance: Optional<EnvConfig> = undefined;
-    public static $(root: Optional<string> = undefined): EnvConfig {
-        if (!EnvConfig._instance) {
-            EnvConfig._instance = new EnvConfig(root);
-        }
-        return EnvConfig._instance;
-    }
-
     private readonly _configs: Record<string, string> = {};
 
     private constructor(root: Optional<string> = undefined) {
@@ -27,6 +19,13 @@ export class EnvConfig {
         if (isDefined(config.error)) {
             throw config.error;
         }
+    }
+
+    public static $(root: Optional<string> = undefined): EnvConfig {
+        if (!EnvConfig._instance) {
+            EnvConfig._instance = new EnvConfig(root);
+        }
+        return EnvConfig._instance;
     }
 
     public getNumber(key: string, def: number): number;
