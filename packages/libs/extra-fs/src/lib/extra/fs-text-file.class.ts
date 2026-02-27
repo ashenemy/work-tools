@@ -1,6 +1,6 @@
-import { FsFile } from './fs-file.class';
+import { FsFile } from '../base/fs-file.class';
 import { appendFile, readFile, writeFile } from 'fs-extra';
-import { TextSearchResult } from '../@types';
+import { TextSearchResult } from '../../@types';
 
 export class FsTextFile extends FsFile {
     public async readText(encoding: BufferEncoding = 'utf8'): Promise<string> {

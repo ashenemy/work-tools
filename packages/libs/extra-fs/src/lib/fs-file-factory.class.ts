@@ -1,9 +1,9 @@
 import { Dirent } from 'node:fs';
-import { FsFolder } from './fs-folder.class';
+import { FsFolder } from './base/fs-folder.class';
 import { extname, resolve } from 'path';
-import { FsTextFile } from './fs-text-file.class';
-import { FsArchiveFile } from './fs-archive-file.class';
-import { FsFile } from './fs-file.class';
+import { FsTextFile } from './extra/fs-text-file.class';
+import { FsArchiveFile } from './extra/fs-archive-file.class';
+import { FsFile } from './base/fs-file.class';
 import { stat } from 'fs-extra';
 import { isType } from '@work-tools/utils';
 

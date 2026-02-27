@@ -1,5 +1,4 @@
 import { Subject } from 'rxjs';
-import { ProgressEvent } from '../../@types';
 import { TgMessageFile } from './tg-message-file.class';
 import { AbstractBaseFsItem, FileFactory, FsFolder } from '@work-tools/extra-fs';
 import { isType } from '@work-tools/utils';
@@ -7,12 +6,11 @@ import { createWriteStream, WriteStream } from 'node:fs';
 import { MtpClient } from '../connections/mtp-client.class';
 import bigInt from 'big-integer';
 import { finished } from 'node:stream/promises';
+import { EXTRA_TG_OPTIONS } from '../options.constants';
+import { Progress } from '@work-tools/taskqueue';
 
 export class TgMessageFileDownloader {
-    public static REQUEST_SIZE = 1024 * 1024;
-    public static MAX_ATTEMPTS = 10;
-
-    private readonly _progress: Subject<ProgressEvent> = new Subject();
+    private readonly _progress: Subject<Progress> = new Subject();
 
     constructor(private readonly _file: TgMessageFile) {}
 
@@ -40,7 +38,7 @@ export class TgMessageFileDownloader {
                 for await (const chunk of MtpClient.tgClient.iterDownload({
                     file: this._file.media,
                     offset: bigInt(offset),
-                    requestSize: TgMessageFileDownloader.REQUEST_SIZE,
+                    requestSize: EXTRA_TG_OPTIONS.download.requestSize,
                 })) {
                     await this._writeChunk(ws, chunk);
                     const success = offset + ws.bytesWritten;
@@ -58,7 +56,7 @@ export class TgMessageFileDownloader {
                 ws.destroy();
 
                 attempt++;
-                if (attempt > TgMessageFileDownloader.MAX_ATTEMPTS) {
+                if (attempt > EXTRA_TG_OPTIONS.download.maxAttempts) {
                     this._progress.error(e);
                     throw e;
                 }
@@ -66,9 +64,9 @@ export class TgMessageFileDownloader {
         }
     }
 
-    private async  _writeChunk(ws: WriteStream, chunk: Buffer): Promise<void> {
+    private async _writeChunk(ws: WriteStream, chunk: Buffer): Promise<void> {
         if (!ws.write(chunk)) {
-            await new Promise<void>((r) => ws.once("drain", () => r()));
+            await new Promise<void>((r) => ws.once('drain', () => r()));
         }
     }
 }

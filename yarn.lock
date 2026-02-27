@@ -4496,6 +4496,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/omggif@npm:^1":
+  version: 1.0.5
+  resolution: "@types/omggif@npm:1.0.5"
+  checksum: 10c0/bbe5485b487e0deb47e95e874dca0f6b124d3647b95699a0eab8b2c5e72db0e3514408736a523d0b029c44f4db4ba23aaef67c6f563ca4a74f4bf37e78277b15
+  languageName: node
+  linkType: hard
+
 "@types/parse-json@npm:^4.0.0":
   version: 4.0.2
   resolution: "@types/parse-json@npm:4.0.2"
@@ -4661,6 +4668,27 @@ __metadata:
   dependencies:
     "@types/yargs-parser": "npm:*"
   checksum: 10c0/609557826a6b85e73ccf587923f6429850d6dc70e420b455bab4601b670bfadf684b09ae288bccedab042c48ba65f1666133cf375814204b544009f57d6eef63
+  languageName: node
+  linkType: hard
+
+"@unblessed/blessed@npm:^1.0.0-alpha.23":
+  version: 1.0.0-alpha.23
+  resolution: "@unblessed/blessed@npm:1.0.0-alpha.23"
+  dependencies:
+    "@unblessed/core": "npm:1.0.0-alpha.23"
+  peerDependencies:
+    omggif: ^1.0.10
+    pngjs: ^7.0.0
+  bin:
+    blessed: dist/tput.js
+  checksum: 10c0/1a30ca102e0c1b081dd87e326297dcd0c1a17d455986daac98b1717683c6b964d239b095eb885f0a6a22c1151204cdad754b3e47d3b8957ff8e79d7ace5b4dbb
+  languageName: node
+  linkType: hard
+
+"@unblessed/core@npm:1.0.0-alpha.23":
+  version: 1.0.0-alpha.23
+  resolution: "@unblessed/core@npm:1.0.0-alpha.23"
+  checksum: 10c0/0b810b2119093d40a5d187fd0fe37e91ef057653da437a262a935c0c03a4bf6d09302b8355e10430627ca874865e6e4ad87809fb28f5f31a18d72f803aeee736
   languageName: node
   linkType: hard
 
@@ -5076,9 +5104,11 @@ __metadata:
     "@types/inquirer": "npm:^9.0.9"
     "@types/mime-types": "npm:^3"
     "@types/node": "npm:20.19.9"
+    "@types/omggif": "npm:^1"
     "@types/prompt-sync": "npm:^4"
     "@types/source-map-support": "npm:^0"
     "@types/unzipper": "npm:^0"
+    "@unblessed/blessed": "npm:^1.0.0-alpha.23"
     adm-zip: "npm:^0.5.16"
     ansi-escapes: "npm:^7.3.0"
     boxen: "npm:^8.0.1"
@@ -5102,9 +5132,11 @@ __metadata:
     node-7z-archive: "npm:^1.1.7"
     node-unrar-js: "npm:^2.0.2"
     nx: "npm:22.5.0"
+    omggif: "npm:^1.0.10"
     open: "npm:^11.0.0"
     p-queue: "npm:^9.1.0"
     pdftoimg-js: "npm:^0.2.5"
+    pngjs: "npm:^7.0.0"
     prettier: "npm:~3.8.1"
     prompt-sync: "npm:^4.2.0"
     reflect-metadata: "npm:^0.1.13"
@@ -11871,6 +11903,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"omggif@npm:^1.0.10":
+  version: 1.0.10
+  resolution: "omggif@npm:1.0.10"
+  checksum: 10c0/5ddb6959555bf16ac93ee8724a6f600b0e97e77855515af9df0f657c69ebe0eb7d769763fdc4765f888827e4e64ca71ebeaf7255c7f51058e4bba5cc7950fe8e
+  languageName: node
+  linkType: hard
+
 "on-finished@npm:^2.4.1, on-finished@npm:~2.4.1":
   version: 2.4.1
   resolution: "on-finished@npm:2.4.1"
@@ -12616,6 +12655,13 @@ __metadata:
   version: 6.0.0
   resolution: "pngjs@npm:6.0.0"
   checksum: 10c0/ac23ea329b1881d1a10575aff58116dc27b894ec3f5b84ba15c7f527d21e609fbce7ba16d48f8ccb86c7ce45ceed622472765476ab2875949d4bec55e153f87a
+  languageName: node
+  linkType: hard
+
+"pngjs@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "pngjs@npm:7.0.0"
+  checksum: 10c0/0d4c7a0fd476a9c33df7d0a2a73e1d56537628a668841f6995c2bca070cf30819f9254a64363266bc14ef2fee47659dd3b4f2b18eec7ab65143015139f497b38
   languageName: node
   linkType: hard
 

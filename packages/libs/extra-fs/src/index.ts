@@ -1,6 +1,12 @@
+export { AbstractBaseFsItem } from './lib/base/abstract-base-fs-item.class';
 export type { ArchiveEntry, ScanResult, TextSearchResult, FilterCb } from './@types';
-export { FsArchiveFile } from './lib/fs-archive-file.class';
-export { FsFile } from './lib/fs-file.class';
+export { FsArchiveFile } from './lib/extra/fs-archive-file.class';
+export { FsArchiveExtractor } from './lib/extra/fs-archive-extractor.class';
+export { FsFile } from './lib/base/fs-file.class';
 export { FileFactory } from './lib/fs-file-factory.class';
-export { FsFolder } from './lib/fs-folder.class';
-export { FsTextFile } from './lib/fs-text-file.class';
+export { FsFolder } from './lib/base/fs-folder.class';
+export { FsTextFile } from './lib/extra/fs-text-file.class';
+export { ArchiveError } from './lib/errors/archive-error.class';
+export { ArchiveCorruptedError } from './lib/errors/archive-corrupted-error.class';
+export { ArchiveMissingVolumeError } from './lib/errors/archive-missing-volume-error.class';
+export { ArchiveWrongPasswordError } from './lib/errors/archive-wrong-password-error.class';

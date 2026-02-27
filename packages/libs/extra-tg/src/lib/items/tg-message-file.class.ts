@@ -8,16 +8,9 @@ import { extension } from 'mime-types';
 import { TgMessageFileDownloader } from './tg-message-file-downloader.class';
 
 export class TgMessageFile {
-    public static fromMessageDoc(message: TgMessage): Optional<TgMessageFile> {
-        if (isDefined(message.document)) {
-            return new TgMessageFile(message);
-        }
-
-        return undefined;
-    }
-
     public document: Api.Document;
     public media: Api.MessageMediaDocument;
+
     constructor(private readonly _message: TgMessage) {
         if (isUndefined(_message.document) || isUndefined(_message.media)) {
             throw new Error('No document found in message');
@@ -54,5 +47,13 @@ export class TgMessageFile {
 
     public get fileDownloader(): TgMessageFileDownloader {
         return new TgMessageFileDownloader(this);
+    }
+
+    public static fromMessageDoc(message: TgMessage): Optional<TgMessageFile> {
+        if (isDefined(message.document)) {
+            return new TgMessageFile(message);
+        }
+
+        return undefined;
     }
 }

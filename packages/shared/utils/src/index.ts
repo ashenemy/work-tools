@@ -1,3 +1,9 @@
+export { defer } from './lib/async/defer.js';
+export type { Deferred } from './lib/async/defer.js';
+export { expBackoff } from './lib/common/exp-backoff.js';
+export { isConnectionError } from './lib/is/is-connection-error.js';
+export { withTimeout } from './lib/async/with-timeout.js';
+export { sleep } from './lib/async/sleep.js';
 export { isType } from './lib/is/is-type.js';
 export { isError } from './lib/is/is-error.js';
 export { hasOwn } from './lib/common/has-own.js';

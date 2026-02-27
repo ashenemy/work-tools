@@ -1,8 +1,2 @@
-InstalledBrowsers
-InstalledSoftware
-ProcessList
-Environment
-Banshed.txt
-applications
-processes.txt
-Commonpass
+https://github.com/ahcq1337/Discord-DB/blob/030120286428bea7f222bf05f7e97d596cf77580/Tools/Inity%20Tool/program/snustool.py
+https://github.com/ahcq1337/Discord-DB/blob/030120286428bea7f222bf05f7e97d596cf77580/Tools/Inity%20Tool/program/osintsites.py

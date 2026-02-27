@@ -1,8 +1,12 @@
-import { FsFile } from './fs-file.class';
+import { FsFile } from '../base/fs-file.class';
 import { basename, dirname, extname, join } from 'path';
 import {existsSync} from 'fs-extra'
+import { Dirent } from 'node:fs';
 
 export class FsArchiveFile extends FsFile {
+    constructor(input: string | Dirent, public password?: string) {
+        super(input)
+    }
 
     public isMultipart(): boolean {
         const name = this.getName().toLowerCase();

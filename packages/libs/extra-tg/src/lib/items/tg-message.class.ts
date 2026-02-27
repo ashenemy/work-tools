@@ -7,30 +7,6 @@ import { TgMessageFile } from './tg-message-file.class';
 import { MtpClient } from '../connections/mtp-client.class';
 
 export class TgMessage {
-    public static fromMessage(message: Api.Message): TgMessage {
-        return new TgMessage(message);
-    }
-
-    public static fromForward(resp: Optional<Api.Message[][] | Api.Message[]>): TgMessage {
-        if (isUndefined(resp)) {
-            throw new Error('No message found in response');
-        }
-
-        const message: Optional<Api.Message> = resp.flat().at(0);
-
-        if (isUndefined(message)) {
-            throw new Error('No message found in response');
-        }
-
-        return new TgMessage(message);
-    }
-
-    public static async runBotCommand(commandData: UrlBotData): Promise<void> {
-        await MtpClient.tgClient.sendMessage(`@${commandData.botName}`, {
-            message: `/start ${commandData.startArg}`,
-        });
-    }
-
     public messageFile: Optional<TgMessageFile> = undefined;
 
     constructor(private readonly _message: Api.Message) {
@@ -63,25 +39,6 @@ export class TgMessage {
         return this._message.text;
     }
 
-    public async forwardTo(chat: EntityLike = 'me'): Promise<Optional<Api.Message[]>> {
-        return await this._message.forwardTo(chat);
-    }
-
-    public async forwardToMe(): Promise<Optional<Api.Message[]>> {
-        return await this.forwardTo('me');
-    }
-
-    public async remove(): Promise<void> {
-        await this._message.delete();
-    }
-
-    public async reply(text: string): Promise<void> {
-        await this._message.reply({
-            message: text,
-            replyTo: this._message,
-        });
-    }
-
     public get keyboardUrlButtons(): Array<Api.KeyboardButtonUrl> {
         const keyboardButtons: Api.KeyboardButtonUrl[] = [];
 
@@ -110,6 +67,49 @@ export class TgMessage {
         }
 
         return undefined;
+    }
+
+    public static fromMessage(message: Api.Message): TgMessage {
+        return new TgMessage(message);
+    }
+
+    public static fromForward(resp: Optional<Api.Message[][] | Api.Message[]>): TgMessage {
+        if (isUndefined(resp)) {
+            throw new Error('No message found in response');
+        }
+
+        const message: Optional<Api.Message> = resp.flat().at(0);
+
+        if (isUndefined(message)) {
+            throw new Error('No message found in response');
+        }
+
+        return new TgMessage(message);
+    }
+
+    public static async runBotCommand(commandData: UrlBotData): Promise<void> {
+        await MtpClient.tgClient.sendMessage(`@${commandData.botName}`, {
+            message: `/start ${commandData.startArg}`,
+        });
+    }
+
+    public async forwardTo(chat: EntityLike = 'me'): Promise<Optional<Api.Message[]>> {
+        return await this._message.forwardTo(chat);
+    }
+
+    public async forwardToMe(): Promise<Optional<Api.Message[]>> {
+        return await this.forwardTo('me');
+    }
+
+    public async remove(): Promise<void> {
+        await this._message.delete();
+    }
+
+    public async reply(text: string): Promise<void> {
+        await this._message.reply({
+            message: text,
+            replyTo: this._message,
+        });
     }
 
     private _getBotDataFromUrl(url: string): Optional<UrlBotData> {

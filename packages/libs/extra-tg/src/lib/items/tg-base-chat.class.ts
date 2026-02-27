@@ -6,14 +6,10 @@ import { Observable, Subject } from 'rxjs';
 import { isDefined, isType, sleep } from '@work-tools/utils';
 import { MtpClient } from '../connections/mtp-client.class';
 import { Api } from 'telegram';
+import { EXTRA_TG_OPTIONS } from '../options.constants';
 
 export class TgChat {
-    public static CHAT_HISTORY_NEXT_PAGE_WAIT_TIME = 30000;
-    public static CHAT_HISTORY_ACTION_WAIT_TIME = 1000;
-
     protected readonly _options: TgChatOptions;
-
-    protected _updates: Subject<TgChatEvent> = new Subject();
 
     constructor(
         protected readonly _chat: EntityLike,
@@ -28,6 +24,8 @@ export class TgChat {
             ...options,
         };
     }
+
+    protected _updates: Subject<TgChatEvent> = new Subject();
 
     public get updates(): Observable<TgChatEvent> {
         return this._updates.asObservable();
@@ -65,12 +63,12 @@ export class TgChat {
         const entity = await MtpClient.tgClient.getInputEntity(this._chat);
 
         for await (const m of MtpClient.tgClient.iterMessages(entity, {
-            limit: undefined,
+            limit: EXTRA_TG_OPTIONS.history.limit,
             reverse: true,
-            waitTime: TgChat.CHAT_HISTORY_NEXT_PAGE_WAIT_TIME,
+            waitTime: EXTRA_TG_OPTIONS.history.nextPageWaitTime,
         })) {
             await this._onNewMessage(m);
-            await sleep(TgChat.CHAT_HISTORY_ACTION_WAIT_TIME);
+            await sleep(EXTRA_TG_OPTIONS.history.nextMessageRunWaitTime);
         }
     }
 

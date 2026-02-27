@@ -10,7 +10,7 @@ export type MTPClientConfig = {
     session?: string;
     userPhoneNumber: string;
     userPassword: string;
-}
+};
 
 export type TgClientStatus = 'connected' | 'stopped';
 
@@ -18,7 +18,7 @@ export type TgInvokeOptions = {
     attempts: number;
     retryBaseDelayMs: number;
     retryMaxDelayMs: number;
-}
+};
 
 export type InvokeFn<T> = (client: TelegramClient) => Promise<T>;
 
@@ -36,26 +36,53 @@ export type TgChatOptions = {
     autoSaveForMe: boolean;
     downloadHistory: boolean;
     autoTouchButton: boolean;
-    autoDownloadDocument: boolean
-}
+    autoDownloadDocument: boolean;
+};
 
 export type TgChatEventType = 'new_message' | 'save_message' | 'download_file';
 
-export type TgChatEvent = {
-    type: 'new_message' | 'save_message';
-    message: TgMessage;
-    chat: Optional<EntityLike>;
-} | {
-    type: 'download_file';
-    file: TgMessageFile;
-};
+export type TgChatEvent =
+    | {
+          type: 'new_message' | 'save_message';
+          message: TgMessage;
+          chat: Optional<EntityLike>;
+      }
+    | {
+          type: 'download_file';
+          file: TgMessageFile;
+      };
 
 export type UrlBotData = {
     botName: string;
     startArg: string;
 };
 
-export type ProgressEvent = {
-    total: number;
-    success: number;
+export type TgDownloadOptions = {
+    requestSize: number;
+    maxAttempts: number;
+};
+
+export type TgChatHistoryOptions = {
+    limit: number;
+    nextPageWaitTime: number;
+    nextMessageRunWaitTime: number;
+};
+
+export type MtpClientOptions = {
+    autoReconnect: boolean;
+    connectionRetries: number;
+    retryDelay: number;
+    useWSS: boolean;
+    maxConcurrentDownloads: number;
+    floodSleepThreshold: number;
+    requestRetries: number;
+    downloadRetries: number;
+};
+
+export type ExtraTgOptions = {
+    download: TgDownloadOptions;
+    history: TgChatHistoryOptions;
+    clientConnection: TgClientConnectionsOptions;
+    invoke: TgInvokeOptions;
+    mtpClient: MtpClientOptions;
 };

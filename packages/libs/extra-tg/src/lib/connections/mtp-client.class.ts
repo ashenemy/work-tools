@@ -6,14 +6,26 @@ import { LogLevel } from 'telegram/extensions/Logger';
 import { expBackoff, isConnectionError, isDefined, isUndefined, sleep, withTimeout } from '@work-tools/utils';
 import { input } from '@inquirer/prompts';
 import { EnvConfig } from '@work-tools/env-config';
+import { EXTRA_TG_OPTIONS } from '../options.constants';
 
 export class MtpClient {
-    private static _appConfig: Optional<EnvConfig> = undefined;
-    private static _tgClient: Optional<TelegramClient> = undefined;
+    private _reconnecting: Optional<Promise<void>> = undefined;
+    private _watchdogTimer: Optional<NodeJS.Timeout> = undefined;
+    private readonly _session: StringSession;
+    private _status: TgClientStatus = 'stopped';
 
-    public static set appConfig(config: EnvConfig) {
-        MtpClient._appConfig = config;
+    private readonly _invokeOptions: TgInvokeOptions = EXTRA_TG_OPTIONS.invoke;
+    private readonly _tgClientConnectionOptions: TgClientConnectionsOptions = EXTRA_TG_OPTIONS.clientConnection;
+
+    constructor(private readonly _clientConfig: MTPClientConfig) {
+        this._session = new StringSession(this._clientConfig.session ?? '');
+
+        MtpClient.tgClient = new TelegramClient(this._session, this._clientConfig.apiId, this._clientConfig.apiHash, EXTRA_TG_OPTIONS.mtpClient);
+
+        MtpClient.tgClient.setLogLevel(LogLevel.ERROR);
     }
+
+    private static _appConfig: Optional<EnvConfig> = undefined;
 
     public static get appConfig(): EnvConfig {
         if (isUndefined(MtpClient._appConfig)) {
@@ -23,9 +35,11 @@ export class MtpClient {
         return MtpClient._appConfig;
     }
 
-    public static set tgClient(client: TelegramClient) {
-        MtpClient._tgClient = client;
+    public static set appConfig(config: EnvConfig) {
+        MtpClient._appConfig = config;
     }
+
+    private static _tgClient: Optional<TelegramClient> = undefined;
 
     public static get tgClient(): TelegramClient {
         if (isUndefined(MtpClient._tgClient)) {
@@ -35,42 +49,8 @@ export class MtpClient {
         return MtpClient._tgClient;
     }
 
-    private _reconnecting: Optional<Promise<void>> = undefined;
-    private _watchdogTimer: Optional<NodeJS.Timeout> = undefined;
-    private readonly _session: StringSession;
-
-    private _status: TgClientStatus = 'stopped';
-
-    private readonly _invokeOptions: TgInvokeOptions = {
-        attempts: 3,
-        retryBaseDelayMs: 400,
-        retryMaxDelayMs: 5000,
-    };
-
-    private readonly _tgClientConnectionOptions: TgClientConnectionsOptions = {
-        watchdogMs: 15000,
-        connectTimeoutMs: 20000,
-        healthcheckTimeoutMs: 10000,
-        maxManualReconnectAttempts: Number.POSITIVE_INFINITY,
-        backoffMaxMs: 30000,
-        retryDelayMs: 1000,
-    };
-
-    constructor(private readonly _clientConfig: MTPClientConfig) {
-        this._session = new StringSession(this._clientConfig.session ?? '');
-
-        MtpClient.tgClient = new TelegramClient(this._session, this._clientConfig.apiId, this._clientConfig.apiHash, {
-            autoReconnect: true,
-            connectionRetries: 5,
-            retryDelay: 1000,
-            useWSS: false,
-            maxConcurrentDownloads: 2,
-            floodSleepThreshold: 300,
-            requestRetries: 10,
-            downloadRetries: 10,
-        });
-
-        MtpClient.tgClient.setLogLevel(LogLevel.ERROR);
+    public static set tgClient(client: TelegramClient) {
+        MtpClient._tgClient = client;
     }
 
     public get session(): string {
@@ -111,8 +91,6 @@ export class MtpClient {
                 if (i < this._invokeOptions.attempts) {
                     const delay = expBackoff(i, this._invokeOptions.retryBaseDelayMs, this._invokeOptions.retryMaxDelayMs);
                     await sleep(delay);
-
-
                 }
             }
         }
@@ -193,7 +171,7 @@ export class MtpClient {
             if ((isDisconnected || !isConnected) && isDefined(this._reconnecting)) {
                 void this._reconnecting.catch((e) => console.error('[gramjs] watchdog reconnect failed:', e));
             }
-        }, 15000);
+        }, this._tgClientConnectionOptions.watchdogMs);
 
         this._watchdogTimer.unref();
     }
