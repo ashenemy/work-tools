@@ -1,5 +1,5 @@
 export { AbstractBaseFsItem } from './lib/base/abstract-base-fs-item.class';
-export type { ArchiveEntry, ScanResult, TextSearchResult, FilterCb } from './@types';
+export type { ArchiveEntry, ScanResult, TextSearchResult, FilterCb, SevenZipListEntry, SevenZipTask, SupportedArchiveType } from './@types';
 export { FsArchiveFile } from './lib/extra/fs-archive-file.class';
 export { FsArchiveExtractor } from './lib/extra/fs-archive-extractor.class';
 export { FsFile } from './lib/base/fs-file.class';

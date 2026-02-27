@@ -1,5 +1,5 @@
 import { AbstractBaseFsItem } from './abstract-base-fs-item.class';
-import { appendFile, readFile, writeFile, truncate } from 'fs-extra';
+import { appendFile, readFile, truncate, writeFile } from 'fs-extra';
 import mime from 'mime-types';
 import { Optional } from '@work-tools/ts';
 

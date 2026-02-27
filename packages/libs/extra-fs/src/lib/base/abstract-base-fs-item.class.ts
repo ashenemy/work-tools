@@ -1,7 +1,7 @@
 import { Dirent, Stats } from 'node:fs';
-import {isType} from '@work-tools/utils';
-import { resolve, basename, extname, dirname, join, relative } from 'path';
-import { remove, move, copy, ensureFile, pathExists, unlink, access, stat, rename } from 'fs-extra';
+import { isType } from '@work-tools/utils';
+import { basename, dirname, extname, join, relative, resolve } from 'path';
+import { access, copy, ensureFile, move, pathExists, remove, rename, stat, unlink } from 'fs-extra';
 import { FsFolder } from './fs-folder.class';
 import { Optional } from '@work-tools/ts';
 

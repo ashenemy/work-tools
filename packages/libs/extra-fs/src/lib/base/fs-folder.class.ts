@@ -1,7 +1,7 @@
 import { AbstractBaseFsItem } from './abstract-base-fs-item.class';
-import { emptyDir, copy, ensureDir, readdir, remove } from 'fs-extra';
+import { copy, emptyDir, ensureDir, readdir, remove } from 'fs-extra';
 import { FilterCb, ScanResult } from '../../@types';
-import {join} from 'path'
+import { join } from 'path';
 import { FsFile } from './fs-file.class';
 import { FileFactory } from '../fs-file-factory.class';
 import { isType } from '@work-tools/utils';
