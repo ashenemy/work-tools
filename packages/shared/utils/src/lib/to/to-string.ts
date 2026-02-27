@@ -17,5 +17,4 @@ export function toString(value: unknown): Optional<string> {
     }
 
     return undefined;
-
 }
