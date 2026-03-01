@@ -1,9 +1,19 @@
 import { Dirent } from 'node:fs';
-import { File, Folder } from './primitives';
 import { FsItem } from '../@types';
 import { ArchivePathFile } from './types/archive-path-file.class';
 import { ArchiveFile } from './types/archive-file.class';
-import { AudioFile, CsvFile, EnvFile, ExcelFile, JsonFile, PDFFile, TomlFile, TxtFile, VideoFile, WordFile } from './types';
+import { File } from './primitives/file.class';
+import { Folder } from './primitives/folder.class';
+import { AudioFile } from './types/audio-file.class';
+import { CsvFile } from './types/csv-file.class';
+import { EnvFile } from './types/env-file.class';
+import { ExcelFile } from './types/excel-file.class';
+import { JsonFile } from './types/json-file.class';
+import { PDFFile } from './types/pdf-file.class';
+import { TomlFile } from './types/toml-file.class';
+import { TxtFile } from './types/txt-file.class';
+import { VideoFile } from './types/video-file.class';
+import { WordFile } from './types/word-file.class';
 
 export class FsFactory {
     public static fromPath(path: string | Dirent): FsItem {
@@ -59,6 +69,6 @@ export class FsFactory {
             return new WordFile(path);
         }
 
-        return new File<any>(path)
+        return new File<any>(path);
     }
 }

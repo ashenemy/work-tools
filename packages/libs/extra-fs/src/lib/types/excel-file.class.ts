@@ -1,9 +1,9 @@
 import { ExcelSheet } from '../../@types';
-import { AbstractTextFile } from '../abstracts';
 import xlsx from 'node-xlsx';
 import { Dirent } from 'node:fs';
-import { File } from '../primitives';
-import { ExcelFileTypeError } from '../errors';
+import { File } from '../primitives/file.class';
+import { ExcelFileTypeError } from '../errors/file-type/excel-file-type.error';
+import { AbstractTextFile } from '../abstracts/abstract-text-file.class';
 
 export class ExcelFile<T extends ExcelSheet = Array<Array<any>>> extends AbstractTextFile<T> {
     public static readonly EXTENSIONS: Array<string> = ['xlsx', 'xls'];

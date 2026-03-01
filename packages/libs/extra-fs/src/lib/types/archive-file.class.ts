@@ -1,10 +1,11 @@
-import { BaseArchiveFile } from './archive';
 import { join } from 'path';
 import { Optional } from '@work-tools/ts';
 import { isDefined } from '@work-tools/utils';
-import { File, Folder } from '../primitives';
 import { Dirent } from 'node:fs';
-import { ArchiveFileTypeError } from '../errors';
+import { BaseArchiveFile } from './archive/base-archive-file.class';
+import { ArchiveFileTypeError } from '../errors/file-type/archive-file-type.error';
+import { Folder } from '../primitives/folder.class';
+import { File } from '../primitives/file.class';
 
 export class ArchiveFile extends BaseArchiveFile {
     protected _possiblePasswords: Array<Optional<string>> = [];
@@ -46,7 +47,7 @@ export class ArchiveFile extends BaseArchiveFile {
             return false;
         }
 
-        const parsedResult = BaseArchiveFile.analyzeArchiveFilename(new File(filePath));
+        const parsedResult = BaseArchiveFile.analyzeArchiveFilename(filePath);
 
         return parsedResult.isArchive;
     }

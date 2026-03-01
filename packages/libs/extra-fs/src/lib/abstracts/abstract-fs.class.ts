@@ -2,8 +2,8 @@ import { Dirent, Stats } from 'node:fs';
 import { isType } from '@work-tools/utils';
 import { basename, dirname, relative, resolve } from 'path';
 import { access, copy, move, remove, stat } from 'fs-extra';
-import { Ctor } from '@work-tools/ts';
-import { Folder } from '../primitives';
+import { Ctor, Optional } from '@work-tools/ts';
+import { Folder } from '../primitives/folder.class';
 
 export abstract class AbstractFs {
     protected _fullPath: string;
@@ -36,7 +36,7 @@ export abstract class AbstractFs {
 
     public abstract create(): Promise<void>;
 
-    public abstract size(): Promise<number>;
+    public abstract size(): Promise<Optional<number>>;
 
     public abstract empty(): Promise<void>;
 
@@ -77,7 +77,7 @@ export abstract class AbstractFs {
 
     public async move(destination: string): Promise<void> {
         await move(this.absPath, destination);
-        this._fullPath = destination;
+        this._fullPath = resolve(destination);
     }
 
     public async copy<T extends this>(destination: string): Promise<T> {

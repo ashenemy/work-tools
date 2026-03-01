@@ -1,9 +1,8 @@
-import { AbstractBinaryFile } from '../../abstracts';
-import { File } from '../../primitives';
 import { Dirent } from 'node:fs';
 import { ArchiveParseResult, SupportedArchiveType } from '../../../@types';
 import { Optional } from '@work-tools/ts';
 import { isType, pad } from '@work-tools/utils';
+import { AbstractBinaryFile } from '../../abstracts/abstract-binary-file.class';
 
 export class BaseArchiveFile extends AbstractBinaryFile {
     protected _analized: ArchiveParseResult;
@@ -11,7 +10,7 @@ export class BaseArchiveFile extends AbstractBinaryFile {
     constructor(filePath: string | Dirent) {
         super(filePath);
 
-        this._analized = BaseArchiveFile.analyzeArchiveFilename(this);
+        this._analized = BaseArchiveFile.analyzeArchiveFilename(this.absPath);
     }
 
     public get archiveKind(): Optional<SupportedArchiveType> {

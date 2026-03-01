@@ -1,6 +1,7 @@
-import { DocFile, File } from '../primitives';
 import { Dirent } from 'node:fs';
-import { WordFileTypeError } from '../errors';
+import { DocFile } from '../primitives/doc-file.class';
+import { WordFileTypeError } from '../errors/file-type/word-file-type.error';
+import { File } from '../primitives/file.class';
 
 export class WordFile extends DocFile {
     public static readonly EXTENSIONS: Array<string> = ['doc', 'docx'];

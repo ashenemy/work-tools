@@ -1,10 +1,10 @@
-import { AbstractFs } from '../abstracts';
 import { createFile, ensureFile, readFile, statSync } from 'fs-extra';
 import { Dirent } from 'node:fs';
 import { isType } from '@work-tools/utils';
 import mime from 'mime-types';
 import { Optional } from '@work-tools/ts';
 import { extname } from 'path';
+import { AbstractFs } from '../abstracts/abstract-fs.class';
 
 export class File<ContentType extends Buffer | string = Buffer> extends AbstractFs {
     public get extension(): string {
@@ -16,7 +16,9 @@ export class File<ContentType extends Buffer | string = Buffer> extends Abstract
     }
 
     public get fileName(): string {
-        return this.name.replace(this.extension, '');
+        const names = this.name.split('.');
+        names.pop();
+        return names.join('.');
     }
 
     public get mime(): Optional<string> {
@@ -28,9 +30,13 @@ export class File<ContentType extends Buffer | string = Buffer> extends Abstract
             return path.isFile();
         }
 
-        const lstat = statSync(path);
+        try {
+            const lstat = statSync(path);
 
-        return lstat.isFile();
+            return lstat.isFile();
+        } catch {
+            return false;
+        }
     }
 
     public override async ensure(): Promise<void> {
@@ -41,13 +47,13 @@ export class File<ContentType extends Buffer | string = Buffer> extends Abstract
         await createFile(this.absPath);
     }
 
-    public override async size(): Promise<number> {
+    public override async size(): Promise<Optional<number>> {
         try {
             const stats = await this.getStats();
 
             return stats.size;
         } catch {
-            return 0;
+            return undefined;
         }
     }
 

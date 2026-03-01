@@ -1,7 +1,7 @@
-import { AbstractWritableFile } from '../abstracts';
 import { Dirent } from 'node:fs';
-import { File } from '../primitives';
-import { TxtFileTypeError } from '../errors';
+import { AbstractWritableFile } from '../abstracts/abstract-writable-file.class';
+import { TxtFileTypeError } from '../errors/file-type/txt-file-type.error';
+import { File } from '../primitives/file.class';
 
 export class TxtFile extends AbstractWritableFile<string> {
     public static readonly EXTENSIONS: Array<string> = ['txt'];

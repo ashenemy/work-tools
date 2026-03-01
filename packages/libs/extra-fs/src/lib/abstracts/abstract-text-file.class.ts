@@ -1,7 +1,7 @@
-import { File } from '../primitives';
 import { JsonLike } from '@work-tools/ts';
 import { ExcelSheet } from '../../@types';
 import { readFile } from 'fs-extra';
+import { File } from '../primitives/file.class';
 
 export abstract class AbstractTextFile<T extends string | JsonLike | ExcelSheet> extends File<string> {
     public override async read(): Promise<T> {

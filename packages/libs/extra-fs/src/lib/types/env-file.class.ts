@@ -1,8 +1,8 @@
-import { AbstractTextFile } from '../abstracts';
 import dotenv from 'dotenv';
 import { Dirent } from 'node:fs';
-import { File } from '../primitives';
-import { EnvFileTypeError } from '../errors';
+import { File } from '../primitives/file.class';
+import { EnvFileTypeError } from '../errors/file-type/env-file-type.error';
+import { AbstractTextFile } from '../abstracts/abstract-text-file.class';
 
 export class EnvFile<T extends Record<string, string> = Record<string, string>> extends AbstractTextFile<T> {
     public static readonly EXTENSIONS: Array<string> = ['env'];

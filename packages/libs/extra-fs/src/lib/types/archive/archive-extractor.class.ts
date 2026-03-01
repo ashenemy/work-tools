@@ -1,10 +1,13 @@
 import _7z from '7zip-min';
 import { ArchiveFile } from '../archive-file.class';
-import { CorruptedArchiveError, MissingArchivePartError, UnknowArchiveError, WrongPasswordArchiveError } from '../../errors';
 import { isDefined, isType } from '@work-tools/utils';
 import { execa } from 'execa';
 import { Observable, Subject } from 'rxjs';
 import { Progress } from '@work-tools/taskqueue';
+import { WrongPasswordArchiveError } from '../../errors/archive/wrong-password-archive.error';
+import { CorruptedArchiveError } from '../../errors/archive/corrupted-archive.error';
+import { MissingArchivePartError } from '../../errors/archive/missing-archive-part.error';
+import { UnknowArchiveError } from '../../errors/archive/unknow-archive.error';
 
 export class ArchiveExtractor {
     private readonly _progress$: Subject<Progress> = new Subject();

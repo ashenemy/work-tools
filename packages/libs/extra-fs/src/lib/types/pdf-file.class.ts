@@ -1,6 +1,7 @@
-import { DocFile, File } from '../primitives';
 import { Dirent } from 'node:fs';
-import { PdfFileTypeError } from '../errors';
+import { DocFile } from '../primitives/doc-file.class';
+import { PdfFileTypeError } from '../errors/file-type/pdf-file-type.error';
+import { File } from '../primitives/file.class';
 
 export class PDFFile extends DocFile {
     public static readonly EXTENSIONS: Array<string> = ['pdf'];

@@ -1,6 +1,7 @@
 import { Dirent } from 'node:fs';
-import { File, MediaFile } from '../primitives';
-import { AudioFileTypeError } from '../errors';
+import { MediaFile } from '../primitives/media-file.class';
+import { AudioFileTypeError } from '../errors/file-type/audio-file-type.error';
+import { File } from '../primitives/file.class';
 
 export class AudioFile extends MediaFile {
     public static readonly EXTENSIONS: Array<string> = ['mp3', 'wav', 'ogg'];
@@ -19,6 +20,6 @@ export class AudioFile extends MediaFile {
         }
 
         const _file: File = new File(filePath);
-        return AudioFile.EXTENSIONS.includes(_file.ext) || _file.name === '.env';
+        return AudioFile.EXTENSIONS.includes(_file.ext);
     }
 }

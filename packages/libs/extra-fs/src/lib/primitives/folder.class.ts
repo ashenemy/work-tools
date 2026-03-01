@@ -1,4 +1,3 @@
-import { AbstractFs } from '../abstracts';
 import { Dirent } from 'node:fs';
 import { emptydir, ensureDir, mkdir, readdir, statSync } from 'fs-extra';
 import { File } from './file.class';
@@ -7,6 +6,8 @@ import { FileTree, FsItem } from '../../@types';
 import fg from 'fast-glob';
 import { Options } from 'fast-glob/out/settings';
 import { FsFactory } from '../fs-factory.class';
+import { AbstractFs } from '../abstracts/abstract-fs.class';
+import { Optional } from '@work-tools/ts';
 
 export class Folder extends AbstractFs {
     public static isFolder(path: string | Dirent): boolean {
@@ -14,9 +15,13 @@ export class Folder extends AbstractFs {
             return path.isDirectory();
         }
 
-        const lstat = statSync(path);
+        try {
+            const lstat = statSync(path);
 
-        return lstat.isDirectory();
+            return lstat.isDirectory();
+        } catch {
+            return false;
+        }
     }
 
     public override async ensure(): Promise<void> {
@@ -27,12 +32,12 @@ export class Folder extends AbstractFs {
         await mkdir(this.absPath, { recursive: true });
     }
 
-    public override async size(): Promise<number> {
+    public override async size(): Promise<Optional<number>> {
         const allNodes = (await this.listFiles()).map((item) => new File(item));
 
         let size = 0;
         for (const node of allNodes) {
-            size += await node.size();
+            size += (await node.size()) ?? 0;
         }
 
         return size;
@@ -43,7 +48,7 @@ export class Folder extends AbstractFs {
     }
 
     public override async isEmpty(): Promise<boolean> {
-        return (await this.size()) === 0;
+        return (await this.getChilds()).length === 0;
     }
 
     public async getChilds(): Promise<Array<Dirent>> {
