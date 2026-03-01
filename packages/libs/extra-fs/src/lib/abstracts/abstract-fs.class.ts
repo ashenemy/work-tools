@@ -2,7 +2,7 @@ import { Dirent, Stats } from 'node:fs';
 import { isType } from '@work-tools/utils';
 import { basename, dirname, extname, relative, resolve } from 'path';
 import { access, copy, move, remove, stat } from 'fs-extra';
-import { Ctor, Optional } from '@work-tools/ts';
+import type { Ctor, Optional } from '@work-tools/ts';
 
 export abstract class AbstractFs {
     protected _fullPath: string;
@@ -39,7 +39,7 @@ export abstract class AbstractFs {
 
     public abstract empty(): Promise<void>;
 
-    public abstract isEmpty(): Promise<boolean>;
+    public abstract isEmpty(): Promise<Optional<boolean>>;
 
     public relativePath(basePath: string): string {
         return relative(basePath, this.absPath);

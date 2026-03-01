@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { Optional } from '@work-tools/ts';
+import type { Optional } from '@work-tools/ts';
 import { isDefined } from '@work-tools/utils';
 import { Dirent } from 'node:fs';
 import { BaseArchiveFile } from './archive/base-archive-file.class';
@@ -39,7 +39,7 @@ export class ArchiveFile extends BaseArchiveFile {
     }
 
     public get extractPath(): Folder {
-        return new Folder(join(this.parent.absPath, this.baseName ?? this.fileName));
+        return new Folder(join(this.parent, this.baseName ?? this.fileName));
     }
 
     public static isArchiveFile(filePath: string | Dirent): boolean {

@@ -1,4 +1,4 @@
-import { ExcelSheet } from '../../@types';
+import type { ExcelSheet } from '../../@types';
 import { parseString } from '@fast-csv/parse';
 import { Dirent } from 'node:fs';
 import { File } from '../primitives/file.class';

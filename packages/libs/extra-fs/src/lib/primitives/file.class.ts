@@ -1,9 +1,9 @@
-import { createFile, ensureFile, readFile, statSync } from 'fs-extra';
+import { createFile, ensureFile, readFile } from 'fs-extra';
 import { Dirent } from 'node:fs';
-import { isType } from '@work-tools/utils';
+import { isDefined, isType } from '@work-tools/utils';
 import mime from 'mime-types';
-import { Optional } from '@work-tools/ts';
-import { extname } from 'path';
+import type { Optional } from '@work-tools/ts';
+import { basename, extname } from 'path';
 import { AbstractFs } from '../abstracts/abstract-fs.class';
 
 export class File<ContentType extends Buffer | string = Buffer> extends AbstractFs {
@@ -12,13 +12,19 @@ export class File<ContentType extends Buffer | string = Buffer> extends Abstract
             return path.isFile();
         }
 
-        try {
-            const lstat = statSync(path);
+        if (path.endsWith('/') || path.endsWith('\\')) {
+            return false;
+        }
 
-            return lstat.isFile();
-        } catch {
+
+        const ext = extname(path).toLowerCase();
+        const baseName = basename(path);
+
+        if (baseName === '.env' || ext.length > 1) {
             return true;
         }
+
+        return false;
     }
 
     public get extension(): string {
@@ -65,8 +71,13 @@ export class File<ContentType extends Buffer | string = Buffer> extends Abstract
         await this.create();
     }
 
-    public override async isEmpty(): Promise<boolean> {
-        return (await this.size()) === 0;
+    public override async isEmpty(): Promise<Optional<boolean>> {
+        const size = await this.size();
+        if (isDefined(size)) {
+            return size === 0;
+        }
+
+        return undefined;
     }
 
     public async read(): Promise<ContentType> {

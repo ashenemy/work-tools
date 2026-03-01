@@ -1,4 +1,4 @@
-import { JsonLike } from '@work-tools/ts';
+import type { JsonLike } from '@work-tools/ts';
 import TOML from '@iarna/toml';
 import { Dirent } from 'node:fs';
 import { AbstractTextFile } from '../abstracts/abstract-text-file.class';

@@ -1,5 +1,5 @@
 import { Dirent } from 'node:fs';
-import { FsItem } from '../@types';
+import type { FsItem } from '../@types';
 import { ArchivePathFile } from './types/archive-path-file.class';
 import { ArchiveFile } from './types/archive-file.class';
 import { File } from './primitives/file.class';

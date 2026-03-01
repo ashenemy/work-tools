@@ -1,4 +1,4 @@
-import { Nullable, Optional } from '@work-tools/ts';
+import type { Nullable, Optional } from '@work-tools/ts';
 import type { ArchiveFile } from '../lib/types/archive-file.class';
 import type { ArchivePathFile } from '../lib/types/archive-path-file.class';
 import type { Folder } from '../lib/primitives/folder.class';

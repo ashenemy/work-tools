@@ -1,6 +1,6 @@
 import { Dirent } from 'node:fs';
-import { ArchiveParseResult, SupportedArchiveType } from '../../../@types';
-import { Optional } from '@work-tools/ts';
+import type { ArchiveParseResult, SupportedArchiveType } from '../../../@types';
+import type { Optional } from '@work-tools/ts';
 import { getFileName, isType, pad } from '@work-tools/utils';
 import { AbstractBinaryFile } from '../../abstracts/abstract-binary-file.class';
 import { File } from '../../primitives/file.class';

@@ -1,6 +1,6 @@
 import { AbstractTextFile } from './abstract-text-file.class';
-import { JsonLike } from '@work-tools/ts';
-import { ExcelSheet } from '../../@types';
+import type { JsonLike } from '@work-tools/ts';
+import type { ExcelSheet } from '../../@types';
 import { writeFile } from 'fs-extra';
 
 export abstract class AbstractWritableFile<T1 extends string | JsonLike | ExcelSheet, T2 extends string | JsonLike | ExcelSheet = T1> extends AbstractTextFile<T1> {

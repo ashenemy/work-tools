@@ -1,4 +1,4 @@
-import { JsonLike } from '@work-tools/ts';
+import type { JsonLike } from '@work-tools/ts';
 import { Dirent } from 'node:fs';
 import { File } from '../primitives/file.class';
 import { JsonFileTypeError } from '../errors/file-type/json-file-type.error';

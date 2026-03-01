@@ -2,12 +2,10 @@ import { Dirent } from 'node:fs';
 import { emptydir, ensureDir, mkdir, readdir, statSync } from 'fs-extra';
 import { File } from './file.class';
 import { isType } from '@work-tools/utils';
-import { FileTree, FsItem } from '../../@types';
-import fg from 'fast-glob';
-import { Options } from 'fast-glob/out/settings';
-import { FsFactory } from '../fs-factory.class';
+import type { FileTree } from '../../@types';
+import fg , { Options } from 'fast-glob';
 import { AbstractFs } from '../abstracts/abstract-fs.class';
-import { Optional } from '@work-tools/ts';
+import type { Optional } from '@work-tools/ts';
 
 export class Folder extends AbstractFs {
     public static isFolder(path: string | Dirent): boolean {
@@ -90,7 +88,7 @@ export class Folder extends AbstractFs {
         return tree;
     }
 
-    public async find(pattern: string, opt: Options = {}): Promise<Array<FsItem>> {
+    public async find(pattern: string, opt: Options = {}): Promise<Array<string>> {
         const findOptions: Options = {
             absolute: true,
             braceExpansion: true,
@@ -104,6 +102,6 @@ export class Folder extends AbstractFs {
             ...opt,
         };
 
-        return (await fg(pattern, findOptions)).map((item) => FsFactory.fromPath(item));
+        return (await fg(pattern, findOptions));
     }
 }

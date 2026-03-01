@@ -1,5 +1,5 @@
-import { JsonLike } from '@work-tools/ts';
-import { ExcelSheet } from '../../@types';
+import type { JsonLike } from '@work-tools/ts';
+import type { ExcelSheet } from '../../@types';
 import { readFile } from 'fs-extra';
 import { File } from '../primitives/file.class';
 

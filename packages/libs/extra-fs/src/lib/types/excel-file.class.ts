@@ -1,4 +1,4 @@
-import { ExcelSheet } from '../../@types';
+import type { ExcelSheet } from '../../@types';
 import xlsx from 'node-xlsx';
 import { Dirent } from 'node:fs';
 import { File } from '../primitives/file.class';
@@ -29,7 +29,7 @@ export class ExcelFile<T extends ExcelSheet = Array<Array<any>>> extends Abstrac
         return new Promise((resolve, reject) => {
             resolve(
                 xlsx
-                    .parse(content)
+                    .parse(Buffer.from(content))
                     .map((list) => list.data)
                     .flat() as unknown as T,
             );
