@@ -7,7 +7,7 @@ import { Progress } from '@work-tools/taskqueue';
 import { WrongPasswordArchiveError } from '../../errors/archive/wrong-password-archive.error';
 import { CorruptedArchiveError } from '../../errors/archive/corrupted-archive.error';
 import { MissingArchivePartError } from '../../errors/archive/missing-archive-part.error';
-import { UnknowArchiveError } from '../../errors/archive/unknow-archive.error';
+import { UnknownArchiveError } from '../../errors/archive/unknown-archive.error';
 
 export class ArchiveExtractor {
     private readonly _progress$: Subject<Progress> = new Subject();
@@ -78,7 +78,7 @@ export class ArchiveExtractor {
 
         const { stdout } = await proc;
         if (!stdout?.includes('Everything is Ok')) {
-            const err = new UnknowArchiveError();
+            const err = new UnknownArchiveError();
             this._progress$.error(err);
             throw err;
         } else {

@@ -1,6 +1,6 @@
 import { Subject } from 'rxjs';
 import { TgMessageFile } from './tg-message-file.class';
-import { AbstractBaseFsItem, FileFactory, FsFolder } from '@work-tools/extra-fs';
+import { AbstractFsNode, FileFactory, FsFolder } from '@work-tools/extra-fs';
 import { isType } from '@work-tools/utils';
 import { createWriteStream, WriteStream } from 'node:fs';
 import { MtpClient } from '../connections/mtp-client.class';
@@ -14,8 +14,8 @@ export class TgMessageFileDownloader {
 
     constructor(private readonly _file: TgMessageFile) {}
 
-    public async downloadMedia<T extends AbstractBaseFsItem>(): Promise<T> {
-        const file: AbstractBaseFsItem = await FileFactory.from(this._file.saveToPath);
+    public async downloadMedia<T extends AbstractFsNode>(): Promise<T> {
+        const file: AbstractFsNode = await FileFactory.from(this._file.saveToPath);
 
         if (isType(file, FsFolder)) {
             throw new Error('File is a folder');

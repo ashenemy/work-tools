@@ -36,7 +36,9 @@ export class CsvFile<T extends ExcelSheet = Array<Array<any>>> extends AbstractT
                 .on('error', (error) => {
                     reject(error);
                 })
-                .end('data', () => resolve(rows));
+                .on('end', () => {
+                    resolve(rows);
+                });
         });
     }
 }

@@ -1,8 +1,9 @@
 import { Dirent } from 'node:fs';
 import { ArchiveParseResult, SupportedArchiveType } from '../../../@types';
 import { Optional } from '@work-tools/ts';
-import { isType, pad } from '@work-tools/utils';
+import { getFileName, isType, pad } from '@work-tools/utils';
 import { AbstractBinaryFile } from '../../abstracts/abstract-binary-file.class';
+import { File } from '../../primitives/file.class';
 
 export class BaseArchiveFile extends AbstractBinaryFile {
     protected _analized: ArchiveParseResult;
@@ -41,6 +42,8 @@ export class BaseArchiveFile extends AbstractBinaryFile {
         return this._analized.baseName;
     }
 
+
+
     public static analyzeArchiveFilename(filePathOrName: File | string | Dirent): ArchiveParseResult {
         let fileName: string;
         if (isType(filePathOrName, File)) {
@@ -50,6 +53,8 @@ export class BaseArchiveFile extends AbstractBinaryFile {
         } else {
             fileName = filePathOrName;
         }
+
+        fileName = getFileName(fileName);
 
         let m = fileName.match(/^(.*)\.7z\.(\d{3,})$/i);
         if (m) {

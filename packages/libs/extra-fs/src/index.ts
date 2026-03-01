@@ -6,7 +6,7 @@ export { AbstractWritableFile } from './lib/abstracts/abstract-writable-file.cla
 export { BaseArchiveError } from './lib/errors/archive/base-archive.error';
 export { CorruptedArchiveError } from './lib/errors/archive/corrupted-archive.error';
 export { MissingArchivePartError } from './lib/errors/archive/missing-archive-part.error';
-export { UnknowArchiveError } from './lib/errors/archive/unknow-archive.error';
+export { UnknownArchiveError } from './lib/errors/archive/unknown-archive.error';
 export { WrongPasswordArchiveError } from './lib/errors/archive/wrong-password-archive.error';
 export { ArchiveFileTypeError } from './lib/errors/file-type/archive-file-type.error';
 export { ArchivePartFileTypeError } from './lib/errors/file-type/archive-part-file-type.error';

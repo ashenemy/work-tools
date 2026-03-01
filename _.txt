@@ -1,2 +1,173 @@
-https://github.com/ahcq1337/Discord-DB/blob/030120286428bea7f222bf05f7e97d596cf77580/Tools/Inity%20Tool/program/snustool.py
-https://github.com/ahcq1337/Discord-DB/blob/030120286428bea7f222bf05f7e97d596cf77580/Tools/Inity%20Tool/program/osintsites.py
+ut files')) {
+ 101:             const missing = missingMatch ? missingMatch[1].trim() : 'unknow part';
+ 102:             const missingError = new MissingArchivePartError(missing);
+ 103:             this._progress$.error(missingError);
+ 104:             throw missingError;
+ 105:         }
+ 106: 
+ 107:         const corruptedError = new CorruptedArchiveError(output.slice(0, 500));
+ 108:         this._progress$.error(corruptedError);
+ 109:         throw corruptedError;
+ 110:     }
+ 111: }
+
+   1: import { Dirent, Stats } from 'node:fs';
+   2: import { isType } from '@work-tools/utils';
+   3: import { basename, dirname, relative, resolve } from 'path';
+   4: import { access, copy, move, remove, stat } from 'fs-extra';
+   5: import { Ctor } from '@work-tools/ts';
+   6: import { Folder } from '../primitives';
+   7: 
+   8: export abstract class AbstractFs {
+   9:     protected _fullPath: string;
+  10: 
+  11:     constructor(input: string | Dirent) {
+  12:         if (isType(input, Dirent)) {
+  13:             this._fullPath = resolve(input.parentPath, input.name);
+  14:         } else {
+  15:             this._fullPath = resolve(input);
+  16:         }
+  17:     }
+  18: 
+  19:     public get absPath(): string {
+  20:         return this._fullPath;
+  21:     }
+  22: 
+  23:     public get normalizedPath(): string {
+  24:         return this.absPath.replace(/[\\/]+$/, '');
+  25:     }
+  26: 
+  27:     public get name(): string {
+  28:         return basename(this.normalizedPath);
+  29:     }
+  30: 
+  31:     public get parent(): Folder {
+  32:         return new Folder(dirname(this.normalizedPath));
+  33:     }
+  34: 
+  35:     public abstract ensure(): Promise<void>;
+  36: 
+  37:     public abstract create(): Promise<void>;
+  38: 
+  39:     public abstract size(): Promise<number>;
+  40: 
+  41:     public abstract empty(): Promise<void>;
+  42: 
+  43:     public abstract isEmpty(): Promise<boolean>;
+  44: 
+  45:     public relativePath(basePath: string): string {
+  46:         return relative(basePath, this.absPath);
+  47:     }
+  48: 
+  49:     public async getStats(): Promise<Stats> {
+  50:         return await stat(this.absPath);
+  51:     }
+  52: 
+  53:     public async isDirectory(): Promise<boolean> {
+  54:         try {
+  55:             return (await this.getStats()).isDirectory();
+  56:         } catch {
+  57:             return false;
+  58:         }
+  59:     }
+  60: 
+  61:     public async isFile(): Promise<boolean> {
+  62:         try {
+  63:             return (await this.getStats()).isFile();
+  64:         } catch {
+  65:             return false;
+  66:         }
+  67:     }
+  68: 
+  69:     public async exists(): Promise<boolean> {
+  70:         try {
+  71:             await access(this.absPath);
+  72:             return true;
+  73:         } catch {
+  74:             return false;
+  75:         }
+  76:     }
+  77: 
+  78:     public async move(destination: string): Promise<void> {
+  79:         await move(this.absPath, destination);
+  80:         this._fullPath = destination;
+  81:     }
+  82: 
+  83:     public async copy<T extends this>(destination: string): Promise<T> {
+  84:         try {
+  85:             await copy(this.absPath, destination);
+  86:             const ctor: Ctor<this, [string]> = this.constructor as Ctor<this, [string]>;
+  87:             return new ctor(destination) as T;
+  88:         } catch (e) {
+  89:             throw e;
+  90:         }
+  91:     }
+  92: 
+  93:     public async remove(): Promise<void> {
+  94:         await remove(this.absPath);
+  95:     }
+  96: 
+  97:     public async rename(newName: string): Promise<void> {
+  98:         const newFullPath = resolve(this.parent.absPath, newName);
+  99:         await this.move(newFullPath);
+ 100:     }
+ 101: }
+
+   1: export type { ArchiveParseResult, ExcelContentType, ExcelRow, ExcelSheet, FileTree, FsItem, SupportedArchiveType } from './@types';
+   2: export { FsFactory } from './lib/fs-factory.class';
+   3: export { AbstractBinaryFile, AbstractFs, AbstractTextFile, AbstractWritableFile } from './lib/abstracts';
+   4: export { DocFile, File, Folder, MediaFile } from './lib/primitives';
+   5: export { AudioFile, CsvFile, EnvFile, ExcelFile, JsonFile, PDFFile, TomlFile, TxtFile, WordFile } from './lib/types';
+   6: export { ArchivePathFile } from './lib/types/archive-path-file.class';
+   7: export { ArchiveFile } from './lib/types/archive-file.class';
+   8: export { ArchiveExtractor, BaseArchiveFile } from './lib/types/archive';
+   9: export { ArchiveFileTypeError, ArchivePartFileTypeError, AudioFileTypeError, CorruptedArchiveError, CsvFileTypeError, EnvFileTypeError, ExcelFileTypeError, FolderFileTypeError, JsonFileTypeError, MissingArchivePartError, PdfFileTypeError, TomlFileTypeError, TxtFileTypeError, UnknowArchiveError, VideoFileTypeError, WordFileTypeError, WrongPasswordArchiveError } from './lib/errors';
+
+   1: import { BaseArchiveError } from './base-archive.error';
+   2: 
+   3: export class MissingArchivePartError extends BaseArchiveError {
+   4:     constructor(missing: string) {
+   5:         super('Missing archive part');
+   6:     }
+   7: }
+
+extra-fs сейчас не проходит даже типовую сборку: yarn tsc -p packages/libs/extra-fs/tsconfig.lib.json падает из-за неверных импортов AudioFile/VideoFile из primitives в src/@types/index.ts#L2 и src/lib/fs-factory.class.ts#L2, а также из-за импорта несуществующего модуля в src/lib/types/archive/base-archive-file.class.ts#L4.
+•
+Архивный extractor в текущем виде не сможет корректно распаковывать даже при успешной сборке: в src/lib/types/archive/archive-extractor.class.ts#L57 в аргумент -o... подставляется объект Folder, то есть на выходе получится -o[object Object].
+•
+В архивной ветке используется два разных способа вызова 7z: list/test идут через 7zip-min в src/lib/types/archive/archive-extractor.class.ts#L19, а extract требует внешний 7za из PATH в src/lib/types/archive/archive-extractor.class.ts#L62. Это прямой workability-риск: листинг может работать, а распаковка нет.
+•
+Пакет сейчас source-only: main/exports указывают на TS-исходники в package.json#L5, а сборка настроена только на декларации в tsconfig.lib.json#L8. Для обычного JS-runtime артефакта библиотека не готова.
+Critical Correctness
+•
+.env сейчас определяется как AudioFile, а не как EnvFile: ложная проверка сидит в src/lib/types/audio-file.class.ts#L16, а фабрика проверяет AudioFile раньше EnvFile в src/lib/fs-factory.class.ts#L22. Это один из самых неприятных дефектов, потому что файл будет тихо классифицирован не тем типом.
+•
+ExcelFile фактически сломан сразу в двух местах. Конструктор инвертирован и бросает ошибку именно для валидного excel-файла в src/lib/types/excel-file.class.ts#L14. Даже если это исправить, чтение идет через AbstractTextFile.read() как UTF-8 строка в src/lib/abstracts/abstract-text-file.class.ts#L7, после чего эта строка передается в xlsx.parse в src/lib/types/excel-file.class.ts#L31. Для .xlsx/.xls это неправильная модель чтения, нужен бинарный поток/буфер.
+•
+Folder.isEmpty() реализован через суммарный размер файлов в src/lib/primitives/folder.class.ts#L30 и src/lib/primitives/folder.class.ts#L45. Поэтому папка с пустым файлом или с пустой подпапкой будет считаться пустой, что семантически неверно.
+•
+Все isFile/isFolder проверки для строковых путей бросают исключение на отсутствующем пути вместо false: src/lib/primitives/file.class.ts#L26, src/lib/primitives/folder.class.ts#L12. Из-за этого фабрика в src/lib/fs-factory.class.ts#L9 и типизированные writable-обертки вроде src/lib/types/txt-file.class.ts#L9 и src/lib/types/json-file.class.ts#L10 непригодны для сценария “создать новый файл по еще не существующему пути”, хотя API create/ensure/write явно на это намекает.
+•
+CsvFile.read() возвращает только первую строку CSV, потому что resolve(row) вызывается на первом data-событии в src/lib/types/csv-file.class.ts#L28. До end он не дожидается и полный sheet никогда не собирает.
+•
+CsvFile тоже ошибочно считает .env валидным csv в src/lib/types/csv-file.class.ts#L19. В фабрике это маскируется более ранним ложным AudioFile, но сама проверка все равно неверная.
+High / Medium
+•
+AbstractFs.move() после перемещения записывает _fullPath = destination без resolve(...) в src/lib/abstracts/abstract-fs.class.ts#L78. Если передать относительный путь, свойство absPath перестанет быть абсолютным.
+•
+Потеряна часть публичного API: VideoFile экспортируется из src/lib/types/index.ts#L2, но не реэкспортируется из корневого src/index.ts#L5.
+•
+MissingArchivePartError принимает имя недостающего файла, но выбрасывает его в мусор и всегда возвращает одинаковое сообщение в src/lib/errors/archive/missing-archive-part.error.ts#L4. Для диагностики архивов это сильно ухудшает разбор инцидентов.
+•
+Очередь паролей у ArchiveFile устроена сомнительно: setter в src/lib/types/archive-file.class.ts#L26 кладет текущий пароль в _possiblePasswords, а setNextPassword() в src/lib/types/archive-file.class.ts#L54 первой же попыткой выбирает этот же пароль повторно. То есть при неверном пароле библиотека гарантированно делает одну лишнюю бесполезную попытку.
+•
+File.fileName в src/lib/primitives/file.class.ts#L18 использует replace(this.extension, ''), а не нормальное отделение последнего расширения. На именах вроде report.pdf.backup.pdf результат будет неверным.
+•
+ArchivePathFile опирается только на анализ имени в src/lib/types/archive-path-file.class.ts#L14, тогда как остальные типизированные файлы требуют существования файла через File.isFile. Поведение библиотеки из-за этого непоследовательно: часть typed wrappers можно строить по несуществующим путям, часть нельзя.
+Архивная ветка
+•
+В src/lib/types/archive/base-archive-file.class.ts#L4 остался импорт внешней analyzeArchiveFilename, хотя ниже реализован собственный static analyzeArchiveFilename в том же классе, начиная с src/lib/types/archive/base-archive-file.class.ts#L46. Похоже на незавершенный рефакторинг.
+•
+Generic multipart-файлы вида name.001 анализатор помечает как isPart: true, но одновременно isArchive: false в src/lib/types/archive/base-archive-file.class.ts#L168. В итоге ArchivePathFile.isArchivePath() их не примет, потому что требует isArchive && isPart в src/lib/types/archive-path-file.class.ts#L17. Если поддержка таких томов нужна, сейчас она фактически сломана.
+•
+extract() не использует typed-ошибки из _testArchive() и не принуждает к предварительной валидации архива. Если вызвать extract() напрямую, ошибки пароля/битости могут превратиться просто в UnknowArchiveError из src/lib/types/archive/archive-extractor.class.ts#L77.

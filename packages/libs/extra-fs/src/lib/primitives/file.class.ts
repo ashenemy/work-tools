@@ -16,6 +16,9 @@ export class File<ContentType extends Buffer | string = Buffer> extends Abstract
     }
 
     public get fileName(): string {
+        if (this.ext ==='') {
+            return this.name;
+        }
         const names = this.name.split('.');
         names.pop();
         return names.join('.');
