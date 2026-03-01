@@ -99,7 +99,6 @@ export class Folder extends AbstractFs {
             dot: true,
             extglob: true,
             globstar: true,
-            onlyFiles: true,
             unique: true,
             objectMode: false,
             ...opt,

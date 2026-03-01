@@ -7,27 +7,6 @@ import { extname } from 'path';
 import { AbstractFs } from '../abstracts/abstract-fs.class';
 
 export class File<ContentType extends Buffer | string = Buffer> extends AbstractFs {
-    public get extension(): string {
-        return extname(this.absPath).toLowerCase();
-    }
-
-    public get ext(): string {
-        return this.extension.substring(1);
-    }
-
-    public get fileName(): string {
-        if (this.ext ==='') {
-            return this.name;
-        }
-        const names = this.name.split('.');
-        names.pop();
-        return names.join('.');
-    }
-
-    public get mime(): Optional<string> {
-        return mime.lookup(this.absPath) || undefined;
-    }
-
     public static isFile(path: string | Dirent): boolean {
         if (isType(path, Dirent)) {
             return path.isFile();
@@ -38,8 +17,29 @@ export class File<ContentType extends Buffer | string = Buffer> extends Abstract
 
             return lstat.isFile();
         } catch {
-            return false;
+            return true;
         }
+    }
+
+    public get extension(): string {
+        return extname(this.absPath).toLowerCase();
+    }
+
+    public get ext(): string {
+        return this.extension.substring(1);
+    }
+
+    public get fileName(): string {
+        if (this.ext === '') {
+            return this.name;
+        }
+        const names = this.name.split('.');
+        names.pop();
+        return names.join('.');
+    }
+
+    public get mime(): Optional<string> {
+        return mime.lookup(this.absPath) || undefined;
     }
 
     public override async ensure(): Promise<void> {

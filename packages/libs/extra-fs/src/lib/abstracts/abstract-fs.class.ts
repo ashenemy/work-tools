@@ -1,9 +1,8 @@
 import { Dirent, Stats } from 'node:fs';
 import { isType } from '@work-tools/utils';
-import { basename, dirname, relative, resolve } from 'path';
+import { basename, dirname, extname, relative, resolve } from 'path';
 import { access, copy, move, remove, stat } from 'fs-extra';
 import { Ctor, Optional } from '@work-tools/ts';
-import { Folder } from '../primitives/folder.class';
 
 export abstract class AbstractFs {
     protected _fullPath: string;
@@ -28,8 +27,8 @@ export abstract class AbstractFs {
         return basename(this.normalizedPath);
     }
 
-    public get parent(): Folder {
-        return new Folder(dirname(this.normalizedPath));
+    public get parent(): string {
+        return dirname(this.normalizedPath);
     }
 
     public abstract ensure(): Promise<void>;
@@ -76,11 +75,21 @@ export abstract class AbstractFs {
     }
 
     public async move(destination: string): Promise<void> {
+        if (extname(destination) !== extname(this.absPath)){
+            throw new Error(
+                `Destination path must have the same extension as the source path. Source: ${this.absPath}, Destination: ${destination}`
+            )
+        }
         await move(this.absPath, destination);
         this._fullPath = resolve(destination);
     }
 
     public async copy<T extends this>(destination: string): Promise<T> {
+        if (extname(destination) !== extname(this.absPath)){
+            throw new Error(
+                `Destination path must have the same extension as the source path. Source: ${this.absPath}, Destination: ${destination}`
+            )
+        }
         try {
             await copy(this.absPath, destination);
             const ctor: Ctor<this, [string]> = this.constructor as Ctor<this, [string]>;
@@ -95,7 +104,10 @@ export abstract class AbstractFs {
     }
 
     public async rename(newName: string): Promise<void> {
-        const newFullPath = resolve(this.parent.absPath, newName);
+        if (extname(newName) !== extname(this.absPath)){
+            throw new Error(`Destination path must have the same extension as the source path. Source: ${this.absPath}, Destination: ${newName}`);
+        }
+        const newFullPath = resolve(this.parent, newName);
         await this.move(newFullPath);
     }
 }
