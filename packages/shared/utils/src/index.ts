@@ -1,3 +1,5 @@
+export { getFileName } from './lib/fs/get-file-name.js';
+export { pad } from './lib/common/pad.js';
 export { defer } from './lib/async/defer.js';
 export type { Deferred } from './lib/async/defer.js';
 export { expBackoff } from './lib/common/exp-backoff.js';
