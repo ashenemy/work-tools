@@ -25,9 +25,7 @@ export class File<ContentType extends Buffer | string = Buffer> extends Abstract
         const nextExt = extname(resolve(destination)).slice(1).toLowerCase();
 
         if (!extensions.includes(nextExt)) {
-            throw new Error(
-                `Destination path must have one of extensions: ${extensions.join(', ')}. Destination: ${destination}`
-            );
+            throw new Error(`Destination path must have one of extensions: ${extensions.join(', ')}. Destination: ${destination}`);
         }
     }
 
@@ -75,7 +73,9 @@ export class File<ContentType extends Buffer | string = Buffer> extends Abstract
     }
 
     public override async empty(): Promise<void> {
-        await truncate(this.absPath, 0);
+        try {
+            await truncate(this.absPath, 0);
+        } catch {}
     }
 
     public override async isEmpty(): Promise<Optional<boolean>> {
