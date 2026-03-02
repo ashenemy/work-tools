@@ -1,10 +1,9 @@
 import { Global, Inject, Injectable, LoggerService as _LoggerService, Optional as Optional_ } from '@nestjs/common';
 import { inspect } from 'node:util';
 import { APP_NAME } from './logger.constants';
-import type { LevelStyle, LogLevel } from '../@types';
+import type { ConsoleMethods, LevelStyle, LogLevel } from '../@types';
 import { LoggerDesign } from './lib/logger-design.class';
 import { enableSourceMapSupport } from './lib/source-map';
-import { LoggerConsole } from './lib/logger-console.class';
 import type { Optional } from '@work-tools/ts';
 
 @Global()
@@ -12,12 +11,60 @@ import type { Optional } from '@work-tools/ts';
 export class LoggerService implements _LoggerService {
     constructor(
         @Optional_()
-        @Inject(APP_NAME) private readonly _appName: Optional<string> = undefined,
+        @Inject(APP_NAME)
+        private readonly _appName: Optional<string> = undefined,
     ) {}
+
+    private static _consolePatched = false;
+
+    private static readonly _originalConsole: ConsoleMethods = {
+        log: console.log.bind(console),
+        info: console.info.bind(console),
+        warn: console.warn.bind(console),
+        error: console.error.bind(console),
+        debug: console.debug.bind(console),
+    };
 
     public installRuntimeSupport(): void {
         enableSourceMapSupport();
-        LoggerConsole.$(this);
+        this.captureConsole();
+    }
+
+    public captureConsole(): void {
+        if (LoggerService._consolePatched) {
+            return;
+        }
+
+        LoggerService._consolePatched = true;
+
+        console.log = (...args: unknown[]) => {
+            this._capture('log', args);
+        };
+        console.info = (...args: unknown[]) => {
+            this._capture('info', args);
+        };
+        console.warn = (...args: unknown[]) => {
+            this._capture('warn', args);
+        };
+        console.error = (...args: unknown[]) => {
+            this._capture('error', args);
+        };
+        console.debug = (...args: unknown[]) => {
+            this._capture('debug', args);
+        };
+    }
+
+    public restoreConsole(): void {
+        if (!LoggerService._consolePatched) {
+            return;
+        }
+
+        LoggerService._consolePatched = false;
+        console.log = LoggerService._originalConsole.log;
+        console.info = LoggerService._originalConsole.info;
+        console.warn = LoggerService._originalConsole.warn;
+        console.error = LoggerService._originalConsole.error;
+        console.debug = LoggerService._originalConsole.debug;
     }
 
     public log(message: unknown, ...optionalParams: unknown[]): void {
@@ -87,5 +134,10 @@ export class LoggerService implements _LoggerService {
 
     private get appName(): string {
         return this._appName ?? 'app';
+    }
+
+    private _capture(level: LogLevel, args: unknown[]): void {
+        const [message, ...rest] = args;
+        this[level](message ?? '', ...rest);
     }
 }
