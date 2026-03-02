@@ -1,8 +1,23 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
+import { JsonLike } from '@work-tools/ts';
+import { CONFIG_SERVICE } from './config.constants';
+import { ConfigService } from './config.service';
 
-@Module({
-    controllers: [],
-    providers: [],
-    exports: [],
-})
-export class WorkToolsConfigServiceModule {}
+@Global()
+@Module({})
+export class ConfigModule {
+    public static forRoot<T extends JsonLike>(configFilePath: string) {
+        return {
+            module: ConfigModule,
+            providers: [
+                {
+                    provide: CONFIG_SERVICE,
+                    useFactory: async () => {
+                        return await ConfigService.$<T>(configFilePath);
+                    },
+                },
+            ],
+            exports: [CONFIG_SERVICE],
+        };
+    }
+}
