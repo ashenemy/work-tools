@@ -1,6 +1,6 @@
 import { MONGO_DB_CONNECTION } from '../db.constants';
 import  { LoggerService } from '@work-tools/logger-service';
-import  { ConfigService } from '@work-tools/config-service';
+import { CONFIG_SERVICE, ConfigService } from '@work-tools/config-service';
 import type { Optional } from '@work-tools/ts';
 import { isUndefined } from '@work-tools/utils';
 import { connect, type Connection } from 'mongoose';
@@ -39,5 +39,5 @@ export const mongoDbConnectionProvider: FactoryProvider = {
 
         return mongoConnection.connection;
     },
-    inject: [ConfigService, LoggerService],
+    inject: [CONFIG_SERVICE, LoggerService],
 };

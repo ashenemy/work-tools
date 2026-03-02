@@ -4,11 +4,11 @@ import { LoggerService } from '@work-tools/logger-service';
 import { type Connection } from 'mongoose';
 import { isDefined } from '@work-tools/utils';
 import type { Optional } from '@work-tools/ts';
-import { ExSchema, type MongoModel, type MongoSchemaDef } from '@work-tools/extra-db';
+import { ExSchema, getMongoCollectionToken, type MongoModel, type MongoSchemaDef } from '@work-tools/extra-db';
 
 export function MongoCollectionFactory<T, M = {}>(collectionName: string, schemaDef: MongoSchemaDef<T>): FactoryProvider<MongoModel<T, M>> {
     return {
-        provide: collectionName,
+        provide: getMongoCollectionToken(collectionName),
         useFactory: (connection: Connection, logger: LoggerService): MongoModel<T, M> => {
             const _model: Optional<MongoModel<T, M>> = connection.models[collectionName];
 
