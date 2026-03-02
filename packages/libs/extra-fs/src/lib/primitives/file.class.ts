@@ -1,30 +1,34 @@
-import { createFile, ensureFile, readFile } from 'fs-extra';
+import { createFile, ensureFile, ensureFileSync, readFile, statSync, truncate } from 'fs-extra';
 import { Dirent } from 'node:fs';
-import { isDefined, isType } from '@work-tools/utils';
+import { isDefined, isErrorNoException, isType } from '@work-tools/utils';
 import mime from 'mime-types';
 import type { Optional } from '@work-tools/ts';
-import { basename, extname } from 'path';
+import { extname, resolve } from 'path';
 import { AbstractFs } from '../abstracts/abstract-fs.class';
 
 export class File<ContentType extends Buffer | string = Buffer> extends AbstractFs {
-    public static isFile(path: string | Dirent): boolean {
+    public static isFile(path: string | Dirent, canBeCreate: boolean = false): boolean {
         if (isType(path, Dirent)) {
             return path.isFile();
         }
 
-        if (path.endsWith('/') || path.endsWith('\\')) {
-            return false;
+        try {
+            const lstat = statSync(path);
+
+            return lstat.isFile();
+        } catch (err) {
+            return isErrorNoException(err) && canBeCreate;
         }
+    }
 
+    protected assertAllowedExtensions(destination: string, extensions: readonly string[]): void {
+        const nextExt = extname(resolve(destination)).slice(1).toLowerCase();
 
-        const ext = extname(path).toLowerCase();
-        const baseName = basename(path);
-
-        if (baseName === '.env' || ext.length > 1) {
-            return true;
+        if (!extensions.includes(nextExt)) {
+            throw new Error(
+                `Destination path must have one of extensions: ${extensions.join(', ')}. Destination: ${destination}`
+            );
         }
-
-        return false;
     }
 
     public get extension(): string {
@@ -52,6 +56,10 @@ export class File<ContentType extends Buffer | string = Buffer> extends Abstract
         await ensureFile(this.absPath);
     }
 
+    public override ensureSync(): void {
+        ensureFileSync(this.absPath);
+    }
+
     public override async create(): Promise<void> {
         await createFile(this.absPath);
     }
@@ -67,8 +75,7 @@ export class File<ContentType extends Buffer | string = Buffer> extends Abstract
     }
 
     public override async empty(): Promise<void> {
-        await this.remove();
-        await this.create();
+        await truncate(this.absPath, 0);
     }
 
     public override async isEmpty(): Promise<Optional<boolean>> {

@@ -31,4 +31,8 @@ export class JsonFile<T extends JsonLike = {}> extends AbstractWritableFile<T> {
     protected override _parse(content: string): Promise<T> {
         return Promise.resolve(JSON.parse(content) as T);
     }
+
+    protected override assertDestinationCompatible(destination: string): void {
+        this.assertAllowedExtensions(destination, JsonFile.EXTENSIONS);
+    }
 }

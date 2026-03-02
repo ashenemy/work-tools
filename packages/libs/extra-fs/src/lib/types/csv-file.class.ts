@@ -41,4 +41,8 @@ export class CsvFile<T extends ExcelSheet = Array<Array<any>>> extends AbstractT
                 });
         });
     }
+
+    protected override assertDestinationCompatible(destination: string): void {
+        this.assertAllowedExtensions(destination, CsvFile.EXTENSIONS);
+    }
 }

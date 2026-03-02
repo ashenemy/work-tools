@@ -71,4 +71,14 @@ export class FsFactory {
 
         return new File<any>(path);
     }
+
+    public static createNewFile(path: string): FsItem {
+        const file = new File(path, true);
+
+        return FsFactory.fromPath(file.absPath);
+    }
+
+    public static createFolder(path: string): Folder {
+        return new Folder(path, true);
+    }
 }

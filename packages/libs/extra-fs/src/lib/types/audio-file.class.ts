@@ -22,4 +22,8 @@ export class AudioFile extends MediaFile {
         const _file: File = new File(filePath);
         return AudioFile.EXTENSIONS.includes(_file.ext);
     }
+
+    protected override assertDestinationCompatible(destination: string): void {
+        this.assertAllowedExtensions(destination, AudioFile.EXTENSIONS);
+    }
 }

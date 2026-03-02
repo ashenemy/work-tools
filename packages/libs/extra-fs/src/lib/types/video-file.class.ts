@@ -22,4 +22,8 @@ export class VideoFile extends MediaFile {
         const _file: File = new File(filePath);
         return VideoFile.EXTENSIONS.includes(_file.ext);
     }
+
+    protected override assertDestinationCompatible(destination: string): void {
+        this.assertAllowedExtensions(destination, VideoFile.EXTENSIONS);
+    }
 }

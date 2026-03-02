@@ -1,37 +1,66 @@
 import { Dirent, Stats } from 'node:fs';
 import { isType } from '@work-tools/utils';
-import { basename, dirname, extname, relative, resolve } from 'path';
+import { basename, dirname, relative, resolve } from 'path';
 import { access, copy, move, remove, stat } from 'fs-extra';
 import type { Ctor, Optional } from '@work-tools/ts';
+import { parse } from 'node:path';
 
 export abstract class AbstractFs {
     protected _fullPath: string;
 
-    constructor(input: string | Dirent) {
+    constructor(input: string | Dirent, createNew: boolean = false) {
         if (isType(input, Dirent)) {
             this._fullPath = resolve(input.parentPath, input.name);
         } else {
             this._fullPath = resolve(input);
         }
+
+        if (createNew) {
+            this.ensureSync();
+        }
     }
+    protected assertDestinationCompatible(_destination: string): void {}
 
     public get absPath(): string {
         return this._fullPath;
     }
 
     public get normalizedPath(): string {
-        return this.absPath.replace(/[\\/]+$/, '');
+        const abs = this.absPath;
+        const { root } = parse(abs);
+
+        if (abs === root) {
+            return root;
+        }
+
+        return abs.replace(/[\\/]+$/, '');
     }
 
     public get name(): string {
+        const normalized = this.normalizedPath;
+        const { root } = parse(normalized);
+
+        if (normalized === root) {
+            return root;
+        }
+
         return basename(this.normalizedPath);
     }
 
     public get parent(): string {
+        const normalized = this.normalizedPath;
+        const { root } = parse(normalized);
+
+        if (normalized === root) {
+            return root;
+        }
+
         return dirname(this.normalizedPath);
     }
 
     public abstract ensure(): Promise<void>;
+
+    public abstract ensureSync(): void;
 
     public abstract create(): Promise<void>;
 
@@ -75,25 +104,21 @@ export abstract class AbstractFs {
     }
 
     public async move(destination: string): Promise<void> {
-        if (extname(destination) !== extname(this.absPath)){
-            throw new Error(
-                `Destination path must have the same extension as the source path. Source: ${this.absPath}, Destination: ${destination}`
-            )
-        }
-        await move(this.absPath, destination);
-        this._fullPath = resolve(destination);
+        const newPath = resolve(destination);
+        this.assertDestinationCompatible(newPath);
+
+        await move(this.absPath, newPath);
+        this._fullPath = newPath;
     }
 
     public async copy<T extends this>(destination: string): Promise<T> {
-        if (extname(destination) !== extname(this.absPath)){
-            throw new Error(
-                `Destination path must have the same extension as the source path. Source: ${this.absPath}, Destination: ${destination}`
-            )
-        }
         try {
-            await copy(this.absPath, destination);
+            const newPath = resolve(destination);
+            this.assertDestinationCompatible(newPath);
+
+            await copy(this.absPath, newPath);
             const ctor: Ctor<this, [string]> = this.constructor as Ctor<this, [string]>;
-            return new ctor(destination) as T;
+            return new ctor(newPath) as T;
         } catch (e) {
             throw e;
         }
@@ -104,10 +129,9 @@ export abstract class AbstractFs {
     }
 
     public async rename(newName: string): Promise<void> {
-        if (extname(newName) !== extname(this.absPath)){
-            throw new Error(`Destination path must have the same extension as the source path. Source: ${this.absPath}, Destination: ${newName}`);
-        }
         const newFullPath = resolve(this.parent, newName);
+        this.assertDestinationCompatible(newFullPath);
+
         await this.move(newFullPath);
     }
 }

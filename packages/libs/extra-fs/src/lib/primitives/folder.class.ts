@@ -1,14 +1,14 @@
 import { Dirent } from 'node:fs';
-import { emptydir, ensureDir, mkdir, readdir, statSync } from 'fs-extra';
+import { emptydir, ensureDir, ensureDirSync, mkdir, readdir, statSync } from 'fs-extra';
 import { File } from './file.class';
-import { isType } from '@work-tools/utils';
+import { isErrorNoException, isType } from '@work-tools/utils';
 import type { FileTree } from '../../@types';
 import fg , { Options } from 'fast-glob';
 import { AbstractFs } from '../abstracts/abstract-fs.class';
 import type { Optional } from '@work-tools/ts';
 
 export class Folder extends AbstractFs {
-    public static isFolder(path: string | Dirent): boolean {
+    public static isFolder(path: string | Dirent, canBeCreate: boolean = false): boolean {
         if (isType(path, Dirent)) {
             return path.isDirectory();
         }
@@ -17,13 +17,17 @@ export class Folder extends AbstractFs {
             const lstat = statSync(path);
 
             return lstat.isDirectory();
-        } catch {
-            return false;
+        } catch (err) {
+            return isErrorNoException(err) && canBeCreate;
         }
     }
 
     public override async ensure(): Promise<void> {
         await ensureDir(this.absPath);
+    }
+
+    public override ensureSync(): void {
+        ensureDirSync(this.absPath);
     }
 
     public override async create(): Promise<void> {
@@ -99,9 +103,11 @@ export class Folder extends AbstractFs {
             globstar: true,
             unique: true,
             objectMode: false,
+            onlyFiles: false,
+            onlyDirectories: false,
             ...opt,
         };
 
-        return (await fg(pattern, findOptions));
+        return await fg(pattern, findOptions);
     }
 }

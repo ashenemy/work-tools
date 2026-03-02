@@ -30,4 +30,8 @@ export class TxtFile extends AbstractWritableFile<string> {
     protected override _stringify(content: string): Promise<string> {
         return Promise.resolve(content);
     }
+
+    protected override assertDestinationCompatible(destination: string): void {
+        this.assertAllowedExtensions(destination, TxtFile.EXTENSIONS);
+    }
 }

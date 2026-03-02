@@ -22,4 +22,8 @@ export class PDFFile extends DocFile {
         const _file: File = new File(filePath);
         return PDFFile.EXTENSIONS.includes(_file.ext);
     }
+
+    protected override assertDestinationCompatible(destination: string): void {
+        this.assertAllowedExtensions(destination, PDFFile.EXTENSIONS);
+    }
 }

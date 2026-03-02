@@ -28,4 +28,8 @@ export class TomlFile<T extends JsonLike = {}> extends AbstractTextFile<T> {
     protected override _parse(content: string): Promise<T> {
         return Promise.resolve(TOML.parse(content) as T);
     }
+
+    protected override assertDestinationCompatible(destination: string): void {
+        this.assertAllowedExtensions(destination, TomlFile.EXTENSIONS);
+    }
 }

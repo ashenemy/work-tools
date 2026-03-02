@@ -3,15 +3,14 @@ import xlsx from 'node-xlsx';
 import { Dirent } from 'node:fs';
 import { File } from '../primitives/file.class';
 import { ExcelFileTypeError } from '../errors/file-type/excel-file-type.error';
-import { AbstractTextFile } from '../abstracts/abstract-text-file.class';
 
-export class ExcelFile<T extends ExcelSheet = Array<Array<any>>> extends AbstractTextFile<T> {
+export class ExcelFile<T extends ExcelSheet = Array<Array<any>>> extends File<any> {
     public static readonly EXTENSIONS: Array<string> = ['xlsx', 'xls'];
 
     constructor(filePath: string | Dirent) {
         super(filePath);
 
-        if (ExcelFile.isExcelFile(filePath)) {
+        if (!ExcelFile.isExcelFile(filePath)) {
             throw new ExcelFileTypeError(this.name);
         }
     }
@@ -25,11 +24,11 @@ export class ExcelFile<T extends ExcelSheet = Array<Array<any>>> extends Abstrac
         return ExcelFile.EXTENSIONS.includes(_file.ext);
     }
 
-    protected override _parse(content: string): Promise<T> {
-        return new Promise((resolve, reject) => {
+    public override async read(): Promise<T> {
+        return new Promise(async (resolve, reject) => {
             resolve(
                 xlsx
-                    .parse(Buffer.from(content))
+                    .parse(await super.read())
                     .map((list) => list.data)
                     .flat() as unknown as T,
             );
