@@ -5,7 +5,6 @@ import { execa } from 'execa';
 import { Observable, Subject } from 'rxjs';
 import { Progress } from '@work-tools/taskqueue';
 import { WrongPasswordArchiveError } from '../../errors/archive/wrong-password-archive.error';
-import { UnknownArchiveError } from '../../errors/archive/unknown-archive.error';
 import { parse7zError } from './parse-7z-error.class';
 
 export class ArchiveExtractor {
@@ -56,13 +55,14 @@ export class ArchiveExtractor {
         if (isDefined(this._archive.password)) {
             args.push(`-p${this._archive.password}`);
         }
-        const total = (await this.listFiles()).length;
 
+        const total = (await this.listFiles()).length;
         const proc = execa(this._binaryPath, args, { reject: false });
 
         proc.stdout?.on('data', (data: Buffer) => {
             const line = data.toString();
             const match = line.match(/(\d+)%/);
+
             if (match && total > 0) {
                 const percent = parseInt(match[1], 10);
                 const success = Math.round((percent / 100) * total);
@@ -70,14 +70,23 @@ export class ArchiveExtractor {
             }
         });
 
-        const { stdout } = await proc;
-        if (!stdout?.includes('Everything is Ok')) {
-            const err = new UnknownArchiveError();
-            this._progress$.error(err);
-            throw err;
-        } else {
-            this._progress$.complete();
+        const result = await proc;
+
+        if (result.exitCode !== 0) {
+            try {
+                parse7zError({
+                    message: result.shortMessage ?? `7-zip exited with code ${result.exitCode}.`,
+                    stdout: result.stdout,
+                    stderr: result.stderr,
+                    code: result.exitCode,
+                });
+            } catch (err) {
+                this._progress$.error(err as Error);
+                throw err;
+            }
         }
+
+        this._progress$.complete();
     }
 
     private async _testArchive(): Promise<boolean> {
