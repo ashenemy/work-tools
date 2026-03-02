@@ -19,14 +19,19 @@ export class ArchiveFile extends BaseArchiveFile {
     }
 
     protected _password: Optional<string> = undefined;
+    protected _passwordIsSet: boolean = false;
 
     public get password(): Optional<string> {
         return this._password;
     }
 
     public set password(value: Optional<string>) {
-        this._password = value;
+        if (this._passwordIsSet) {
+            throw new Error('Password is already set');
+        }
 
+        this._password = value;
+        this._passwordIsSet = true;
         if (this._possiblePasswords.length === 0) {
             this._possiblePasswords.push(undefined);
 

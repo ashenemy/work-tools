@@ -166,7 +166,7 @@ export class BaseArchiveFile extends AbstractBinaryFile {
             return {
                 fileName,
                 isArchive: true,
-                archiveKind: undefined,
+                archiveKind: 'zip',
                 isPart: true,
                 isFirstPart: Number(m[2]) === 1,
                 partIndex: Number(m[2]),

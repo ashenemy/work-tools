@@ -1,4 +1,4 @@
-import _7z from '7zip-min';
+import _7z, { ListItem } from '7zip-min';
 import { ArchiveFile } from '../archive-file.class';
 import { isDefined, isType } from '@work-tools/utils';
 import { execa } from 'execa';
@@ -17,24 +17,9 @@ export class ArchiveExtractor {
         return this._progress$.asObservable();
     }
 
-    public async listFiles(): Promise<string[]> {
+    public async listFiles(): Promise<ListItem[]> {
         const args = this._archive.password ? ['l', '-slt', this._archive.absPath, `-p${this._archive.password}`] : ['l', '-slt', this._archive.absPath];
-        const output = await _7z.cmd(args);
-
-        const files: string[] = [];
-        let inList = false;
-
-        for (const line of output.split('\n')) {
-            if (line.includes('----------')) {
-                inList = !inList;
-                continue;
-            }
-            if (inList && line.startsWith('Path = ')) {
-                const p = line.slice(7).trim();
-                if (p && !p.endsWith('/')) files.push(p);
-            }
-        }
-        return files;
+        return (await _7z.cmd(args)) as unknown as ListItem[];
     }
 
     public async test(): Promise<void> {
