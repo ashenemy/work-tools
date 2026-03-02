@@ -3,21 +3,20 @@ import  { LoggerService } from '@work-tools/logger-service';
 import  { ConfigService } from '@work-tools/config-service';
 import type { Optional } from '@work-tools/ts';
 import { isUndefined } from '@work-tools/utils';
-import mongoose, { connect } from 'mongoose';
+import { connect, type Connection } from 'mongoose';
 import type { FactoryProvider } from '@nestjs/common';
 import type { MongoDbConnectionConfig } from '../../@types';
-import { mongooseNormalize } from '../utils/mongoose-normalize';
 
 export const mongoDbConnectionProvider: FactoryProvider = {
     provide: MONGO_DB_CONNECTION,
-    useFactory: async (config: ConfigService<Record<'mongoDb', MongoDbConnectionConfig>>, logger: LoggerService): Promise<typeof mongoose> => {
+    useFactory: async (config: ConfigService<Record<'mongoDb', MongoDbConnectionConfig>>, logger: LoggerService): Promise<Connection> => {
         const connectionString: Optional<string> = config.getString('mongoDb.connectionUri')!;
 
         if (isUndefined(connectionString)) {
             throw new Error(`Connection string not set`);
         }
 
-        logger.info(`Connection to mongodb: ${config.getString('mongoDb.connectionUri')}`);
+        logger.verbose(`Connecting to MongoDB`);
 
         const mongoConnection = await connect(connectionString, {
             appName: config.get('mongoDb.appName'),
@@ -33,15 +32,12 @@ export const mongoDbConnectionProvider: FactoryProvider = {
             retryWrites: true,
             readPreference: 'primary',
             autoIndex: true,
-            bufferCommands: false,
-            tls: true,
+            bufferCommands: false
         });
 
+        logger.verbose(`Connected to MongoDB`);
 
-        mongooseNormalize();
-
-        return mongoConnection;
-
+        return mongoConnection.connection;
     },
     inject: [ConfigService, LoggerService],
 };
