@@ -8,20 +8,20 @@ import { AbstractTextFile } from '../abstracts/abstract-text-file.class';
 export class CsvFile<T extends ExcelSheet = Array<Array<any>>> extends AbstractTextFile<T> {
     public static readonly EXTENSIONS: Array<string> = ['csv'];
 
-    constructor(filePath: string | Dirent) {
+    constructor(filePath: string | Dirent, createNewFile: boolean = false) {
         super(filePath);
 
-        if (!CsvFile.isCsvFile(filePath)) {
+        if (!CsvFile.isCsvFile(filePath, createNewFile)) {
             throw new CsvFileTypeError(this.name);
         }
     }
 
-    public static isCsvFile(filePath: string | Dirent): boolean {
-        if (!File.isFile(filePath)) {
+    public static isCsvFile(filePath: string | Dirent, createNewFile: boolean = false): boolean {
+        if (!File.isFile(filePath, createNewFile)) {
             return false;
         }
 
-        const _file: File = new File(filePath);
+        const _file: File = new File(filePath, createNewFile);
         return CsvFile.EXTENSIONS.includes(_file.ext);
     }
 

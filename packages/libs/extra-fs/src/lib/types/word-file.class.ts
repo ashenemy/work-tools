@@ -6,20 +6,20 @@ import { File } from '../primitives/file.class';
 export class WordFile extends DocFile {
     public static readonly EXTENSIONS: Array<string> = ['doc', 'docx'];
 
-    constructor(filePath: string | Dirent) {
+    constructor(filePath: string | Dirent, createNewFile: boolean = false) {
         super(filePath);
 
-        if (!WordFile.isWordFile(filePath)) {
+        if (!WordFile.isWordFile(filePath, createNewFile)) {
             throw new WordFileTypeError(this.name);
         }
     }
 
-    public static isWordFile(filePath: string | Dirent): boolean {
-        if (!File.isFile(filePath)) {
+    public static isWordFile(filePath: string | Dirent, createNewFile: boolean = false): boolean {
+        if (!File.isFile(filePath, createNewFile)) {
             return false;
         }
 
-        const _file: File = new File(filePath);
+        const _file: File = new File(filePath, createNewFile);
         return WordFile.EXTENSIONS.includes(_file.ext);
     }
 

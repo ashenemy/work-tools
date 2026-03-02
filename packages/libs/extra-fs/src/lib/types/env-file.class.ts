@@ -8,21 +8,21 @@ import { basename, resolve } from 'path';
 export class EnvFile<T extends Record<string, string> = Record<string, string>> extends AbstractTextFile<T> {
     public static readonly EXTENSIONS: Array<string> = ['env'];
 
-    constructor(filePath: string | Dirent) {
+    constructor(filePath: string | Dirent, createNewFile: boolean = false) {
         super(filePath);
 
-        if (!EnvFile.isEnvFile(filePath)) {
+        if (!EnvFile.isEnvFile(filePath, createNewFile)) {
             throw new EnvFileTypeError(this.name);
         }
     }
 
-    public static isEnvFile(filePath: string | Dirent): boolean {
-        if (!File.isFile(filePath)) {
+    public static isEnvFile(filePath: string | Dirent, createNewFile: boolean = false): boolean {
+        if (!File.isFile(filePath, createNewFile)) {
             return false;
         }
 
-        const _file: File = new File(filePath);
-        return EnvFile.EXTENSIONS.includes(_file.ext) || _file.name === '.env' || _file.fileName === '.env'
+        const _file: File = new File(filePath, createNewFile);
+        return EnvFile.EXTENSIONS.includes(_file.ext) || _file.name === '.env' || _file.fileName === '.env';
     }
 
     protected override _parse(content: string): Promise<T> {

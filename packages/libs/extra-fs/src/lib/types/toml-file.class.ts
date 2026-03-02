@@ -8,20 +8,20 @@ import { File } from '../primitives/file.class';
 export class TomlFile<T extends JsonLike = {}> extends AbstractTextFile<T> {
     public static readonly EXTENSIONS: Array<string> = ['toml'];
 
-    constructor(filePath: string | Dirent) {
+    constructor(filePath: string | Dirent, createNewFile: boolean = false) {
         super(filePath);
 
-        if (!TomlFile.isTomlFile(filePath)) {
+        if (!TomlFile.isTomlFile(filePath, createNewFile)) {
             throw new TomlFileTypeError(this.name);
         }
     }
 
-    public static isTomlFile(filePath: string | Dirent): boolean {
-        if (!File.isFile(filePath)) {
+    public static isTomlFile(filePath: string | Dirent, createNewFile: boolean = false): boolean {
+        if (!File.isFile(filePath, createNewFile)) {
             return false;
         }
 
-        const _file: File = new File(filePath);
+        const _file: File = new File(filePath, createNewFile);
         return TomlFile.EXTENSIONS.includes(_file.ext);
     }
 

@@ -7,20 +7,20 @@ import { AbstractWritableFile } from '../abstracts/abstract-writable-file.class'
 export class JsonFile<T extends JsonLike = {}> extends AbstractWritableFile<T> {
     public static readonly EXTENSIONS: Array<string> = ['json'];
 
-    constructor(filePath: string | Dirent) {
+    constructor(filePath: string | Dirent, createNewFile: boolean = false) {
         super(filePath);
 
-        if (!JsonFile.isJsonFile(filePath)) {
+        if (!JsonFile.isJsonFile(filePath, createNewFile)) {
             throw new JsonFileTypeError(this.name);
         }
     }
 
-    public static isJsonFile(filePath: string | Dirent): boolean {
-        if (!File.isFile(filePath)) {
+    public static isJsonFile(filePath: string | Dirent, createNewFile: boolean = false): boolean {
+        if (!File.isFile(filePath, createNewFile)) {
             return false;
         }
 
-        const _file: File = new File(filePath);
+        const _file: File = new File(filePath, createNewFile);
         return JsonFile.EXTENSIONS.includes(_file.ext);
     }
 

@@ -7,20 +7,20 @@ import { ExcelFileTypeError } from '../errors/file-type/excel-file-type.error';
 export class ExcelFile<T extends ExcelSheet = Array<Array<any>>> extends File<any> {
     public static readonly EXTENSIONS: Array<string> = ['xlsx', 'xls'];
 
-    constructor(filePath: string | Dirent) {
+    constructor(filePath: string | Dirent, createNewFile: boolean = false) {
         super(filePath);
 
-        if (!ExcelFile.isExcelFile(filePath)) {
+        if (!ExcelFile.isExcelFile(filePath, createNewFile)) {
             throw new ExcelFileTypeError(this.name);
         }
     }
 
-    public static isExcelFile(filePath: string | Dirent): boolean {
-        if (!File.isFile(filePath)) {
+    public static isExcelFile(filePath: string | Dirent, createNewFile: boolean = false): boolean {
+        if (!File.isFile(filePath, createNewFile)) {
             return false;
         }
 
-        const _file: File = new File(filePath);
+        const _file: File = new File(filePath, createNewFile);
         return ExcelFile.EXTENSIONS.includes(_file.ext);
     }
 
@@ -33,5 +33,9 @@ export class ExcelFile<T extends ExcelSheet = Array<Array<any>>> extends File<an
                     .flat() as unknown as T,
             );
         });
+    }
+
+    protected override assertDestinationCompatible(destination: string): void {
+        this.assertAllowedExtensions(destination, ExcelFile.EXTENSIONS);
     }
 }
