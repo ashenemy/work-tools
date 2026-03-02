@@ -1,13 +1,12 @@
-import _7z, { ListItem } from '7zip-min';
+import _7z, { getConfig, ListItem } from '7zip-min';
 import { ArchiveFile } from '../archive-file.class';
-import { isDefined, isType } from '@work-tools/utils';
+import { isDefined, isType, isUndefined } from '@work-tools/utils';
 import { execa } from 'execa';
 import { Observable, Subject } from 'rxjs';
 import { Progress } from '@work-tools/taskqueue';
 import { WrongPasswordArchiveError } from '../../errors/archive/wrong-password-archive.error';
-import { CorruptedArchiveError } from '../../errors/archive/corrupted-archive.error';
-import { MissingArchivePartError } from '../../errors/archive/missing-archive-part.error';
 import { UnknownArchiveError } from '../../errors/archive/unknown-archive.error';
+import { parse7zError } from './parse-7z-error.class';
 
 export class ArchiveExtractor {
     private readonly _progress$: Subject<Progress> = new Subject();
@@ -17,9 +16,20 @@ export class ArchiveExtractor {
         return this._progress$.asObservable();
     }
 
-    public async listFiles(): Promise<ListItem[]> {
-        const args = this._archive.password ? ['l', '-slt', this._archive.absPath, `-p${this._archive.password}`] : ['l', '-slt', this._archive.absPath];
-        return (await _7z.cmd(args)) as unknown as ListItem[];
+    private get _binaryPath(): string {
+        const binaryPath = getConfig().binaryPath;
+
+        if (isUndefined(binaryPath)) {
+            throw new Error('7zip binary path is not configured');
+        }
+
+        return binaryPath;
+    }
+
+    public async listFiles(): Promise<string[]> {
+        const allFiles = await this._getArchiveList();
+
+        return allFiles.filter((item) => item.attr && !item.attr.includes('D')).map((item) => item.name);
     }
 
     public async test(): Promise<void> {
@@ -39,7 +49,7 @@ export class ArchiveExtractor {
         }
     }
 
-    async extract(): Promise<void> {
+    public async extract(): Promise<void> {
         await this._archive.extractPath.ensure();
 
         const args = ['x', this._archive.absPath, `-o${this._archive.extractPath.absPath}`, '-aoa'];
@@ -48,7 +58,7 @@ export class ArchiveExtractor {
         }
         const total = (await this.listFiles()).length;
 
-        const proc = execa('7za', args, { reject: false });
+        const proc = execa(this._binaryPath, args, { reject: false });
 
         proc.stdout?.on('data', (data: Buffer) => {
             const line = data.toString();
@@ -72,27 +82,17 @@ export class ArchiveExtractor {
 
     private async _testArchive(): Promise<boolean> {
         const args = this._archive.password ? ['t', this._archive.absPath, `-p${this._archive.password}`] : ['t', this._archive.absPath];
-        const output = await _7z.cmd(args);
-
-        if (output.includes('Everything is Ok')) {
+        try {
+            await _7z.cmd(args);
             return true;
+        } catch (e) {
+            parse7zError(e as Error);
+            return false;
         }
+    }
 
-        if (output.includes('Wrong password') || output.includes('Data error in encrypted file')) {
-            throw new WrongPasswordArchiveError();
-        }
-
-        const missingMatch = output.match(/Can not open input file\s*:\s*(.+)/i) || output.match(/No more input files.*?:\s*(.+)/i);
-
-        if (missingMatch || output.includes("Can't open input file") || output.includes('No more input files')) {
-            const missing = missingMatch ? missingMatch[1].trim() : 'unknow part';
-            const missingError = new MissingArchivePartError(missing);
-            this._progress$.error(missingError);
-            throw missingError;
-        }
-
-        const corruptedError = new CorruptedArchiveError(output.slice(0, 500));
-        this._progress$.error(corruptedError);
-        throw corruptedError;
+    private async _getArchiveList(): Promise<ListItem[]> {
+        const args = this._archive.password ? ['l', '-slt', this._archive.absPath, `-p${this._archive.password}`] : ['l', '-slt', this._archive.absPath];
+        return (await _7z.cmd(args)) as unknown as ListItem[];
     }
 }

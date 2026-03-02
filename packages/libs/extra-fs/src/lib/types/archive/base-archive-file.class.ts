@@ -14,7 +14,7 @@ export class BaseArchiveFile extends AbstractBinaryFile {
         this._analized = BaseArchiveFile.analyzeArchiveFilename(this.absPath);
     }
 
-    public get archiveKind(): Optional<SupportedArchiveType> {
+    public get archiveKind(): Optional<SupportedArchiveType | 'generic'> {
         return this._analized.archiveKind;
     }
 
@@ -166,7 +166,7 @@ export class BaseArchiveFile extends AbstractBinaryFile {
             return {
                 fileName,
                 isArchive: true,
-                archiveKind: 'zip',
+                archiveKind: 'generic',
                 isPart: true,
                 isFirstPart: Number(m[2]) === 1,
                 partIndex: Number(m[2]),

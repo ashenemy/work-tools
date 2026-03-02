@@ -17,11 +17,11 @@ import type  { WordFile } from '../lib/types/word-file.class';
 export type ExcelContentType = string | number | boolean | Date | null;
 export type ExcelRow = ExcelContentType[];
 export type ExcelSheet = ExcelRow[];
-export type SupportedArchiveType = 'zip' | '7z' | 'rar';
+export type SupportedArchiveType = 'zip' | '7z' | 'rar' ;
 export type ArchiveParseResult = {
     fileName: string;
     isArchive: boolean;
-    archiveKind: Optional<SupportedArchiveType>;
+    archiveKind: Optional<SupportedArchiveType | 'generic'>;
     isPart: boolean;
     isFirstPart: Optional<boolean>;
     partIndex: Optional<number>;
