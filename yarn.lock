@@ -2644,6 +2644,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nestjs/testing@npm:^11.0.0":
+  version: 11.1.14
+  resolution: "@nestjs/testing@npm:11.1.14"
+  dependencies:
+    tslib: "npm:2.8.1"
+  peerDependencies:
+    "@nestjs/common": ^11.0.0
+    "@nestjs/core": ^11.0.0
+    "@nestjs/microservices": ^11.0.0
+    "@nestjs/platform-express": ^11.0.0
+  peerDependenciesMeta:
+    "@nestjs/microservices":
+      optional: true
+    "@nestjs/platform-express":
+      optional: true
+  checksum: 10c0/bde7b90fead08ca3a5a7f44331e5c4ccf2904bcba5b95bbfa4fe22fc278f3e22beadbe4c4408ec4ea2fcd6dea267faeef502ccc0d3276bd838f3723f0eba7148
+  languageName: node
+  linkType: hard
+
 "@noble/hashes@npm:1.4.0":
   version: 1.4.0
   resolution: "@noble/hashes@npm:1.4.0"
@@ -4470,6 +4489,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@work-tools/bootstrap@workspace:packages/runttime/bootstrap":
+  version: 0.0.0-use.local
+  resolution: "@work-tools/bootstrap@workspace:packages/runttime/bootstrap"
+  languageName: unknown
+  linkType: soft
+
+"@work-tools/config-service@workspace:packages/modules/config":
+  version: 0.0.0-use.local
+  resolution: "@work-tools/config-service@workspace:packages/modules/config"
+  languageName: unknown
+  linkType: soft
+
+"@work-tools/db-service@workspace:packages/modules/db":
+  version: 0.0.0-use.local
+  resolution: "@work-tools/db-service@workspace:packages/modules/db"
+  languageName: unknown
+  linkType: soft
+
 "@work-tools/env-config@workspace:packages/libs/env-config":
   version: 0.0.0-use.local
   resolution: "@work-tools/env-config@workspace:packages/libs/env-config"
@@ -4485,6 +4522,18 @@ __metadata:
 "@work-tools/extra-tg@workspace:packages/libs/extra-tg":
   version: 0.0.0-use.local
   resolution: "@work-tools/extra-tg@workspace:packages/libs/extra-tg"
+  languageName: unknown
+  linkType: soft
+
+"@work-tools/lifecycle-service@workspace:packages/modules/lifecycle":
+  version: 0.0.0-use.local
+  resolution: "@work-tools/lifecycle-service@workspace:packages/modules/lifecycle"
+  languageName: unknown
+  linkType: soft
+
+"@work-tools/logger-service@workspace:packages/modules/logger":
+  version: 0.0.0-use.local
+  resolution: "@work-tools/logger-service@workspace:packages/modules/logger"
   languageName: unknown
   linkType: soft
 
@@ -4513,6 +4562,7 @@ __metadata:
     "@nestjs/core": "npm:^11.1.14"
     "@nestjs/platform-express": "npm:^11.1.14"
     "@nestjs/schematics": "npm:^11.0.9"
+    "@nestjs/testing": "npm:^11.0.0"
     "@nx/js": "npm:^22.5.3"
     "@nx/nest": "npm:^22.5.3"
     "@nx/node": "npm:^22.5.3"
@@ -4550,6 +4600,12 @@ __metadata:
 "@work-tools/taskqueue@workspace:packages/libs/task-queue":
   version: 0.0.0-use.local
   resolution: "@work-tools/taskqueue@workspace:packages/libs/task-queue"
+  languageName: unknown
+  linkType: soft
+
+"@work-tools/tg-bot-service@workspace:packages/modules/tg-bot":
+  version: 0.0.0-use.local
+  resolution: "@work-tools/tg-bot-service@workspace:packages/modules/tg-bot"
   languageName: unknown
   linkType: soft
 

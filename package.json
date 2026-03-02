@@ -7,11 +7,14 @@
         "packages/*",
         "apps/*",
         "packages/libs/*",
-        "packages/shared/*"
+        "packages/shared/*",
+        "packages/runttime/*",
+        "packages/modules/*"
     ],
     "packageManager": "yarn@4.12.0",
     "devDependencies": {
         "@nestjs/schematics": "^11.0.9",
+        "@nestjs/testing": "^11.0.0",
         "@nx/js": "^22.5.3",
         "@nx/nest": "^22.5.3",
         "@nx/node": "^22.5.3",

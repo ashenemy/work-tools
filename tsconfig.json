@@ -26,6 +26,24 @@
         },
         {
             "path": "./packages/libs/env-config"
+        },
+        {
+            "path": "./packages/runttime/bootstrap"
+        },
+        {
+            "path": "./packages/modules/config"
+        },
+        {
+            "path": "./packages/modules/logger"
+        },
+        {
+            "path": "./packages/modules/db"
+        },
+        {
+            "path": "./packages/modules/lifecycle"
+        },
+        {
+            "path": "./packages/modules/tg-bot"
         }
     ]
 }
