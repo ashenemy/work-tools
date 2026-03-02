@@ -2,24 +2,28 @@ import { WrongPasswordArchiveError } from '../../errors/archive/wrong-password-a
 import { MissingArchivePartError } from '../../errors/archive/missing-archive-part.error';
 import { CorruptedArchiveError } from '../../errors/archive/corrupted-archive.error';
 import { UnknownArchiveError } from '../../errors/archive/unknown-archive.error';
+import { SevenZipMinError } from '7zip-min';
 
-export function parse7zError(err: Error) {
-    const errText = err.message?.toLowerCase();
+export function parse7zError(err: unknown): never {
+    const e = err as SevenZipMinError;
 
-    if (errText.includes('wrong password') || errText.includes('data error in encrypted file') || errText.includes('data error : wrong password')) {
+    const output = [e.message, e.stdout, e.stderr].filter((part): part is string => typeof part === 'string' && part.length > 0).join('\n');
+
+    const text = output.toLowerCase();
+
+    if (text.includes('wrong password') || text.includes('data error in encrypted file') || text.includes('data error : wrong password')) {
         throw new WrongPasswordArchiveError();
     }
 
-    if (errText.includes('can not open input file') || errText.includes('no more input files') || errText.includes('no more files')) {
-        const match = err.message.match(/Can not open input file\s*:\s*(.+)/i) || err.message.match(/No more input files.*?:\s*(.+)/i);
-        const missing = match ? match[1].trim() : 'unknown part';
+    const missingMatch = output.match(/Can not open input file\s*:\s*(.+)/i) || output.match(/No more input files.*?:\s*(.+)/i);
 
-        throw new MissingArchivePartError(missing);
+    if (missingMatch || text.includes('can not open input file') || text.includes('no more input files') || text.includes('no more files')) {
+        throw new MissingArchivePartError(missingMatch?.[1]?.trim() ?? 'unknown part');
     }
 
-    if (errText.includes('data error') || errText.includes('crc failed') || errText.includes('crc error') || errText.includes('unexpected end of archive') || errText.includes('headers error') || errText.includes('can not open file as archive')) {
-        throw new CorruptedArchiveError();
+    if (text.includes('data error') || text.includes('crc failed') || text.includes('crc error') || text.includes('unexpected end of archive') || text.includes('headers error') || text.includes('can not open the file as [7z] archive') || text.includes('can not open file as archive')) {
+        throw new CorruptedArchiveError(output.slice(0, 500));
     }
 
-    throw new UnknownArchiveError(err.message);
+    throw new UnknownArchiveError(output.slice(0, 500));
 }
