@@ -13,13 +13,10 @@ export class LoggerService implements _LoggerService {
     constructor(
         @Optional_()
         @Inject(APP_NAME) private readonly _appName: Optional<string> = undefined,
-    ) {
-        this.installRuntimeSupport();
-    }
+    ) {}
 
     public installRuntimeSupport(): void {
         enableSourceMapSupport();
-
         LoggerConsole.$(this);
     }
 

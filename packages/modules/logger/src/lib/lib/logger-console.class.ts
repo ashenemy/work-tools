@@ -61,6 +61,6 @@ export class LoggerConsole {
 
     private _capture(level: LogLevel, args: unknown[]): void {
         const [message, ...rest] = args;
-        this._logger[level](message ?? '', rest);
+        this._logger[level](message ?? '', ...rest);
     }
 }
