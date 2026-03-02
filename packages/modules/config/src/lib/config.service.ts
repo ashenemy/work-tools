@@ -1,13 +1,10 @@
-import { Injectable } from '@nestjs/common';
 import { AbstractTextFile, EnvFile, TomlFile } from '@work-tools/extra-fs';
 import { JsonLike, Optional } from '@work-tools/ts';
 import { isDefined, isUndefined, toBoolean, toNumber, toString } from '@work-tools/utils';
 
-@Injectable()
-export class ConfigService<T extends JsonLike, K extends keyof T = keyof T> {
-
-    public static async $<T extends JsonLike, K extends keyof T = keyof T>(configFilePath: string): Promise<ConfigService<T, K>> {
-        const $ = new ConfigService<T, K>(configFilePath);
+export class ConfigService<T extends JsonLike> {
+    public static async $<T extends JsonLike>(configFilePath: string): Promise<ConfigService<T>> {
+        const $ = new ConfigService<T>(configFilePath);
 
         await $.init();
 
@@ -31,9 +28,9 @@ export class ConfigService<T extends JsonLike, K extends keyof T = keyof T> {
         this._configData = await this._configFile.read();
     }
 
-    public getNumber(key: K, def: number): number;
-    public getNumber(key: K): Optional<number>;
-    public getNumber(key: K, def?: number): Optional<number> {
+    public getNumber<K extends keyof T>(key: K, def: number): number;
+    public getNumber<K extends keyof T>(key: K): Optional<number>;
+    public getNumber<K extends keyof T>(key: K, def?: number): Optional<number> {
         let value: Optional<T[K]>;
 
         if (isDefined(def)) {
@@ -45,13 +42,13 @@ export class ConfigService<T extends JsonLike, K extends keyof T = keyof T> {
         return toNumber(value);
     }
 
-    public getNumberOrThrow(key: K): number {
+    public getNumberOrThrow<K extends keyof T>(key: K): number {
         return this._getOrThrow(key, this.getNumber(key));
     }
 
-    public getString(key: K, def: string): string;
-    public getString(key: K): Optional<string>;
-    public getString(key: K, def?: string): Optional<string> {
+    public getString<K extends keyof T>(key: K, def: string): string;
+    public getString<K extends keyof T>(key: K): Optional<string>;
+    public getString<K extends keyof T>(key: K, def?: string): Optional<string> {
         let value: Optional<T[K]>;
 
         if (isDefined(def)) {
@@ -63,13 +60,13 @@ export class ConfigService<T extends JsonLike, K extends keyof T = keyof T> {
         return toString(value);
     }
 
-    public getStringOrThrow(key: K): string {
+    public getStringOrThrow<K extends keyof T>(key: K): string {
         return this._getOrThrow(key, this.getString(key));
     }
 
-    public getBoolean(key: K, def: boolean): boolean;
-    public getBoolean(key: K): Optional<boolean>;
-    public getBoolean(key: K, def?: boolean): Optional<boolean> {
+    public getBoolean<K extends keyof T>(key: K, def: boolean): boolean;
+    public getBoolean<K extends keyof T>(key: K): Optional<boolean>;
+    public getBoolean<K extends keyof T>(key: K, def?: boolean): Optional<boolean> {
         let value: Optional<T[K]>;
 
         if (isDefined(def)) {
@@ -81,13 +78,13 @@ export class ConfigService<T extends JsonLike, K extends keyof T = keyof T> {
         return toBoolean(value);
     }
 
-    public getBooleanOrThrow(key: K): boolean {
+    public getBooleanOrThrow<K extends keyof T>(key: K): boolean {
         return this._getOrThrow(key, this.getBoolean(key));
     }
 
-    public get(key: K, def: T[K]): T[K];
-    public get(key: K): Optional<T[K]>;
-    public get(key: K, def?: T[K]): Optional<T[K]> {
+    public get<K extends keyof T>(key: K, def: T[K]): T[K];
+    public get<K extends keyof T>(key: K): Optional<T[K]>;
+    public get<K extends keyof T>(key: K, def?: T[K]): Optional<T[K]> {
         if (isUndefined(this._configData)) {
             throw new Error('ConfigService not initialized');
         }
@@ -101,11 +98,11 @@ export class ConfigService<T extends JsonLike, K extends keyof T = keyof T> {
         return value;
     }
 
-    public getOrThrow(key: K): T[K] {
+    public getOrThrow<K extends keyof T>(key: K): T[K] {
         return this._getOrThrow(key, this.get(key));
     }
 
-    private _getOrThrow(key: K, value: Optional<T[K]>): T[K] {
+    private _getOrThrow<K extends keyof T>(key: K, value: Optional<T[K]>): T[K] {
         if (isUndefined(value)) {
             throw new Error(`Env key ${String(key)} not found`);
         }
