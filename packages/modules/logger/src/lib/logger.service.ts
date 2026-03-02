@@ -43,19 +43,19 @@ export class LoggerService implements _LoggerService {
         LoggerService._currentLogger = this;
 
         console.log = (...args: unknown[]) => {
-            this._capture('log', args);
+            LoggerService._currentLogger?._capture('log', args);
         };
         console.info = (...args: unknown[]) => {
-            this._capture('info', args);
+            LoggerService._currentLogger?._capture('info', args);
         };
         console.warn = (...args: unknown[]) => {
-            this._capture('warn', args);
+            LoggerService._currentLogger?._capture('warn', args);
         };
         console.error = (...args: unknown[]) => {
-            this._capture('error', args);
+            LoggerService._currentLogger?._capture('error', args);
         };
         console.debug = (...args: unknown[]) => {
-            this._capture('debug', args);
+            LoggerService._currentLogger?._capture('debug', args);
         };
     }
 
