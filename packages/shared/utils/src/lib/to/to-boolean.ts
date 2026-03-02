@@ -1,8 +1,9 @@
 import { isBoolean } from '../is/is-boolean.js';
 import { isNumber } from '../is/is-number.js';
 import { isString } from '../is/is-string.js';
+import { Optional } from '@work-tools/ts';
 
-export function toBoolean(value: unknown): boolean {
+export function toBoolean(value: unknown): Optional<boolean> {
     if (isBoolean(value)) {
         return value;
     }
@@ -16,7 +17,7 @@ export function toBoolean(value: unknown): boolean {
             return false;
         }
 
-        return false;
+        return undefined;
     }
 
     if (isString(value)) {
@@ -25,5 +26,5 @@ export function toBoolean(value: unknown): boolean {
         if (['false', '0', 'no', 'n', 'off'].includes(v)) return false;
     }
 
-    return false;
+    return undefined;
 }

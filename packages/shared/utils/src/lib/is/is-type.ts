@@ -5,7 +5,6 @@ export function isType(value: unknown, expected: 'boolean'): value is boolean;
 export function isType(value: unknown, expected: 'symbol'): value is symbol;
 export function isType(value: unknown, expected: 'undefined'): value is undefined;
 export function isType(value: unknown, expected: 'function'): value is Function;
-export function isType(value: unknown, expected: 'object'): value is object | null;
 export function isType<T>(value: unknown, expected: 'array'): value is T[];
 export function isType<T extends Record<string, unknown>>(value: unknown, expected: 'object'): value is T;
 export function isType(value: unknown, expected: null): value is null;
@@ -16,6 +15,14 @@ export function isType(value: unknown, expected: string | null | (abstract new (
     }
 
     if (typeof expected === 'string') {
+        if (expected === 'array') {
+            return Array.isArray(value);
+        }
+
+        if (expected === 'object') {
+            return typeof value === 'object' && value !== null && !Array.isArray(value);
+        }
+
         return typeof value === expected;
     }
 
