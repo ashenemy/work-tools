@@ -5,6 +5,7 @@ import type { ConsoleMethods, LevelStyle, LogLevel } from '../@types';
 import { LoggerDesign } from './lib/logger-design.class';
 import { enableSourceMapSupport } from './lib/source-map';
 import type { Optional } from '@work-tools/ts';
+import { isDefined } from '@work-tools/utils';
 
 @Global()
 @Injectable()
@@ -15,7 +16,11 @@ export class LoggerService implements _LoggerService {
         private readonly _appName: Optional<string> = undefined,
     ) {}
 
-    private static _consolePatched = false;
+    private static _currentLogger: Optional<LoggerService> = undefined;
+
+    private static get _consolePatched(): boolean {
+        return isDefined(LoggerService._currentLogger);
+    }
 
     private static readonly _originalConsole: ConsoleMethods = {
         log: console.log.bind(console),
@@ -35,7 +40,7 @@ export class LoggerService implements _LoggerService {
             return;
         }
 
-        LoggerService._consolePatched = true;
+        LoggerService._currentLogger = this;
 
         console.log = (...args: unknown[]) => {
             this._capture('log', args);
@@ -59,7 +64,8 @@ export class LoggerService implements _LoggerService {
             return;
         }
 
-        LoggerService._consolePatched = false;
+        LoggerService._currentLogger = undefined;
+
         console.log = LoggerService._originalConsole.log;
         console.info = LoggerService._originalConsole.info;
         console.warn = LoggerService._originalConsole.warn;
