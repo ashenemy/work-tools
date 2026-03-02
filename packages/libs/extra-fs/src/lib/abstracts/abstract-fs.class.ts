@@ -70,6 +70,8 @@ export abstract class AbstractFs {
 
     public abstract isEmpty(): Promise<Optional<boolean>>;
 
+    public abstract zip(destination?: string): Promise<string>;
+
     public relativePath(basePath: string): string {
         return relative(basePath, this.absPath);
     }

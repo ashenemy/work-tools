@@ -1,9 +1,10 @@
-import { createFile, ensureFile, ensureFileSync, readFile, statSync, truncate } from 'fs-extra';
+import { createFile, ensureDir, ensureFile, ensureFileSync, readFile, statSync, truncate } from 'fs-extra';
 import { Dirent } from 'node:fs';
 import { isDefined, isErrorNoException, isType } from '@work-tools/utils';
 import mime from 'mime-types';
 import type { Optional } from '@work-tools/ts';
-import { extname, resolve } from 'path';
+import _7z from '7zip-min';
+import { dirname, extname, resolve } from 'path';
 import { AbstractFs } from '../abstracts/abstract-fs.class';
 
 export class File<ContentType extends Buffer | string = Buffer> extends AbstractFs {
@@ -89,5 +90,33 @@ export class File<ContentType extends Buffer | string = Buffer> extends Abstract
 
     public async read(): Promise<ContentType> {
         return (await readFile(this.absPath)) as ContentType;
+    }
+
+    public async zip(destination?: string): Promise<string> {
+        const zipPath = this._resolveZipPath(destination);
+
+        await ensureDir(dirname(zipPath));
+        await _7z.pack(this.absPath, zipPath);
+
+        return zipPath;
+    }
+
+    protected _resolveZipPath(destination?: string): string {
+        if (!destination) {
+            return resolve(this.parent, `${this.fileName}.zip`);
+        }
+
+        const archivePath = resolve(destination);
+        const ext = extname(archivePath).toLowerCase();
+
+        if (ext === '.zip') {
+            return archivePath;
+        }
+
+        if (ext === '') {
+            return `${archivePath}.zip`;
+        }
+
+        throw new Error(`Zip destination must have .zip extension or no extension. Destination: ${destination}`);
     }
 }

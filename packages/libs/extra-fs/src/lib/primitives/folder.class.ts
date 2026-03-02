@@ -6,6 +6,8 @@ import type { FileTree } from '../../@types';
 import fg , { Options } from 'fast-glob';
 import { AbstractFs } from '../abstracts/abstract-fs.class';
 import type { Optional } from '@work-tools/ts';
+import _7z from '7zip-min';
+import { dirname, extname, join, resolve } from 'path';
 
 export class Folder extends AbstractFs {
     public static isFolder(path: string | Dirent, canBeCreate: boolean = false): boolean {
@@ -109,5 +111,34 @@ export class Folder extends AbstractFs {
         };
 
         return await fg(pattern, findOptions);
+    }
+
+    public async zip(destination?: string): Promise<string> {
+        const zipPath = this._resolveZipPath(destination);
+        const sourcePattern = join(this.absPath, '*');
+
+        await ensureDir(dirname(zipPath));
+        await _7z.cmd(['a', zipPath, sourcePattern]);
+
+        return zipPath;
+    }
+
+    protected _resolveZipPath(destination?: string): string {
+        if (!destination) {
+            return resolve(this.parent, `${this.name}.zip`);
+        }
+
+        const archivePath = resolve(destination);
+        const ext = extname(archivePath).toLowerCase();
+
+        if (ext === '.zip') {
+            return archivePath;
+        }
+
+        if (ext === '') {
+            return `${archivePath}.zip`;
+        }
+
+        throw new Error(`Zip destination must have .zip extension or no extension. Destination: ${destination}`);
     }
 }

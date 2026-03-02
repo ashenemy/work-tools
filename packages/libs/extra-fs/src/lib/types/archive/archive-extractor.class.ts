@@ -9,6 +9,7 @@ import { parse7zError } from './parse-7z-error.class';
 
 export class ArchiveExtractor {
     private readonly _progress$: Subject<Progress> = new Subject();
+
     constructor(private readonly _archive: ArchiveFile) {}
 
     public get process$(): Observable<Progress> {
@@ -25,10 +26,20 @@ export class ArchiveExtractor {
         return binaryPath;
     }
 
+    private get _errorContext() {
+        return {
+            archivePath: this._archive.absPath,
+            isMultipart: this._archive.isPart,
+            missingHint: this._archive.globPattern ?? this._archive.entryFileName ?? this._archive.name,
+        };
+    }
+
     public async listFiles(): Promise<string[]> {
         const allFiles = await this._getArchiveList();
 
-        return allFiles.filter((item) => item.attr && !item.attr.includes('D')).map((item) => item.name);
+        return allFiles
+            .filter((item) => item.attr && !item.attr.includes('D'))
+            .map((item) => item.name);
     }
 
     public async test(): Promise<void> {
@@ -74,12 +85,15 @@ export class ArchiveExtractor {
 
         if (result.exitCode !== 0) {
             try {
-                parse7zError({
-                    message: result.shortMessage ?? `7-zip exited with code ${result.exitCode}.`,
-                    stdout: result.stdout,
-                    stderr: result.stderr,
-                    code: result.exitCode,
-                });
+                parse7zError(
+                    {
+                        message: result.shortMessage ?? `7-zip exited with code ${result.exitCode}.`,
+                        stdout: result.stdout,
+                        stderr: result.stderr,
+                        code: result.exitCode,
+                    },
+                    this._errorContext
+                );
             } catch (err) {
                 this._progress$.error(err as Error);
                 throw err;
@@ -90,18 +104,27 @@ export class ArchiveExtractor {
     }
 
     private async _testArchive(): Promise<boolean> {
-        const args = this._archive.password ? ['t', this._archive.absPath, `-p${this._archive.password}`] : ['t', this._archive.absPath];
+        const args = this._archive.password
+            ? ['t', this._archive.absPath, `-p${this._archive.password}`]
+            : ['t', this._archive.absPath];
+
         try {
             await _7z.cmd(args);
             return true;
         } catch (e) {
-            parse7zError(e as Error);
-            return false;
+            parse7zError(e, this._errorContext);
         }
     }
 
     private async _getArchiveList(): Promise<ListItem[]> {
-        const args = this._archive.password ? ['l', '-slt', this._archive.absPath, `-p${this._archive.password}`] : ['l', '-slt', this._archive.absPath];
-        return (await _7z.cmd(args)) as unknown as ListItem[];
+        const args = this._archive.password
+            ? ['l', '-slt', this._archive.absPath, `-p${this._archive.password}`]
+            : ['l', '-slt', this._archive.absPath];
+
+        try {
+            return (await _7z.cmd(args)) as unknown as ListItem[];
+        } catch (e) {
+            parse7zError(e, this._errorContext);
+        }
     }
 }
