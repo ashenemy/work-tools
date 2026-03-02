@@ -42,8 +42,6 @@ export class BaseArchiveFile extends AbstractBinaryFile {
         return this._analized.baseName;
     }
 
-
-
     public static analyzeArchiveFilename(filePathOrName: File | string | Dirent): ArchiveParseResult {
         let fileName: string;
         if (isType(filePathOrName, File)) {
@@ -74,7 +72,6 @@ export class BaseArchiveFile extends AbstractBinaryFile {
             };
         }
 
-        // 2) zip split: name.zip.001
         m = fileName.match(/^(.*)\.zip\.(\d{3,})$/i);
         if (m) {
             const baseName = m[1];
@@ -93,7 +90,6 @@ export class BaseArchiveFile extends AbstractBinaryFile {
             };
         }
 
-        // 3) rar multipart: name.part01.rar
         m = fileName.match(/^(.*)\.part(\d+)\.rar$/i);
         if (m) {
             const baseName = m[1];
@@ -113,11 +109,10 @@ export class BaseArchiveFile extends AbstractBinaryFile {
             };
         }
 
-        // 4) rar old volumes: name.r00, name.r01 ... (entry обычно name.rar)
         m = fileName.match(/^(.*)\.r(\d{2})$/i);
         if (m) {
             const baseName = m[1];
-            const idx = Number(m[2]); // r00 -> 0 (не "первая")
+            const idx = Number(m[2]);
             return {
                 fileName,
                 isArchive: true,
@@ -131,7 +126,6 @@ export class BaseArchiveFile extends AbstractBinaryFile {
             };
         }
 
-        // 5) zip split: name.z01, name.z02 ... (entry обычно name.zip)
         m = fileName.match(/^(.*)\.z(\d{2})$/i);
         if (m) {
             const baseName = m[1];
@@ -149,7 +143,6 @@ export class BaseArchiveFile extends AbstractBinaryFile {
             };
         }
 
-        // 6) plain archive: name.zip | name.rar | name.7z
         m = fileName.match(/^(.*)\.(zip|rar|7z)$/i);
         if (m) {
             const baseName = m[1];
@@ -172,7 +165,7 @@ export class BaseArchiveFile extends AbstractBinaryFile {
         if (m) {
             return {
                 fileName,
-                isArchive: false,
+                isArchive: true,
                 archiveKind: undefined,
                 isPart: true,
                 isFirstPart: Number(m[2]) === 1,
@@ -183,7 +176,6 @@ export class BaseArchiveFile extends AbstractBinaryFile {
             };
         }
 
-        // not archive
         return {
             fileName,
             isArchive: false,

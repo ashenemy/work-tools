@@ -28,7 +28,7 @@ export class ArchiveFile extends BaseArchiveFile {
         this._password = value;
 
         if (this._possiblePasswords.length === 0) {
-            this._possiblePasswords.push(value, undefined);
+            this._possiblePasswords.push(undefined);
 
             if (isDefined(value) && !value.startsWith('@')) {
                 this._possiblePasswords.push(`@${value}`);

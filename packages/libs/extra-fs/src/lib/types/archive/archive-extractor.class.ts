@@ -57,14 +57,13 @@ export class ArchiveExtractor {
     async extract(): Promise<void> {
         await this._archive.extractPath.ensure();
 
-        const args = ['x', this._archive.absPath, `-o${this._archive.extractPath}`, '-aoa'];
+        const args = ['x', this._archive.absPath, `-o${this._archive.extractPath.absPath}`, '-aoa'];
         if (isDefined(this._archive.password)) {
             args.push(`-p${this._archive.password}`);
         }
+        const total = (await this.listFiles()).length;
 
         const proc = execa('7za', args, { reject: false });
-
-        const total = (await this.listFiles()).length;
 
         proc.stdout?.on('data', (data: Buffer) => {
             const line = data.toString();
