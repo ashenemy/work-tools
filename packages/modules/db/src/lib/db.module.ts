@@ -1,8 +1,12 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
+import { mongoDbConnectionProvider } from './providers/mongo-db-connection.provider';
 
+const providers = [mongoDbConnectionProvider];
+
+@Global()
 @Module({
     controllers: [],
-    providers: [],
-    exports: [],
+    providers: [...providers],
+    exports: [...providers],
 })
-export class WorkToolsDbServiceModule {}
+export class DbServiceModule {}
