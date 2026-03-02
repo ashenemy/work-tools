@@ -9,4 +9,4 @@ const providers = [mongoDbConnectionProvider];
     providers: [...providers],
     exports: [...providers],
 })
-export class DbServiceModule {}
+export class DbModule {}
