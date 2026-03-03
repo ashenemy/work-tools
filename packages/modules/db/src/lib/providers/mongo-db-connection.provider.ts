@@ -1,5 +1,5 @@
 import { MONGO_DB_CONNECTION } from '../db.constants';
-import  { LoggerService } from '@work-tools/logger-service';
+import { LoggerService } from '@work-tools/logger-service';
 import { CONFIG_SERVICE, ConfigService } from '@work-tools/config-service';
 import type { Optional } from '@work-tools/ts';
 import { isUndefined } from '@work-tools/utils';
@@ -32,7 +32,7 @@ export const mongoDbConnectionProvider: FactoryProvider = {
             retryWrites: true,
             readPreference: 'primary',
             autoIndex: true,
-            bufferCommands: false
+            bufferCommands: false,
         });
 
         logger.verbose(`Connected to MongoDB`);

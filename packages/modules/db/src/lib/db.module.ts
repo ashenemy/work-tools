@@ -2,7 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { mongoDbConnectionProvider } from './providers/mongo-db-connection.provider';
 import { MongoDbShutdownProvider } from './providers/mongo-db-shutdown.provider';
 
-const providers = [mongoDbConnectionProvider, ];
+const providers = [mongoDbConnectionProvider];
 
 @Global()
 @Module({

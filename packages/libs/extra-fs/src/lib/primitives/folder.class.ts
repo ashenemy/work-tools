@@ -3,7 +3,7 @@ import { emptydir, ensureDir, ensureDirSync, mkdir, readdir, statSync } from 'fs
 import { File } from './file.class';
 import { isErrorNoException, isType } from '@work-tools/utils';
 import type { FileTree } from '../../@types';
-import fg , { Options } from 'fast-glob';
+import fg, { Options } from 'fast-glob';
 import { AbstractFs } from '../abstracts/abstract-fs.class';
 import type { Optional } from '@work-tools/ts';
 import _7z from '7zip-min';

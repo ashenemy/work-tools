@@ -3,8 +3,6 @@ import { PendingQueueItem, Progress, TaskQueueOptions, TaskQueueStats, TaskQueue
 import { Task } from './task.class';
 import { Deferred } from '@work-tools/utils';
 
-
-
 export class TaskQueue {
     private static readonly _createdSubject = new Subject<TaskQueue>();
     public static readonly created$: Observable<TaskQueue> = TaskQueue._createdSubject.asObservable();

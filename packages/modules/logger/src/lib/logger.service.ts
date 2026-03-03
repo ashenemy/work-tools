@@ -10,18 +10,7 @@ import { isDefined } from '@work-tools/utils';
 @Global()
 @Injectable()
 export class LoggerService implements _LoggerService {
-    constructor(
-        @Optional_()
-        @Inject(APP_NAME)
-        private readonly _appName: Optional<string> = undefined,
-    ) {}
-
     private static _currentLogger: Optional<LoggerService> = undefined;
-
-    private static get _consolePatched(): boolean {
-        return isDefined(LoggerService._currentLogger);
-    }
-
     private static readonly _originalConsole: ConsoleMethods = {
         log: console.log.bind(console),
         info: console.info.bind(console),
@@ -29,6 +18,20 @@ export class LoggerService implements _LoggerService {
         error: console.error.bind(console),
         debug: console.debug.bind(console),
     };
+
+    constructor(
+        @Optional_()
+        @Inject(APP_NAME)
+        private readonly _appName: Optional<string> = undefined,
+    ) {}
+
+    private static get _consolePatched(): boolean {
+        return isDefined(LoggerService._currentLogger);
+    }
+
+    private get appName(): string {
+        return this._appName ?? 'app';
+    }
 
     public installRuntimeSupport(): void {
         enableSourceMapSupport();
@@ -136,10 +139,6 @@ export class LoggerService implements _LoggerService {
             compact: false,
             breakLength: 120,
         });
-    }
-
-    private get appName(): string {
-        return this._appName ?? 'app';
     }
 
     private _capture(level: LogLevel, args: unknown[]): void {

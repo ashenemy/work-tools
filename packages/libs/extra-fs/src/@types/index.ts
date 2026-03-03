@@ -12,12 +12,12 @@ import type { PDFFile } from '../lib/types/pdf-file.class';
 import type { TomlFile } from '../lib/types/toml-file.class';
 import type { TxtFile } from '../lib/types/txt-file.class';
 import type { VideoFile } from '../lib/types/video-file.class';
-import type  { WordFile } from '../lib/types/word-file.class';
+import type { WordFile } from '../lib/types/word-file.class';
 
 export type ExcelContentType = string | number | boolean | Date | null;
 export type ExcelRow = ExcelContentType[];
 export type ExcelSheet = ExcelRow[];
-export type SupportedArchiveType = 'zip' | '7z' | 'rar' ;
+export type SupportedArchiveType = 'zip' | '7z' | 'rar';
 export type ArchiveParseResult = {
     fileName: string;
     isArchive: boolean;

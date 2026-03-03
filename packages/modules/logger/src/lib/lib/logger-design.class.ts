@@ -1,4 +1,4 @@
-import type { LogLevel, LevelStyle } from '../../@types';
+import type { LevelStyle, LogLevel } from '../../@types';
 
 export class LoggerDesign {
     public static readonly COLORS = {

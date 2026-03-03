@@ -37,9 +37,7 @@ export class ArchiveExtractor {
     public async listFiles(): Promise<string[]> {
         const allFiles = await this._getArchiveList();
 
-        return allFiles
-            .filter((item) => item.attr && !item.attr.includes('D'))
-            .map((item) => item.name);
+        return allFiles.filter((item) => item.attr && !item.attr.includes('D')).map((item) => item.name);
     }
 
     public async test(): Promise<void> {
@@ -92,7 +90,7 @@ export class ArchiveExtractor {
                         stderr: result.stderr,
                         code: result.exitCode,
                     },
-                    this._errorContext
+                    this._errorContext,
                 );
             } catch (err) {
                 this._progress$.error(err as Error);
@@ -104,9 +102,7 @@ export class ArchiveExtractor {
     }
 
     private async _testArchive(): Promise<boolean> {
-        const args = this._archive.password
-            ? ['t', this._archive.absPath, `-p${this._archive.password}`]
-            : ['t', this._archive.absPath];
+        const args = this._archive.password ? ['t', this._archive.absPath, `-p${this._archive.password}`] : ['t', this._archive.absPath];
 
         try {
             await _7z.cmd(args);
@@ -117,9 +113,7 @@ export class ArchiveExtractor {
     }
 
     private async _getArchiveList(): Promise<ListItem[]> {
-        const args = this._archive.password
-            ? ['l', '-slt', this._archive.absPath, `-p${this._archive.password}`]
-            : ['l', '-slt', this._archive.absPath];
+        const args = this._archive.password ? ['l', '-slt', this._archive.absPath, `-p${this._archive.password}`] : ['l', '-slt', this._archive.absPath];
 
         try {
             return (await _7z.cmd(args)) as unknown as ListItem[];

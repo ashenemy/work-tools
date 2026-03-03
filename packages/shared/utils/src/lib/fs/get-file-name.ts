@@ -10,5 +10,5 @@ export function getFileName(input: string): string {
         return trimmed;
     }
 
-    return basename(trimmed)
+    return basename(trimmed);
 }

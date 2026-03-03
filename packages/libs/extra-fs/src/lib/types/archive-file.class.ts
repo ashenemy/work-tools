@@ -9,6 +9,7 @@ import { File } from '../primitives/file.class';
 
 export class ArchiveFile extends BaseArchiveFile {
     protected _possiblePasswords: Array<Optional<string>> = [];
+    protected _passwordIsSet: boolean = false;
 
     constructor(filePath: string | Dirent) {
         super(filePath);
@@ -19,7 +20,6 @@ export class ArchiveFile extends BaseArchiveFile {
     }
 
     protected _password: Optional<string> = undefined;
-    protected _passwordIsSet: boolean = false;
 
     public get password(): Optional<string> {
         return this._password;

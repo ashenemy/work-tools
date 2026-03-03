@@ -19,7 +19,6 @@ export abstract class AbstractFs {
             this.ensureSync();
         }
     }
-    protected assertDestinationCompatible(_destination: string): void {}
 
     public get absPath(): string {
         return this._fullPath;
@@ -136,4 +135,6 @@ export abstract class AbstractFs {
 
         await this.move(newFullPath);
     }
+
+    protected assertDestinationCompatible(_destination: string): void {}
 }
