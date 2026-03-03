@@ -1,9 +1,18 @@
 export function isPlainObject(value: unknown): value is Record<string, unknown> {
-    if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    if (typeof value !== 'object' || value === null || Object.prototype.toString.call(value) !== '[object Object]') {
         return false;
     }
 
     const proto = Object.getPrototypeOf(value);
+    if (proto === null) {
+        return true;
+    }
 
-    return proto === Object.prototype || proto === null;
+    const Ctor = Object.prototype.hasOwnProperty.call(proto, 'constructor') && proto.constructor;
+    
+    return (
+        typeof Ctor === 'function' && 
+        Ctor instanceof Ctor && 
+        Function.prototype.toString.call(Ctor) === Function.prototype.toString.call(Object)
+    );
 }

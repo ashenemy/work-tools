@@ -16,6 +16,7 @@ import { VideoFile } from './types/video-file.class';
 import { WordFile } from './types/word-file.class';
 
 export class FsFactory {
+
     public static fromPath(path: string | Dirent): FsItem {
         if (Folder.isFolder(path)) {
             return new Folder(path);

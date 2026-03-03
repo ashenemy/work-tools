@@ -1,4 +1,5 @@
 import type { MongoCreate, MongoDoc, MongoFilter, MongoId, MongoInsertOptions, MongoModel, MongoQueryOptions, MongoSaveOptions, MongoUpdate } from '../@types';
+import { NotFoundException } from '@nestjs/common';
 
 export class ExCrudService<T extends object, M = {}> {
     constructor(protected readonly _model: MongoModel<T, M>) {}
@@ -102,7 +103,7 @@ export class ExCrudService<T extends object, M = {}> {
 
     private _ensureFound<V>(value: V | null, message: string): V {
         if (value === null) {
-            throw new Error(message);
+            throw new NotFoundException(message);
         }
 
         return value;
