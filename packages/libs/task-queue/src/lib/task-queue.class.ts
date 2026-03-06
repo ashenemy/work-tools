@@ -114,6 +114,9 @@ export class TaskQueue {
         const droppedItems = this._pending.splice(0, this._pending.length);
 
         for (const item of droppedItems) {
+            this._failed += 1;
+            item.task.cancel(reason);
+            this._emitTaskEvent(item.task, 'failed', 'failed', reason);
             this._unregisterTask(item.task.id);
             item.reject(reason);
         }
@@ -140,6 +143,7 @@ export class TaskQueue {
 
         for (const item of pendingItems) {
             this._failed += 1;
+            item.task.cancel(reason);
             this._emitTaskEvent(item.task, 'failed', 'failed', reason);
             this._unregisterTask(item.task.id);
             item.reject(reason);
