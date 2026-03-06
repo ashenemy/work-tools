@@ -7,6 +7,15 @@ type Deferred<TResult> = {
     resolve: (value: TResult) => void;
     reject: (error: unknown) => void;
 };
+type EnqueueAccepted<TResult> = {
+    accepted: true;
+    promise: Promise<TResult>;
+};
+type EnqueueRejected = {
+    accepted: false;
+    reason: unknown;
+};
+type EnqueueResult<TResult> = EnqueueAccepted<TResult> | EnqueueRejected;
 
 export class TaskQueue {
     private static readonly _createdSubject: Subject<TaskQueue> = new Subject<TaskQueue>();
@@ -90,8 +99,20 @@ export class TaskQueue {
     }
 
     public enqueue<TPayload, TResult>(task: Task<TPayload, TResult>): Promise<TResult> {
+        const enqueueResult = this.tryEnqueue(task);
+        if (!enqueueResult.accepted) {
+            return Promise.reject(enqueueResult.reason);
+        }
+
+        return enqueueResult.promise;
+    }
+
+    public tryEnqueue<TPayload, TResult>(task: Task<TPayload, TResult>): EnqueueResult<TResult> {
         if (this._destroyed) {
-            return Promise.reject(this._shutdownReason);
+            return {
+                accepted: false,
+                reason: this._shutdownReason,
+            };
         }
 
         const deferred = this._createDeferred<TResult>();
@@ -107,7 +128,10 @@ export class TaskQueue {
         this._emitStats();
         void this._drain();
 
-        return deferred.promise;
+        return {
+            accepted: true,
+            promise: deferred.promise,
+        };
     }
 
     public clearPending(reason: unknown = new Error(`Queue "${this.name}" pending items were cleared.`)): number {
