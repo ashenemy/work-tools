@@ -36,5 +36,15 @@ module.exports = {
             restart_delay: 2000,
             max_restarts: 10,
         },
+        {
+            name: 'db-nats',
+            cwd: __dirname,
+            script: dockerBin,
+            interpreter: 'none',
+            args: `${composeArgsBase} nats`,
+            autorestart: true,
+            restart_delay: 2000,
+            max_restarts: 10,
+        },
     ],
 };

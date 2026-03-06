@@ -79,6 +79,30 @@ services:
         networks:
             - infra
 
+    nats:
+        image: nats:2.11
+        container_name: ${NATS_CONTAINER_NAME}
+        restart: unless-stopped
+        command:
+            [
+                "--name",
+                "${NATS_SERVER_NAME}",
+                "--jetstream",
+                "--store_dir",
+                "${NATS_STORE_DIR}",
+                "--http_port",
+                "${NATS_MONITOR_INTERNAL_PORT}"
+            ]
+        ports:
+            - "${NATS_PORT}:${NATS_INTERNAL_PORT}"
+            - "${NATS_MONITOR_PORT}:${NATS_MONITOR_INTERNAL_PORT}"
+        volumes:
+            - type: bind
+              source: ${NATS_DATA_DIR}
+              target: ${NATS_STORE_DIR}
+        networks:
+            - infra
+
 networks:
     infra:
         name: work-tools

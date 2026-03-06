@@ -16,8 +16,9 @@
         "db:up": "pm2 start tools/docker/ecosystem.config.cjs",
         "db:up:mongo": "pm2 start tools/docker/ecosystem.config.cjs --only db-mongo",
         "db:up:clickhouse": "pm2 start tools/docker/ecosystem.config.cjs --only db-clickhouse",
-        "db:down": "pm2 delete db-mongo db-clickhouse",
-        "db:status": "pm2 status db-mongo db-clickhouse"
+        "db:up:nats": "pm2 start tools/docker/ecosystem.config.cjs --only db-nats",
+        "db:down": "pm2 delete db-mongo db-clickhouse db-nats",
+        "db:status": "pm2 status db-mongo db-clickhouse db-nats"
     },
     "packageManager": "yarn@4.12.0",
     "devDependencies": {
