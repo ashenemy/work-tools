@@ -1,0 +1,1 @@
+export type TypeOrArray<T> = T | Array<T>;
