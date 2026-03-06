@@ -46,7 +46,12 @@ export class BotApiReplyKbBuilder {
 
     public build(): BotApiReplyKeyboardMarkup {
         const normalized = this._rows.filter((r) => r.length > 0);
-        return { keyboard: normalized.length ? normalized : [[]], ...this._opts };
+
+        if (normalized.length === 0) {
+            throw new Error('Reply keyboard must contain at least one button');
+        }
+
+        return { keyboard: normalized, ...this._opts };
     }
 
     private _currentRow(): BotApiKeyboardButton[] {

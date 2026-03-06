@@ -146,7 +146,10 @@ export class MtpClient {
             try {
                 await this._reconnectingAttempt(reconnectAttempts);
                 reconnectAttempts = 0;
-                clearInterval(this._reconnectingTimer);
+                if (isDefined(this._reconnectingTimer)) {
+                    clearInterval(this._reconnectingTimer);
+                    this._reconnectingTimer = undefined;
+                }
                 this._statusUpdate$.next('connected');
             } catch (e) {
                 reconnectAttempts += 1;
@@ -157,8 +160,12 @@ export class MtpClient {
     }
 
     private async _reconnectingAttempt(attempt: number): Promise<void> {
-        if (this._currentStatus === 'stopped' || this._currentStatus === 'reconnecting' || attempt > MTP_CLIENT_CONNECTION_RECONNECT_OPTIONS.maxAttempts) {
-            return;
+        if (this._currentStatus === 'stopped') {
+            throw new Error('Client was stopped');
+        }
+
+        if (attempt > MTP_CLIENT_CONNECTION_RECONNECT_OPTIONS.maxAttempts) {
+            throw new Error('Max reconnect attempts reached');
         }
 
         try {
@@ -168,6 +175,7 @@ export class MtpClient {
         } catch (e) {
             const delay = expBackoff(attempt, MTP_CLIENT_CONNECTION_RECONNECT_OPTIONS.retryDelayMs, MTP_CLIENT_CONNECTION_RECONNECT_OPTIONS.backoffMaxMs);
             await sleep(delay);
+            throw e;
         }
     }
 

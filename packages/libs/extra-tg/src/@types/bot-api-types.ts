@@ -17,7 +17,8 @@ export type BotApiInlineKeyboardMarkup = {
 
 export type BotApiKeyboardButton = {
     text: string;
-} & ({ web_app: { url: string } } | Record<string, never> | {});
+    web_app?: { url: string };
+};
 
 export type BotApiReplyKeyboardMarkup = {
     keyboard: BotApiKeyboardButton[][];

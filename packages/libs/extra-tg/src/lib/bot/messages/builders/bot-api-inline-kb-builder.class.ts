@@ -37,7 +37,12 @@ export class BotApiInlineKbBuilder {
 
     public build(): BotApiInlineKeyboardMarkup {
         const normalized = this._rows.filter((r) => r.length > 0);
-        return { inline_keyboard: normalized.length ? normalized : [[]] };
+
+        if (normalized.length === 0) {
+            throw new Error('Inline keyboard must contain at least one button');
+        }
+
+        return { inline_keyboard: normalized };
     }
 
     private _currentRow(): BotApiInlineKeyboardButton[] {

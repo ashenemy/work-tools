@@ -34,6 +34,7 @@ export class MtpClientFileDownloader {
     }
 
     public async download(): Promise<File> {
+        this._attempt = 0;
         return await this._downloadAttempt();
     }
 
@@ -60,18 +61,18 @@ export class MtpClientFileDownloader {
 
             ws.end();
             await finished(ws);
+            this._progress$.complete();
 
             return this._saveFile;
         } catch (e) {
             ws.destroy();
             this._attempt++;
-            this._progress$.error(e);
 
             if (this._attempt > TG_FILE_DOWNLOAD_OPTIONS.maxAttempts) {
-                const e = new Error('Max download attempts reached');
+                const maxAttemptsError = new Error('Max download attempts reached');
 
-                this._progress$.error(e);
-                throw e;
+                this._progress$.error(maxAttemptsError);
+                throw maxAttemptsError;
             } else {
                 return await this._downloadAttempt();
             }
