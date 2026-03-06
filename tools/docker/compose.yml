@@ -2,11 +2,11 @@ name: work-tools
 
 services:
     mongo:
-        image: mongo:7
-        container_name: work-tools-mongo
+        image: ${MONGO_IMAGE}
+        container_name: ${MONGO_CONTAINER_NAME}
         restart: unless-stopped
         ports:
-            - "${MONGO_PORT}:27017"
+            - "${MONGO_PORT}:${MONGO_INTERNAL_PORT}"
         environment:
             MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
             MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
@@ -17,16 +17,16 @@ services:
         volumes:
             - type: bind
               source: ${MONGO_DATA_DIR}
-              target: /data/db
+              target: ${MONGO_DATA_TARGET_DIR}
             - type: bind
               source: ./mongo
-              target: /docker-entrypoint-initdb.d
+              target: ${MONGO_INITDB_TARGET_DIR}
               read_only: true
         healthcheck:
             test:
               [
                   "CMD-SHELL",
-                  "mongosh --quiet -u \"$MONGO_ROOT_USERNAME\" -p \"$MONGO_ROOT_PASSWORD\" --authenticationDatabase admin --eval \"db.adminCommand({ ping: 1 }).ok\" | grep 1"
+                  "mongosh --quiet --port ${MONGO_INTERNAL_PORT} -u \"$MONGO_ROOT_USERNAME\" -p \"$MONGO_ROOT_PASSWORD\" --authenticationDatabase admin --eval \"db.adminCommand({ ping: 1 }).ok\" | grep 1"
               ]
             interval: 10s
             timeout: 10s
@@ -36,16 +36,16 @@ services:
             - infra
 
     clickhouse:
-        image: clickhouse/clickhouse-server:25.11
-        container_name: work-tools-clickhouse
+        image: ${CLICKHOUSE_IMAGE}
+        container_name: ${CLICKHOUSE_CONTAINER_NAME}
         restart: unless-stopped
         ulimits:
             nofile:
                 soft: 262144
                 hard: 262144
         ports:
-            - "${CLICKHOUSE_HTTP_PORT}:8123"
-            - "${CLICKHOUSE_TCP_PORT}:9000"
+            - "${CLICKHOUSE_HTTP_PORT}:${CLICKHOUSE_HTTP_INTERNAL_PORT}"
+            - "${CLICKHOUSE_TCP_PORT}:${CLICKHOUSE_TCP_INTERNAL_PORT}"
         environment:
             CLICKHOUSE_DB: ${CLICKHOUSE_DB}
             CLICKHOUSE_USER: ${CLICKHOUSE_USER}
@@ -54,23 +54,23 @@ services:
         volumes:
             - type: bind
               source: ${CLICKHOUSE_DATA_DIR}
-              target: /var/lib/clickhouse
+              target: ${CLICKHOUSE_DATA_TARGET_DIR}
             - type: bind
               source: ${CLICKHOUSE_LOG_DIR}
-              target: /var/log/clickhouse-server
+              target: ${CLICKHOUSE_LOG_TARGET_DIR}
             - type: bind
               source: ./clickhouse/config.d
-              target: /etc/clickhouse-server/config.d
+              target: ${CLICKHOUSE_CONFIG_TARGET_DIR}
               read_only: true
             - type: bind
               source: ./clickhouse/initdb
-              target: /docker-entrypoint-initdb.d
+              target: ${CLICKHOUSE_INITDB_TARGET_DIR}
               read_only: true
         healthcheck:
             test:
               [
                   "CMD-SHELL",
-                  "clickhouse-client --host 127.0.0.1 --user \"$CLICKHOUSE_USER\" --password \"$CLICKHOUSE_PASSWORD\" --query 'SELECT 1' | grep 1"
+                  "clickhouse-client --host 127.0.0.1 --port ${CLICKHOUSE_TCP_INTERNAL_PORT} --user \"$CLICKHOUSE_USER\" --password \"$CLICKHOUSE_PASSWORD\" --query 'SELECT 1' | grep 1"
               ]
             interval: 10s
             timeout: 5s
