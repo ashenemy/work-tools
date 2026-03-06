@@ -1,6 +1,16 @@
-import { NestFactory } from '@nestjs/core';
 import type { INestApplicationContext } from '@nestjs/common';
-import type { ConsoleAppModule, ConsoleBootstrapOptions } from './bootstrap.types';
+import { NestFactory } from '@nestjs/core';
+import type { MicroserviceOptions } from '@nestjs/microservices';
+import { Transport } from '@nestjs/microservices';
+import type { ConsoleAppModule, ConsoleBootstrapNatsOptions, ConsoleBootstrapOptions } from './bootstrap.types';
+
+type NatsTransportOptions = {
+    servers: string[];
+    queue?: string;
+    name?: string;
+};
+
+type NestFactoryContextOptions = Omit<ConsoleBootstrapOptions, 'shutdownSignals' | 'nats'>;
 
 export abstract class BaseConsoleBootstrap {
     protected readonly _shutdownSignals: NodeJS.Signals[];
@@ -30,7 +40,21 @@ export abstract class BaseConsoleBootstrap {
             return this._context;
         }
 
-        this._context = await NestFactory.createApplicationContext(this._appModule, this._options);
+        const nestOptions = this._getNestFactoryOptions();
+
+        if (this._options.nats?.enabled === false) {
+            this._context = await NestFactory.createApplicationContext(this._appModule, nestOptions);
+            return this._context;
+        }
+
+        const microservice = await NestFactory.createMicroservice<MicroserviceOptions>(this._appModule, {
+            ...nestOptions,
+            transport: Transport.NATS,
+            options: this._buildNatsTransportOptions(this._options.nats),
+        });
+
+        await microservice.listen();
+        this._context = microservice;
 
         return this._context;
     }
@@ -65,6 +89,47 @@ export abstract class BaseConsoleBootstrap {
                 process.once(signal, handler);
             }
         });
+    }
+
+    private _buildNatsTransportOptions(natsOptions: ConsoleBootstrapNatsOptions | undefined): NatsTransportOptions {
+        const transportOptions: NatsTransportOptions = {
+            servers: this._resolveNatsServers(natsOptions?.servers),
+        };
+
+        if (natsOptions?.queue) {
+            transportOptions.queue = natsOptions.queue;
+        }
+
+        if (natsOptions?.name) {
+            transportOptions.name = natsOptions.name;
+        }
+
+        return transportOptions;
+    }
+
+    private _resolveNatsServers(configuredServers: string[] | undefined): string[] {
+        if (configuredServers && configuredServers.length > 0) {
+            return configuredServers;
+        }
+
+        const envServers = process.env.NATS_SERVERS ?? process.env.NATS_URL ?? 'nats://localhost:4222';
+        const resolvedServers = envServers
+            .split(',')
+            .map((server) => server.trim())
+            .filter((server) => server.length > 0);
+
+        if (resolvedServers.length > 0) {
+            return resolvedServers;
+        }
+
+        return ['nats://localhost:4222'];
+    }
+
+    private _getNestFactoryOptions(): NestFactoryContextOptions {
+        const options: ConsoleBootstrapOptions = { ...this._options };
+        delete (options as Record<string, unknown>).shutdownSignals;
+        delete (options as Record<string, unknown>).nats;
+        return options;
     }
 
     public abstract run(): Promise<void>;
