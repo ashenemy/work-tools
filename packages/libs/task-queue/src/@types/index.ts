@@ -63,6 +63,24 @@ export type TaskQueueProgressEvent = {
     stats: TaskQueueStats;
 };
 
+export type PersistedTaskDescriptor<TResult = unknown> = {
+    queueName: string;
+    queueOptions?: TaskQueueOptions;
+    task: Task<any, TResult>;
+};
+
+export type RestoreTasksError<TRecord = unknown> = {
+    record: TRecord;
+    error: unknown;
+};
+
+export type RestoreTasksResult<TRecord = unknown> = {
+    total: number;
+    enqueued: number;
+    failed: number;
+    errors: Array<RestoreTasksError<TRecord>>;
+};
+
 export type TaskOptions = {
     id?: string;
     type?: string;

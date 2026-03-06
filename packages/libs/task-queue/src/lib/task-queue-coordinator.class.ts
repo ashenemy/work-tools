@@ -1,6 +1,6 @@
 import type { Optional } from '@work-tools/ts';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
-import { QueueTypeProgress, TaskQueueOptions, TaskQueueProgressEvent, TaskQueueRegistryEvent, TaskQueueStats } from '../@types';
+import { PersistedTaskDescriptor, QueueTypeProgress, RestoreTasksResult, TaskQueueOptions, TaskQueueProgressEvent, TaskQueueRegistryEvent, TaskQueueStats } from '../@types';
 import { Task } from './task.class';
 import { TaskQueue } from './task-queue.class';
 
@@ -78,6 +78,38 @@ export class TaskQueueCoordinator {
         }
 
         return queue.enqueue(task);
+    }
+
+    public async restoreSavedTasks<TRecord>(records: Iterable<TRecord> | AsyncIterable<TRecord>, mapper: (record: TRecord) => PersistedTaskDescriptor | Promise<PersistedTaskDescriptor>): Promise<RestoreTasksResult<TRecord>> {
+        const errors: Array<{ record: TRecord; error: unknown }> = [];
+        let total = 0;
+        let enqueued = 0;
+
+        for await (const record of this._iterateRecords(records)) {
+            total += 1;
+
+            try {
+                const descriptor = await mapper(record);
+                const queueOptions: TaskQueueOptions = descriptor.queueOptions ?? { concurrency: 1 };
+                const queue = this.createOrGetQueue(descriptor.queueName, queueOptions);
+
+                if (descriptor.queueOptions) {
+                    queue.setConcurrency(descriptor.queueOptions.concurrency);
+                }
+
+                void queue.enqueue(descriptor.task).catch(() => undefined);
+                enqueued += 1;
+            } catch (error: unknown) {
+                errors.push({ record, error });
+            }
+        }
+
+        return {
+            total,
+            enqueued,
+            failed: errors.length,
+            errors,
+        };
     }
 
     public removeQueue(name: string): boolean {
@@ -187,5 +219,18 @@ export class TaskQueueCoordinator {
 
     private _emitRegistryEvent(event: TaskQueueRegistryEvent): void {
         this._registryEventsSubject.next(event);
+    }
+
+    private async *_iterateRecords<TRecord>(records: Iterable<TRecord> | AsyncIterable<TRecord>): AsyncGenerator<TRecord> {
+        if (Symbol.asyncIterator in records) {
+            for await (const record of records as AsyncIterable<TRecord>) {
+                yield record;
+            }
+            return;
+        }
+
+        for (const record of records as Iterable<TRecord>) {
+            yield record;
+        }
     }
 }

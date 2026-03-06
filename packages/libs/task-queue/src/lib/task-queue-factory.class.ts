@@ -1,6 +1,6 @@
 import { Optional } from '@work-tools/ts';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
-import { QueueTypeProgress, TaskQueueOptions, TaskQueueRegistryEvent } from '../@types';
+import { PersistedTaskDescriptor, QueueTypeProgress, RestoreTasksResult, TaskQueueOptions, TaskQueueRegistryEvent } from '../@types';
 import { TaskQueue } from './task-queue.class';
 
 export class TaskQueueFactory {
@@ -90,6 +90,38 @@ export class TaskQueueFactory {
         });
     }
 
+    public static async restoreSavedTasks<TRecord>(records: Iterable<TRecord> | AsyncIterable<TRecord>, mapper: (record: TRecord) => PersistedTaskDescriptor | Promise<PersistedTaskDescriptor>): Promise<RestoreTasksResult<TRecord>> {
+        const errors: Array<{ record: TRecord; error: unknown }> = [];
+        let total = 0;
+        let enqueued = 0;
+
+        for await (const record of TaskQueueFactory._iterateRecords(records)) {
+            total += 1;
+
+            try {
+                const descriptor = await mapper(record);
+                const queueOptions: TaskQueueOptions = descriptor.queueOptions ?? { concurrency: 1 };
+                const queue = TaskQueueFactory.getOrCreate(descriptor.queueName, queueOptions);
+
+                if (descriptor.queueOptions) {
+                    queue.setConcurrency(descriptor.queueOptions.concurrency);
+                }
+
+                void queue.enqueue(descriptor.task).catch(() => undefined);
+                enqueued += 1;
+            } catch (error: unknown) {
+                errors.push({ record, error });
+            }
+        }
+
+        return {
+            total,
+            enqueued,
+            failed: errors.length,
+            errors,
+        };
+    }
+
     private static _bindQueue(queue: TaskQueue): void {
         const queueStatsSubscription = queue.stats$.subscribe(() => {
             TaskQueueFactory._emitTypeProgress(queue.type);
@@ -148,5 +180,18 @@ export class TaskQueueFactory {
 
     private static _emitRegistryEvent(event: TaskQueueRegistryEvent): void {
         TaskQueueFactory._registryEventsSubject.next(event);
+    }
+
+    private static async *_iterateRecords<TRecord>(records: Iterable<TRecord> | AsyncIterable<TRecord>): AsyncGenerator<TRecord> {
+        if (Symbol.asyncIterator in records) {
+            for await (const record of records as AsyncIterable<TRecord>) {
+                yield record;
+            }
+            return;
+        }
+
+        for (const record of records as Iterable<TRecord>) {
+            yield record;
+        }
     }
 }
