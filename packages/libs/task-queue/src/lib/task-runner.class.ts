@@ -14,11 +14,13 @@ export class TaskRunner {
                 }
             });
 
-            const statusSubscription = task.status$.subscribe();
-
-            isStarted = true;
-            startedAtMs = Date.now();
-            this._emitEvent(subscriber, task, 'started', 'running', this._resolveProgress(task.getProgress(), startedAtMs, isStarted));
+            const statusSubscription = task.status$.subscribe((status) => {
+                if (status === 'running' && !isStarted) {
+                    isStarted = true;
+                    startedAtMs = Date.now();
+                    this._emitEvent(subscriber, task, 'started', 'running', this._resolveProgress(task.getProgress(), startedAtMs, isStarted));
+                }
+            });
 
             void task
                 .execute()

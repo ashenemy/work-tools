@@ -107,7 +107,12 @@ export class TaskQueueFactory {
                     queue.setConcurrency(descriptor.queueOptions.concurrency);
                 }
 
-                void queue.enqueue(descriptor.task).catch(() => undefined);
+                if (!queue.canAcceptTasks()) {
+                    throw new Error(`Queue "${descriptor.queueName}" cannot accept tasks.`);
+                }
+
+                const executionPromise = queue.enqueue(descriptor.task);
+                void executionPromise.catch(() => undefined);
                 enqueued += 1;
             } catch (error: unknown) {
                 errors.push({ record, error });

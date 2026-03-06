@@ -64,6 +64,10 @@ export class TaskQueue {
         return this._concurrency;
     }
 
+    public canAcceptTasks(): boolean {
+        return !this._destroyed;
+    }
+
     public setConcurrency(value: number): void {
         if (this._destroyed) {
             return;
@@ -129,12 +133,21 @@ export class TaskQueue {
         this._destroyed = true;
         this._shutdownReason = reason;
 
+        const pendingItems = this._pending.splice(0, this._pending.length);
         const runningItems = Array.from(this._runningItems.values());
+        const pending = pendingItems.length;
         const running = runningItems.length;
 
-        const pending = this.clearPending(reason);
+        for (const item of pendingItems) {
+            this._failed += 1;
+            this._emitTaskEvent(item.task, 'failed', 'failed', reason);
+            this._unregisterTask(item.task.id);
+            item.reject(reason);
+        }
 
         for (const item of runningItems) {
+            this._failed += 1;
+            this._emitTaskEvent(item.task, 'failed', 'failed', reason);
             item.task.cancel(reason);
             item.reject(reason);
         }
