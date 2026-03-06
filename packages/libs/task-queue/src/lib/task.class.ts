@@ -13,37 +13,43 @@ export abstract class Task<TPayload, TResult> {
 
     private readonly _progressSubject: BehaviorSubject<Progress>;
     private readonly _statusSubject: BehaviorSubject<TaskStatus>;
-
     private _started = false;
+    private _startedAtMs?: number;
 
     protected constructor(payload: TPayload, options: TaskOptions = {}) {
-        const total = this._normalizeTotal(options.progressTotal ?? 1);
-
+        this.payload = payload;
         this.id = options.id ?? randomUUID();
         this.type = options.type ?? 'default';
-        this.name = options.name ?? this.type;
-        this.payload = payload;
-        this._progressSubject = new BehaviorSubject<Progress>({ total, success: 0 });
+        this.name = options.name ?? this.constructor.name;
+
+        const normalizedTotal = this._normalizeTotal(options.progressTotal ?? 0, 0);
+        this._progressSubject = new BehaviorSubject<Progress>(this._createProgressSnapshot(0, normalizedTotal));
         this._statusSubject = new BehaviorSubject<TaskStatus>('pending');
+
         this.progress$ = this._progressSubject.asObservable();
         this.status$ = this._statusSubject.asObservable();
     }
 
     public async execute(): Promise<TResult> {
         if (this._started) {
-            throw new Error(`Task ${this.id} has already been executed`);
+            throw new Error(`Task "${this.id}" has already started.`);
         }
 
         this._started = true;
+        this._startedAtMs = Date.now();
         this._statusSubject.next('running');
 
         try {
             const result = await this.run(this.payload);
             this.completeProgress();
             this._statusSubject.next('success');
+            this._statusSubject.complete();
+            this._progressSubject.complete();
             return result;
-        } catch (error) {
+        } catch (error: unknown) {
             this._statusSubject.next('failed');
+            this._statusSubject.complete();
+            this._progressSubject.complete();
             throw error;
         }
     }
@@ -56,32 +62,64 @@ export abstract class Task<TPayload, TResult> {
         return this._statusSubject.value;
     }
 
-    protected setProgress(success: number, total: number = this._progressSubject.value.total): void {
-        const normalizedTotal = this._normalizeTotal(total);
-        const normalizedSuccess = Math.max(0, Math.min(Math.floor(success), normalizedTotal));
-
-        this._progressSubject.next({
-            total: normalizedTotal,
-            success: normalizedSuccess,
-        });
+    protected setProgress(success: number, total: number = this.getProgress().total): void {
+        const normalizedTotal = this._normalizeTotal(total, success);
+        const normalizedSuccess = this._normalizeSuccess(success, normalizedTotal);
+        this._progressSubject.next(this._createProgressSnapshot(normalizedSuccess, normalizedTotal));
     }
 
     protected setProgressTotal(total: number): void {
-        this.setProgress(this._progressSubject.value.success, total);
+        this.setProgress(this.getProgress().success, total);
     }
 
-    protected incrementProgress(value = 1): void {
-        this.setProgress(this._progressSubject.value.success + Math.floor(value));
+    protected incrementProgress(value: number = 1): void {
+        const step = Number.isFinite(value) ? Math.max(0, value) : 0;
+        this.setProgress(this.getProgress().success + step);
     }
 
     protected completeProgress(): void {
-        this.setProgress(this._progressSubject.value.total, this._progressSubject.value.total);
+        const current = this.getProgress();
+        const total = this._normalizeTotal(current.total, current.success);
+        this.setProgress(total, total);
     }
 
     protected abstract run(payload: TPayload): Promise<TResult>;
 
-    private _normalizeTotal(total: number): number {
-        const n = Math.floor(total);
-        return Number.isFinite(n) && n > 0 ? n : 1;
+    private _normalizeTotal(total: number, success: number): number {
+        const normalizedTotal = Number.isFinite(total) ? Math.max(0, Math.floor(total)) : 0;
+        const normalizedSuccess = Number.isFinite(success) ? Math.max(0, Math.floor(success)) : 0;
+        return Math.max(normalizedTotal, normalizedSuccess);
+    }
+
+    private _normalizeSuccess(success: number, total: number): number {
+        if (!Number.isFinite(success)) {
+            return 0;
+        }
+
+        return Math.min(Math.max(0, Math.floor(success)), total);
+    }
+
+    private _createProgressSnapshot(success: number, total: number): Progress {
+        const percent = total <= 0 ? 0 : Number(((success / total) * 100).toFixed(2));
+        const speed = this._resolveSpeed(success);
+        return {
+            total,
+            success,
+            percent,
+            speed,
+        };
+    }
+
+    private _resolveSpeed(success: number): number {
+        if (this._startedAtMs === undefined) {
+            return 0;
+        }
+
+        const elapsedSeconds = (Date.now() - this._startedAtMs) / 1000;
+        if (elapsedSeconds <= 0) {
+            return 0;
+        }
+
+        return Number((success / elapsedSeconds).toFixed(2));
     }
 }

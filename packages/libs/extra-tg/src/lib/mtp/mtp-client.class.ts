@@ -17,6 +17,7 @@ export class MtpClient {
     private readonly _statusUpdate$: BehaviorSubject<MTPClientStatus> = new BehaviorSubject<MTPClientStatus>(this._currentStatus);
     private _watchdogTimer: Optional<NodeJS.Timeout> = undefined;
     private _reconnectingTimer: Optional<NodeJS.Timeout> = undefined;
+    private _reconnectingInProgress = false;
     private readonly _chatsWatcher: Map<EntityLike, MtpClientActionBuilder> = new Map();
 
     public constructor() {
@@ -62,6 +63,10 @@ export class MtpClient {
     }
 
     public async start(): Promise<Optional<string>> {
+        if (!this.client.connected || this.client.disconnected) {
+            await this.client.connect();
+        }
+
         const userIsAuthorized = await this.client.checkAuthorization();
 
         if (!userIsAuthorized) {
@@ -144,16 +149,26 @@ export class MtpClient {
         let reconnectAttempts = 0;
 
         this._reconnectingTimer = setInterval(async () => {
+            if (this._reconnectingInProgress || this._currentStatus !== 'reconnecting') {
+                return;
+            }
+
+            if (reconnectAttempts >= MTP_CLIENT_CONNECTION_RECONNECT_OPTIONS.maxAttempts) {
+                this._clearReconnectingTimer();
+                this._statusUpdate$.next('stopped');
+                return;
+            }
+
+            this._reconnectingInProgress = true;
             try {
                 await this._reconnectingAttempt(reconnectAttempts);
                 reconnectAttempts = 0;
-                if (isDefined(this._reconnectingTimer)) {
-                    clearInterval(this._reconnectingTimer);
-                    this._reconnectingTimer = undefined;
-                }
+                this._clearReconnectingTimer();
                 this._statusUpdate$.next('connected');
             } catch (e) {
                 reconnectAttempts += 1;
+            } finally {
+                this._reconnectingInProgress = false;
             }
         }, MTP_CLIENT_CONNECTION_RECONNECT_OPTIONS.retryDelayMs);
 
@@ -163,10 +178,6 @@ export class MtpClient {
     private async _reconnectingAttempt(attempt: number): Promise<void> {
         if (this._currentStatus === 'stopped') {
             throw new Error('Client was stopped');
-        }
-
-        if (attempt > MTP_CLIENT_CONNECTION_RECONNECT_OPTIONS.maxAttempts) {
-            throw new Error('Max reconnect attempts reached');
         }
 
         try {
@@ -219,11 +230,17 @@ export class MtpClient {
             this._watchdogTimer = undefined;
         }
 
+        this._clearReconnectingTimer();
+
+        await this.client.disconnect();
+    }
+
+    private _clearReconnectingTimer(): void {
         if (isDefined(this._reconnectingTimer)) {
             clearInterval(this._reconnectingTimer);
             this._reconnectingTimer = undefined;
         }
 
-        await this.client.disconnect();
+        this._reconnectingInProgress = false;
     }
 }

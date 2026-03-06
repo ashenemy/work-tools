@@ -1,8 +1,10 @@
-import { Task } from '../lib/task.class';
+import type { Task } from '../lib/task.class';
 
 export type Progress = {
     total: number;
     success: number;
+    percent: number;
+    speed: number;
 };
 
 export type TaskStatus = 'pending' | 'running' | 'success' | 'failed';
@@ -52,6 +54,12 @@ export type TaskQueueRegistryEvent = {
     queueName?: string;
 };
 
+export type TaskQueueProgressEvent = {
+    queueName: string;
+    queueType: string;
+    stats: TaskQueueStats;
+};
+
 export type TaskOptions = {
     id?: string;
     type?: string;
@@ -61,6 +69,19 @@ export type TaskOptions = {
 
 export type PendingQueueItem<TResult> = {
     task: Task<any, TResult>;
-    resolve: (v: TResult) => void;
-    reject: (e: unknown) => void;
+    resolve: (value: TResult) => void;
+    reject: (error: unknown) => void;
+};
+
+export type TaskRunnerEventType = 'started' | 'progress' | 'success' | 'failed';
+
+export type TaskRunnerEvent<TResult = unknown> = {
+    taskId: string;
+    taskName: string;
+    taskType: string;
+    status: TaskStatus;
+    progress: Progress;
+    event: TaskRunnerEventType;
+    result?: TResult;
+    error?: unknown;
 };

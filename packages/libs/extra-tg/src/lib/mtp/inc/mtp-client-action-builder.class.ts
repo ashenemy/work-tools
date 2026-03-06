@@ -6,6 +6,7 @@ import { MtpMessage } from '../types/mtp-message.class';
 
 export class MtpClientActionBuilder {
     private _actions: Array<MtpClientAction> = [];
+    private readonly _setupActions: Set<MtpClientAction> = new Set<MtpClientAction>();
 
     constructor(
         private readonly _chat: EntityLike,
@@ -20,6 +21,10 @@ export class MtpClientActionBuilder {
 
     public setupActions(): void {
         for (const action of this._actions) {
+            if (this._setupActions.has(action)) {
+                continue;
+            }
+
             const eventBuilder = action.getTgEvent(this._chat);
             if (!eventBuilder) {
                 throw new Error('Action trigger is not set. Call onTrigger(...) before setupActions().');
@@ -32,6 +37,7 @@ export class MtpClientActionBuilder {
                     message: MtpMessage.fromEvent(event),
                 });
             }, eventBuilder);
+            this._setupActions.add(action);
         }
     }
 }

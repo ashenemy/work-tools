@@ -1,12 +1,17 @@
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { PendingQueueItem, Progress, TaskQueueOptions, TaskQueueStats, TaskQueueTaskEvent, TaskQueueTaskEventType } from '../@types';
 import { Task } from './task.class';
-import { Deferred } from '@work-tools/utils';
+
+type Deferred<TResult> = {
+    promise: Promise<TResult>;
+    resolve: (value: TResult) => void;
+    reject: (error: unknown) => void;
+};
 
 export class TaskQueue {
-    private static readonly _createdSubject = new Subject<TaskQueue>();
+    private static readonly _createdSubject: Subject<TaskQueue> = new Subject<TaskQueue>();
     public static readonly created$: Observable<TaskQueue> = TaskQueue._createdSubject.asObservable();
-
+    public readonly name: string;
     public readonly type: string;
     public readonly stats$: Observable<TaskQueueStats>;
     public readonly taskEvents$: Observable<TaskQueueTaskEvent>;
@@ -18,33 +23,38 @@ export class TaskQueue {
     private _success = 0;
     private _failed = 0;
     private readonly _statsSubject: BehaviorSubject<TaskQueueStats>;
-    private readonly _taskProgressMap = new Map<string, Progress>();
-    private readonly _taskProgressSubscriptions = new Map<string, Subscription>();
-    private readonly _taskEventsSubject = new Subject<TaskQueueTaskEvent>();
+    private readonly _taskProgressMap: Map<string, Progress> = new Map();
+    private readonly _taskProgressSubscriptions: Map<string, Subscription> = new Map();
+    private readonly _taskEventsSubject: Subject<TaskQueueTaskEvent> = new Subject<TaskQueueTaskEvent>();
 
-    public constructor(
-        public readonly name: string,
-        opts: TaskQueueOptions,
-    ) {
+    public constructor(name: string, opts: TaskQueueOptions) {
+        this.name = name;
+        this.type = opts.type ?? 'default';
         this._concurrency = this._normalizeConcurrency(opts.concurrency);
-        this.type = opts.type ?? name;
 
         this._statsSubject = new BehaviorSubject<TaskQueueStats>({
             total: 0,
             success: 0,
             failed: 0,
-            work: { total: 0, success: 0 },
+            work: {
+                total: 0,
+                success: 0,
+                percent: 0,
+                speed: 0,
+            },
             running: 0,
             pending: 0,
         });
+
         this.stats$ = this._statsSubject.asObservable();
         this.taskEvents$ = this._taskEventsSubject.asObservable();
 
+        this._emitStats();
         TaskQueue._emitCreated(this);
     }
 
     private static _emitCreated(queue: TaskQueue): void {
-        this._createdSubject.next(queue);
+        TaskQueue._createdSubject.next(queue);
     }
 
     public getConcurrency(): number {
@@ -54,171 +64,206 @@ export class TaskQueue {
     public setConcurrency(value: number): void {
         this._concurrency = this._normalizeConcurrency(value);
         this._emitStats();
-        this._drain();
+        void this._drain();
     }
 
     public getStats(): TaskQueueStats {
-        return this._statsSubject.value;
-    }
-
-    public enqueue<TPayload, TResult>(task: Task<TPayload, TResult>): Promise<TResult> {
-        this._registerTask(task);
-        this._total += 1;
-
-        const deferred = this._createDeferred<TResult>();
-
-        this._pending.push({
-            task,
-            resolve: deferred.resolve,
-            reject: deferred.reject,
-        });
-
-        this._emitTaskEvent(task, 'enqueued');
-        this._emitStats();
-        this._drain();
-
-        return deferred.promise;
-    }
-
-    public clearPending(reason: unknown = new Error('Task was removed from queue')): number {
-        const pending = this._pending.splice(0, this._pending.length);
-
-        for (const item of pending) {
-            this._total -= 1;
-            this._unregisterTask(item.task.id);
-            item.reject(reason);
-        }
-
-        this._emitStats();
-        return pending.length;
-    }
-
-    private _drain(): void {
-        while (this._running < this._concurrency && this._pending.length > 0) {
-            const next = this._pending.shift();
-
-            if (!next) {
-                break;
-            }
-
-            this._running += 1;
-            this._emitStats();
-            void this._run(next);
-        }
-    }
-
-    private async _run(item: PendingQueueItem<any>): Promise<void> {
-        this._emitTaskEvent(item.task, 'started');
-
-        try {
-            const result = await item.task.execute();
-            this._success += 1;
-            this._emitTaskEvent(item.task, 'success');
-            item.resolve(result);
-        } catch (error) {
-            this._failed += 1;
-            this._emitTaskEvent(item.task, 'failed', error);
-            item.reject(error);
-        } finally {
-            this._running -= 1;
-            this._taskProgressSubscriptions.get(item.task.id)?.unsubscribe();
-            this._taskProgressSubscriptions.delete(item.task.id);
-            this._emitStats();
-            this._drain();
-        }
-    }
-
-    private _registerTask(task: Task<unknown, unknown>): void {
-        this._taskProgressMap.set(task.id, task.getProgress());
-        this._taskProgressSubscriptions.get(task.id)?.unsubscribe();
-
-        const sub = task.progress$.subscribe((next) => {
-            this._taskProgressMap.set(task.id, this._normalizeProgress(next));
-            this._emitTaskEvent(task, 'progress');
-            this._emitStats();
-        });
-
-        this._taskProgressSubscriptions.set(task.id, sub);
-    }
-
-    private _unregisterTask(taskId: string): void {
-        this._taskProgressSubscriptions.get(taskId)?.unsubscribe();
-        this._taskProgressSubscriptions.delete(taskId);
-        this._taskProgressMap.delete(taskId);
-    }
-
-    private _resolveWorkProgress(): Progress {
-        let total = 0;
-        let success = 0;
-
-        for (const value of this._taskProgressMap.values()) {
-            total += value.total;
-            success += Math.min(value.success, value.total);
-        }
-
-        return { total, success };
-    }
-
-    private _emitStats(): void {
-        this._statsSubject.next({
+        return {
             total: this._total,
             success: this._success,
             failed: this._failed,
             work: this._resolveWorkProgress(),
             running: this._running,
             pending: this._pending.length,
-        });
+        };
     }
 
-    private _emitTaskEvent(task: Task<unknown, unknown>, event: TaskQueueTaskEventType, error?: unknown): void {
-        const payload: TaskQueueTaskEvent = {
+    public enqueue<TPayload, TResult>(task: Task<TPayload, TResult>): Promise<TResult> {
+        const deferred = this._createDeferred<TResult>();
+        this._registerTask(task);
+        this._pending.push({
+            task,
+            resolve: deferred.resolve,
+            reject: deferred.reject,
+        });
+        this._total += 1;
+
+        this._emitTaskEvent(task, 'enqueued');
+        this._emitStats();
+        void this._drain();
+
+        return deferred.promise;
+    }
+
+    public clearPending(reason: unknown = new Error(`Queue "${this.name}" pending items were cleared.`)): number {
+        const droppedItems = this._pending.splice(0, this._pending.length);
+
+        for (const item of droppedItems) {
+            this._unregisterTask(item.task.id);
+            item.reject(reason);
+        }
+
+        this._emitStats();
+        return droppedItems.length;
+    }
+
+    private async _drain(): Promise<void> {
+        while (this._running < this._concurrency && this._pending.length > 0) {
+            const nextItem = this._pending.shift();
+            if (!nextItem) {
+                return;
+            }
+
+            this._running += 1;
+            this._emitStats();
+            void this._run(nextItem);
+        }
+    }
+
+    private async _run<TResult>(item: PendingQueueItem<TResult>): Promise<void> {
+        try {
+            const execution = item.task.execute();
+            this._emitTaskEvent(item.task, 'started');
+
+            const result = await execution;
+            this._success += 1;
+            item.resolve(result);
+            this._emitTaskEvent(item.task, 'success');
+        } catch (error: unknown) {
+            this._failed += 1;
+            item.reject(error);
+            this._emitTaskEvent(item.task, 'failed', error);
+        } finally {
+            this._running = Math.max(0, this._running - 1);
+            this._unregisterTask(item.task.id);
+            this._emitStats();
+            void this._drain();
+        }
+    }
+
+    private _registerTask(task: Task<any, any>): void {
+        const taskId = task.id;
+        this._taskProgressMap.set(taskId, this._normalizeProgress(task.getProgress()));
+
+        const progressSubscription = task.progress$.subscribe({
+            next: (progress: Progress) => {
+                this._taskProgressMap.set(taskId, this._normalizeProgress(progress));
+                this._emitTaskEvent(task, 'progress');
+                this._emitStats();
+            },
+        });
+
+        this._taskProgressSubscriptions.set(taskId, progressSubscription);
+    }
+
+    private _unregisterTask(taskId: string): void {
+        const subscription = this._taskProgressSubscriptions.get(taskId);
+        if (subscription) {
+            subscription.unsubscribe();
+            this._taskProgressSubscriptions.delete(taskId);
+        }
+
+        this._taskProgressMap.delete(taskId);
+    }
+
+    private _resolveWorkProgress(): Progress {
+        let total = 0;
+        let success = 0;
+        let speed = 0;
+
+        for (const progress of this._taskProgressMap.values()) {
+            total += progress.total;
+            success += progress.success;
+            speed += progress.speed;
+        }
+
+        const percent = total <= 0 ? 0 : Number(((success / total) * 100).toFixed(2));
+        return {
+            total,
+            success,
+            percent,
+            speed: Number(speed.toFixed(2)),
+        };
+    }
+
+    private _emitStats(): void {
+        this._statsSubject.next(this.getStats());
+    }
+
+    private _emitTaskEvent(task: Task<any, any>, event: TaskQueueTaskEventType, error?: unknown): void {
+        const eventPayload: TaskQueueTaskEvent = {
             queueName: this.name,
             queueType: this.type,
             taskId: task.id,
             taskName: task.name,
             taskType: task.type,
             status: task.getStatus(),
-            progress: this._taskProgressMap.get(task.id) ?? task.getProgress(),
+            progress: this._taskProgressMap.get(task.id) ?? this._normalizeProgress(task.getProgress()),
             event,
-            error,
         };
 
-        this._taskEventsSubject.next(payload);
+        if (error !== undefined) {
+            eventPayload.error = error;
+        }
+
+        this._taskEventsSubject.next(eventPayload);
     }
 
     private _normalizeProgress(progress: Progress): Progress {
-        const total = Number.isFinite(progress.total) && progress.total > 0 ? Math.floor(progress.total) : 1;
-        const success = Number.isFinite(progress.success) ? Math.floor(progress.success) : 0;
+        const total = this._toNonNegativeCount(progress.total);
+        const success = Math.min(this._toNonNegativeCount(progress.success), total);
+        const speed = this._toNonNegativeNumber(progress.speed);
+        const percent = total <= 0 ? 0 : Number(((success / total) * 100).toFixed(2));
 
         return {
             total,
-            success: Math.min(Math.max(0, success), total),
+            success,
+            percent,
+            speed: Number(speed.toFixed(2)),
         };
     }
 
     private _normalizeConcurrency(value: number): number {
-        const n = Math.floor(value);
-
-        if (!Number.isFinite(n) || n < 1) {
+        if (!Number.isFinite(value)) {
             return 1;
         }
 
-        return n;
+        return Math.max(1, Math.floor(value));
+    }
+
+    private _toNonNegativeCount(value: number): number {
+        if (!Number.isFinite(value)) {
+            return 0;
+        }
+
+        return Math.max(0, Math.floor(value));
+    }
+
+    private _toNonNegativeNumber(value: number): number {
+        if (!Number.isFinite(value)) {
+            return 0;
+        }
+
+        return Math.max(0, value);
     }
 
     private _createDeferred<TResult>(): Deferred<TResult> {
-        let resolve: ((value: TResult) => void) | undefined;
-        let reject: ((reason: unknown) => void) | undefined;
+        let resolveRef: ((value: TResult) => void) | undefined;
+        let rejectRef: ((error: unknown) => void) | undefined;
 
-        const promise = new Promise<TResult>((res, rej) => {
-            resolve = res;
-            reject = rej;
+        const promise = new Promise<TResult>((resolve, reject) => {
+            resolveRef = resolve;
+            rejectRef = reject;
         });
+
+        if (!resolveRef || !rejectRef) {
+            throw new Error('Failed to create deferred promise.');
+        }
 
         return {
             promise,
-            resolve: (value: TResult) => resolve?.(value),
-            reject: (reason: unknown) => reject?.(reason),
+            resolve: resolveRef,
+            reject: rejectRef,
         };
     }
 }

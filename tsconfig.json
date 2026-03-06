@@ -16,12 +16,6 @@
             "path": "./packages/libs/extra-tg"
         },
         {
-            "path": "./packages/libs/progress-bar"
-        },
-        {
-            "path": "./packages/libs/slog"
-        },
-        {
             "path": "./packages/libs/task-queue"
         },
         {
@@ -38,9 +32,6 @@
         },
         {
             "path": "./packages/modules/db"
-        },
-        {
-            "path": "./packages/modules/lifecycle"
         },
         {
             "path": "./packages/modules/tg-bot"

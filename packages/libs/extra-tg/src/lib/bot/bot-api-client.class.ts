@@ -10,6 +10,7 @@ import { BotApiTextBuilder } from './messages/builders/bot-api-text-builder.clas
 export class BotApiClient {
     public commands: Array<string> = [];
     private _connectionConfig: Optional<BotApiClientConfig> = undefined;
+    private _listenersSet = false;
 
     public _client: Optional<Bot<FileFlavor<Context>>> = undefined;
 
@@ -39,10 +40,14 @@ export class BotApiClient {
         this._connectionConfig = connectionConfig;
 
         this._client = new Bot(connectionConfig.botToken);
+        this._listenersSet = false;
     }
 
     public async start(): Promise<void> {
-        this._setListeners();
+        if (!this._listenersSet) {
+            this._setListeners();
+            this._listenersSet = true;
+        }
         await this.client.start();
     }
 
