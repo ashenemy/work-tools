@@ -45,3 +45,4 @@ Thumbs.db
 .stakpak/session*
 
 storage/*
+tools/docker/.data/
