@@ -56,6 +56,7 @@ export class MtpClient {
     }
 
     public init(connectionConfig: MTPClientConfig): void {
+        this._clientConnectionConfig = connectionConfig;
         this._session = new StringSession(connectionConfig.session ?? '');
         this._client = new TelegramClient(this._session, connectionConfig.apiId, connectionConfig.apiHash, MTP_CLIENT_INIT_OPTIONS);
     }

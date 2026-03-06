@@ -20,12 +20,18 @@ export class MtpClientActionBuilder {
 
     public setupActions(): void {
         for (const action of this._actions) {
+            const eventBuilder = action.getTgEvent(this._chat);
+            if (!eventBuilder) {
+                throw new Error('Action trigger is not set. Call onTrigger(...) before setupActions().');
+            }
+
+            const trigger = action.trigger;
             this._client.client.addEventHandler((event: NewMessageEvent) => {
                 action.event$.next({
-                    trigger: action.trigger,
+                    trigger,
                     message: MtpMessage.fromEvent(event),
                 });
-            }, action.getTgEvent(this._chat));
+            }, eventBuilder);
         }
     }
 }
