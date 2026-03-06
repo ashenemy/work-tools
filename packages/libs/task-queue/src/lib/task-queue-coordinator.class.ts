@@ -86,6 +86,8 @@ export class TaskQueueCoordinator {
             return false;
         }
 
+        queue.shutdown(new Error(`Queue "${name}" was removed.`));
+
         const statsSubscription = this._queueStatsSubscriptions.get(name);
         if (statsSubscription) {
             statsSubscription.unsubscribe();
@@ -150,7 +152,6 @@ export class TaskQueueCoordinator {
         let failed = 0;
         let workTotal = 0;
         let workSuccess = 0;
-        let workSpeed = 0;
         let running = 0;
         let pending = 0;
 
@@ -161,7 +162,6 @@ export class TaskQueueCoordinator {
             failed += stats.failed;
             workTotal += stats.work.total;
             workSuccess += stats.work.success;
-            workSpeed += stats.work.speed;
             running += stats.running;
             pending += stats.pending;
         }
@@ -172,15 +172,11 @@ export class TaskQueueCoordinator {
             tasks: {
                 total: tasksTotal,
                 success: tasksSuccess,
-                percent: tasksTotal <= 0 ? 0 : Number(((tasksSuccess / tasksTotal) * 100).toFixed(2)),
-                speed: 0,
             },
             failed,
             work: {
                 total: workTotal,
                 success: workSuccess,
-                percent: workTotal <= 0 ? 0 : Number(((workSuccess / workTotal) * 100).toFixed(2)),
-                speed: Number(workSpeed.toFixed(2)),
             },
             running,
             pending,

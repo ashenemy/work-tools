@@ -13,8 +13,8 @@ export abstract class Task<TPayload, TResult> {
 
     private readonly _progressSubject: BehaviorSubject<Progress>;
     private readonly _statusSubject: BehaviorSubject<TaskStatus>;
+    private readonly _abortController: AbortController = new AbortController();
     private _started = false;
-    private _startedAtMs?: number;
 
     protected constructor(payload: TPayload, options: TaskOptions = {}) {
         this.payload = payload;
@@ -23,11 +23,24 @@ export abstract class Task<TPayload, TResult> {
         this.name = options.name ?? this.constructor.name;
 
         const normalizedTotal = this._normalizeTotal(options.progressTotal ?? 0, 0);
-        this._progressSubject = new BehaviorSubject<Progress>(this._createProgressSnapshot(0, normalizedTotal));
+        this._progressSubject = new BehaviorSubject<Progress>({
+            total: normalizedTotal,
+            success: 0,
+        });
         this._statusSubject = new BehaviorSubject<TaskStatus>('pending');
 
         this.progress$ = this._progressSubject.asObservable();
         this.status$ = this._statusSubject.asObservable();
+    }
+
+    public get signal(): AbortSignal {
+        return this._abortController.signal;
+    }
+
+    public cancel(reason: unknown = new Error(`Task "${this.id}" was aborted.`)): void {
+        if (!this._abortController.signal.aborted) {
+            this._abortController.abort(reason);
+        }
     }
 
     public async execute(): Promise<TResult> {
@@ -35,22 +48,30 @@ export abstract class Task<TPayload, TResult> {
             throw new Error(`Task "${this.id}" has already started.`);
         }
 
+        if (this.signal.aborted) {
+            const abortError = this._resolveAbortReason();
+            this._statusSubject.next('failed');
+            this._statusSubject.complete();
+            this._progressSubject.complete();
+            throw abortError;
+        }
+
         this._started = true;
-        this._startedAtMs = Date.now();
         this._statusSubject.next('running');
 
         try {
-            const result = await this.run(this.payload);
+            const result = await this.run(this.payload, this.signal);
             this.completeProgress();
             this._statusSubject.next('success');
             this._statusSubject.complete();
             this._progressSubject.complete();
             return result;
         } catch (error: unknown) {
+            const resolvedError = this.signal.aborted ? this._resolveAbortReason(error) : error;
             this._statusSubject.next('failed');
             this._statusSubject.complete();
             this._progressSubject.complete();
-            throw error;
+            throw resolvedError;
         }
     }
 
@@ -65,7 +86,10 @@ export abstract class Task<TPayload, TResult> {
     protected setProgress(success: number, total: number = this.getProgress().total): void {
         const normalizedTotal = this._normalizeTotal(total, success);
         const normalizedSuccess = this._normalizeSuccess(success, normalizedTotal);
-        this._progressSubject.next(this._createProgressSnapshot(normalizedSuccess, normalizedTotal));
+        this._progressSubject.next({
+            total: normalizedTotal,
+            success: normalizedSuccess,
+        });
     }
 
     protected setProgressTotal(total: number): void {
@@ -83,7 +107,7 @@ export abstract class Task<TPayload, TResult> {
         this.setProgress(total, total);
     }
 
-    protected abstract run(payload: TPayload): Promise<TResult>;
+    protected abstract run(payload: TPayload, signal: AbortSignal): Promise<TResult>;
 
     private _normalizeTotal(total: number, success: number): number {
         const normalizedTotal = Number.isFinite(total) ? Math.max(0, Math.floor(total)) : 0;
@@ -99,27 +123,15 @@ export abstract class Task<TPayload, TResult> {
         return Math.min(Math.max(0, Math.floor(success)), total);
     }
 
-    private _createProgressSnapshot(success: number, total: number): Progress {
-        const percent = total <= 0 ? 0 : Number(((success / total) * 100).toFixed(2));
-        const speed = this._resolveSpeed(success);
-        return {
-            total,
-            success,
-            percent,
-            speed,
-        };
-    }
-
-    private _resolveSpeed(success: number): number {
-        if (this._startedAtMs === undefined) {
-            return 0;
+    private _resolveAbortReason(fallback?: unknown): unknown {
+        if (this._abortController.signal.reason !== undefined) {
+            return this._abortController.signal.reason;
         }
 
-        const elapsedSeconds = (Date.now() - this._startedAtMs) / 1000;
-        if (elapsedSeconds <= 0) {
-            return 0;
+        if (fallback !== undefined) {
+            return fallback;
         }
 
-        return Number((success / elapsedSeconds).toFixed(2));
+        return new Error(`Task "${this.id}" was aborted.`);
     }
 }

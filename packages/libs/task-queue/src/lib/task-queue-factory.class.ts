@@ -63,6 +63,8 @@ export class TaskQueueFactory {
             return false;
         }
 
+        queue.shutdown(new Error(`Queue "${name}" was destroyed.`));
+
         const queueSubscription = TaskQueueFactory.queueSubscriptions.get(name);
         if (queueSubscription) {
             queueSubscription.unsubscribe();
@@ -111,7 +113,6 @@ export class TaskQueueFactory {
         let failed = 0;
         let workTotal = 0;
         let workSuccess = 0;
-        let workSpeed = 0;
         let running = 0;
         let pending = 0;
 
@@ -122,7 +123,6 @@ export class TaskQueueFactory {
             failed += stats.failed;
             workTotal += stats.work.total;
             workSuccess += stats.work.success;
-            workSpeed += stats.work.speed;
             running += stats.running;
             pending += stats.pending;
         }
@@ -133,15 +133,11 @@ export class TaskQueueFactory {
             tasks: {
                 total: tasksTotal,
                 success: tasksSuccess,
-                percent: tasksTotal <= 0 ? 0 : Number(((tasksSuccess / tasksTotal) * 100).toFixed(2)),
-                speed: 0,
             },
             failed,
             work: {
                 total: workTotal,
                 success: workSuccess,
-                percent: workTotal <= 0 ? 0 : Number(((workSuccess / workTotal) * 100).toFixed(2)),
-                speed: Number(workSpeed.toFixed(2)),
             },
             running,
             pending,

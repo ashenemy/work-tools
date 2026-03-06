@@ -1,5 +1,5 @@
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
-import { PendingQueueItem, Progress, TaskQueueOptions, TaskQueueStats, TaskQueueTaskEvent, TaskQueueTaskEventType } from '../@types';
+import { PendingQueueItem, Progress, TaskQueueOptions, TaskQueueStats, TaskQueueTaskEvent, TaskQueueTaskEventType, TaskStatus } from '../@types';
 import { Task } from './task.class';
 
 type Deferred<TResult> = {
@@ -11,6 +11,7 @@ type Deferred<TResult> = {
 export class TaskQueue {
     private static readonly _createdSubject: Subject<TaskQueue> = new Subject<TaskQueue>();
     public static readonly created$: Observable<TaskQueue> = TaskQueue._createdSubject.asObservable();
+
     public readonly name: string;
     public readonly type: string;
     public readonly stats$: Observable<TaskQueueStats>;
@@ -18,10 +19,14 @@ export class TaskQueue {
 
     private _concurrency: number;
     private readonly _pending: PendingQueueItem<any>[] = [];
+    private readonly _runningItems: Map<string, PendingQueueItem<any>> = new Map();
+    private readonly _startedTaskIds: Set<string> = new Set();
     private _running = 0;
     private _total = 0;
     private _success = 0;
     private _failed = 0;
+    private _destroyed = false;
+    private _shutdownReason: unknown = new Error('Queue was stopped.');
     private readonly _statsSubject: BehaviorSubject<TaskQueueStats>;
     private readonly _taskProgressMap: Map<string, Progress> = new Map();
     private readonly _taskProgressSubscriptions: Map<string, Subscription> = new Map();
@@ -39,8 +44,6 @@ export class TaskQueue {
             work: {
                 total: 0,
                 success: 0,
-                percent: 0,
-                speed: 0,
             },
             running: 0,
             pending: 0,
@@ -62,6 +65,10 @@ export class TaskQueue {
     }
 
     public setConcurrency(value: number): void {
+        if (this._destroyed) {
+            return;
+        }
+
         this._concurrency = this._normalizeConcurrency(value);
         this._emitStats();
         void this._drain();
@@ -79,8 +86,11 @@ export class TaskQueue {
     }
 
     public enqueue<TPayload, TResult>(task: Task<TPayload, TResult>): Promise<TResult> {
+        if (this._destroyed) {
+            return Promise.reject(this._shutdownReason);
+        }
+
         const deferred = this._createDeferred<TResult>();
-        this._registerTask(task);
         this._pending.push({
             task,
             resolve: deferred.resolve,
@@ -88,7 +98,8 @@ export class TaskQueue {
         });
         this._total += 1;
 
-        this._emitTaskEvent(task, 'enqueued');
+        this._emitTaskEvent(task, 'enqueued', 'pending');
+        this._registerTask(task);
         this._emitStats();
         void this._drain();
 
@@ -107,7 +118,49 @@ export class TaskQueue {
         return droppedItems.length;
     }
 
+    public shutdown(reason: unknown = new Error(`Queue "${this.name}" was stopped.`)): { pending: number; running: number } {
+        if (this._destroyed) {
+            return {
+                pending: 0,
+                running: 0,
+            };
+        }
+
+        this._destroyed = true;
+        this._shutdownReason = reason;
+
+        const runningItems = Array.from(this._runningItems.values());
+        const running = runningItems.length;
+
+        const pending = this.clearPending(reason);
+
+        for (const item of runningItems) {
+            item.task.cancel(reason);
+            item.reject(reason);
+        }
+
+        this._runningItems.clear();
+        this._startedTaskIds.clear();
+        for (const taskId of Array.from(this._taskProgressSubscriptions.keys())) {
+            this._unregisterTask(taskId);
+        }
+
+        this._running = 0;
+        this._emitStats();
+        this._taskEventsSubject.complete();
+        this._statsSubject.complete();
+
+        return {
+            pending,
+            running,
+        };
+    }
+
     private async _drain(): Promise<void> {
+        if (this._destroyed) {
+            return;
+        }
+
         while (this._running < this._concurrency && this._pending.length > 0) {
             const nextItem = this._pending.shift();
             if (!nextItem) {
@@ -121,23 +174,36 @@ export class TaskQueue {
     }
 
     private async _run<TResult>(item: PendingQueueItem<TResult>): Promise<void> {
-        try {
-            const execution = item.task.execute();
-            this._emitTaskEvent(item.task, 'started');
+        const taskId = item.task.id;
+        this._runningItems.set(taskId, item);
+        this._startedTaskIds.add(taskId);
+        this._emitTaskEvent(item.task, 'started', 'running');
 
-            const result = await execution;
-            this._success += 1;
+        try {
+            const result = await item.task.execute();
             item.resolve(result);
-            this._emitTaskEvent(item.task, 'success');
+
+            if (!this._destroyed) {
+                this._success += 1;
+                this._emitTaskEvent(item.task, 'success', 'success');
+            }
         } catch (error: unknown) {
-            this._failed += 1;
             item.reject(error);
-            this._emitTaskEvent(item.task, 'failed', error);
+
+            if (!this._destroyed) {
+                this._failed += 1;
+                this._emitTaskEvent(item.task, 'failed', 'failed', error);
+            }
         } finally {
+            this._runningItems.delete(taskId);
+            this._startedTaskIds.delete(taskId);
             this._running = Math.max(0, this._running - 1);
-            this._unregisterTask(item.task.id);
-            this._emitStats();
-            void this._drain();
+            this._unregisterTask(taskId);
+
+            if (!this._destroyed) {
+                this._emitStats();
+                void this._drain();
+            }
         }
     }
 
@@ -145,10 +211,24 @@ export class TaskQueue {
         const taskId = task.id;
         this._taskProgressMap.set(taskId, this._normalizeProgress(task.getProgress()));
 
+        let initialEmission = true;
         const progressSubscription = task.progress$.subscribe({
             next: (progress: Progress) => {
+                if (this._destroyed) {
+                    return;
+                }
+
                 this._taskProgressMap.set(taskId, this._normalizeProgress(progress));
-                this._emitTaskEvent(task, 'progress');
+
+                if (initialEmission) {
+                    initialEmission = false;
+                    return;
+                }
+
+                if (this._startedTaskIds.has(taskId)) {
+                    this._emitTaskEvent(task, 'progress', 'running');
+                }
+
                 this._emitStats();
             },
         });
@@ -169,35 +249,38 @@ export class TaskQueue {
     private _resolveWorkProgress(): Progress {
         let total = 0;
         let success = 0;
-        let speed = 0;
 
         for (const progress of this._taskProgressMap.values()) {
             total += progress.total;
             success += progress.success;
-            speed += progress.speed;
         }
 
-        const percent = total <= 0 ? 0 : Number(((success / total) * 100).toFixed(2));
         return {
             total,
             success,
-            percent,
-            speed: Number(speed.toFixed(2)),
         };
     }
 
     private _emitStats(): void {
+        if (this._statsSubject.closed || this._statsSubject.isStopped) {
+            return;
+        }
+
         this._statsSubject.next(this.getStats());
     }
 
-    private _emitTaskEvent(task: Task<any, any>, event: TaskQueueTaskEventType, error?: unknown): void {
+    private _emitTaskEvent(task: Task<any, any>, event: TaskQueueTaskEventType, status: TaskStatus = task.getStatus(), error?: unknown): void {
+        if (this._taskEventsSubject.closed || this._taskEventsSubject.isStopped) {
+            return;
+        }
+
         const eventPayload: TaskQueueTaskEvent = {
             queueName: this.name,
             queueType: this.type,
             taskId: task.id,
             taskName: task.name,
             taskType: task.type,
-            status: task.getStatus(),
+            status,
             progress: this._taskProgressMap.get(task.id) ?? this._normalizeProgress(task.getProgress()),
             event,
         };
@@ -212,14 +295,10 @@ export class TaskQueue {
     private _normalizeProgress(progress: Progress): Progress {
         const total = this._toNonNegativeCount(progress.total);
         const success = Math.min(this._toNonNegativeCount(progress.success), total);
-        const speed = this._toNonNegativeNumber(progress.speed);
-        const percent = total <= 0 ? 0 : Number(((success / total) * 100).toFixed(2));
 
         return {
             total,
             success,
-            percent,
-            speed: Number(speed.toFixed(2)),
         };
     }
 
@@ -237,14 +316,6 @@ export class TaskQueue {
         }
 
         return Math.max(0, Math.floor(value));
-    }
-
-    private _toNonNegativeNumber(value: number): number {
-        if (!Number.isFinite(value)) {
-            return 0;
-        }
-
-        return Math.max(0, value);
     }
 
     private _createDeferred<TResult>(): Deferred<TResult> {

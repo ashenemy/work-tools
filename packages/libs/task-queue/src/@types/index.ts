@@ -3,6 +3,9 @@ import type { Task } from '../lib/task.class';
 export type Progress = {
     total: number;
     success: number;
+};
+
+export type CalculatedProgress = Progress & {
     percent: number;
     speed: number;
 };
@@ -80,7 +83,7 @@ export type TaskRunnerEvent<TResult = unknown> = {
     taskName: string;
     taskType: string;
     status: TaskStatus;
-    progress: Progress;
+    progress: CalculatedProgress;
     event: TaskRunnerEventType;
     result?: TResult;
     error?: unknown;
