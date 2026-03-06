@@ -2,7 +2,7 @@ import { MtpClient } from '../mtp-client.class';
 import type { MtpMessage } from '../types/mtp-message.class';
 import { createWriteStream, WriteStream } from 'node:fs';
 import { File } from '@work-tools/extra-fs';
-import { Subject } from 'rxjs';
+import { type Observable, Subject } from 'rxjs';
 import type { MTPFileDownloadProgress } from '../../../@types';
 import { TG_FILE_DOWNLOAD_OPTIONS } from '../mtp-client.constants';
 import type { MtpMessageFile } from '../types/mtp-message-file.class';
@@ -27,6 +27,10 @@ export class MtpClientFileDownloader {
 
         this._downloadableFile = this._message.downloadableFile;
         this._saveFile = new File(join(path, this._downloadableFile.fileName));
+    }
+
+    public get progress$(): Observable<MTPFileDownloadProgress> {
+        return this._progress$.asObservable();
     }
 
     public async download(): Promise<File> {

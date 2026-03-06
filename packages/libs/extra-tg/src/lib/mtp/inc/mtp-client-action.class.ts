@@ -11,21 +11,6 @@ export class MtpClientAction {
     private _filter: Optional<MTPClientActionFilter> = undefined;
 
     constructor() {
-        this._event$.pipe(
-            filter((event) => {
-                if (isDefined(this._filter)) {
-                    if (this._filter === 'have-document') {
-                        return isDefined(event.message.document);
-                    } else if (this._filter === 'have-bot-start-link') {
-                        return event.message.keyboardUrlButtons.length > 0;
-                    }
-
-                    return false;
-                }
-
-                return true;
-            }),
-        );
     }
 
     private _trigger: Optional<MTPClientActionTrigger> = undefined;
@@ -55,7 +40,25 @@ export class MtpClientAction {
     }
 
     public build(): Observable<MTPClientActionEvent> {
-        return this._event$.asObservable();
+        if(isUndefined(this._trigger)) {
+            throw new Error('Trigger is not set');
+        }
+
+        return this._event$.asObservable().pipe(
+            filter((event) => {
+                if (isDefined(this._filter)) {
+                    if (this._filter === 'have-document') {
+                        return isDefined(event.message.document);
+                    } else if (this._filter === 'have-bot-start-link') {
+                        return event.message.keyboardUrlButtons.length > 0;
+                    }
+
+                    return false;
+                }
+
+                return true;
+            }),
+        );
     }
 
     public getTgEvent(chat: EntityLike): Optional<EventBuilder> {

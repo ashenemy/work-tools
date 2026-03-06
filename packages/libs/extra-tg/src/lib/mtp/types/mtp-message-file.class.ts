@@ -28,7 +28,12 @@ export class MtpMessageFile {
     }
 
     public get fileNameByType(): string {
-        return `${this._message.messageId}.${extension(this._document.mimeType) ?? 'tmp'}`;
+        let ext = extension(this._document.mimeType);
+        if (!ext) {
+            ext = 'tmp';
+        }
+
+        return `${this._message.messageId}.${ext}`;
     }
 
     public get filePassword(): Optional<string> {

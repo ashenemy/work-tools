@@ -60,7 +60,7 @@ export class MtpClient {
         this._client = new TelegramClient(this._session, connectionConfig.apiId, connectionConfig.apiHash, MTP_CLIENT_INIT_OPTIONS);
     }
 
-    public async start(): Promise<void> {
+    public async start(): Promise<Optional<string>> {
         const userIsAuthorized = await this.client.checkAuthorization();
 
         if (!userIsAuthorized) {
@@ -70,6 +70,8 @@ export class MtpClient {
         this._statusUpdate$.next('connected');
 
         void this._startWatchdog();
+
+        return this._session?.save();
     }
 
     public startWatchingChat(chat: EntityLike): MtpClientActionBuilder {
@@ -149,7 +151,7 @@ export class MtpClient {
             } catch (e) {
                 reconnectAttempts += 1;
             }
-        });
+        }, MTP_CLIENT_CONNECTION_RECONNECT_OPTIONS.retryDelayMs);
 
         this._reconnectingTimer?.unref();
     }
