@@ -1,3 +1,8 @@
+export { humanNumber } from './lib/format/human-number.js';
+export { humanBytes } from './lib/format/human-bytes.js';
+export { escapeHtml } from './lib/common/escape-html.js';
+export { isTwoDArrayType } from './lib/is/is-two-d-array.type.js';
+export { isArray } from './lib/is/is-array.js';
 export { getFileName } from './lib/fs/get-file-name.js';
 export { pad } from './lib/common/pad.js';
 export { defer } from './lib/async/defer.js';
