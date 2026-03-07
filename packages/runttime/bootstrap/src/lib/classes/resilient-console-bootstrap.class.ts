@@ -1,4 +1,4 @@
-import type { ConsoleAppModule, ConsoleBootstrapOptions } from './bootstrap.types';
+import type { ConsoleAppModule, ConsoleBootstrapOptions } from '../../@types';
 import { GracefulConsoleBootstrap } from './graceful-console-bootstrap.class';
 
 export class ResilientConsoleBootstrap extends GracefulConsoleBootstrap {

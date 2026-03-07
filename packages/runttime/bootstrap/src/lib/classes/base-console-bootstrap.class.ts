@@ -2,7 +2,7 @@ import type { INestApplicationContext } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { MicroserviceOptions } from '@nestjs/microservices';
 import { Transport } from '@nestjs/microservices';
-import type { ConsoleAppModule, ConsoleBootstrapNatsOptions, ConsoleBootstrapOptions } from './bootstrap.types';
+import type { ConsoleAppModule, ConsoleBootstrapNatsOptions, ConsoleBootstrapOptions } from '../../@types';
 
 type NatsTransportOptions = {
     servers: string[];

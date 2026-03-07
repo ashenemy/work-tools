@@ -1,12 +1,14 @@
-import type { ConsoleAppModule, ConsoleBootstrapOptions } from './bootstrap.types';
+import type { ConsoleAppModule, ConsoleBootstrapOptions } from '../../@types';
 import { BaseConsoleBootstrap } from './base-console-bootstrap.class';
 
-export class ConsoleBootstrap extends BaseConsoleBootstrap {
+export class GracefulConsoleBootstrap extends BaseConsoleBootstrap {
     constructor(appModule: ConsoleAppModule, options: ConsoleBootstrapOptions = {}) {
         super(appModule, options);
     }
 
     public override async run(): Promise<void> {
         await this.start();
+        await this.awaitShutdownSignal();
+        await this.stop();
     }
 }
