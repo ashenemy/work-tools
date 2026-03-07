@@ -1,10 +1,10 @@
 import type { FactoryProvider } from '@nestjs/common';
-import { MONGO_DB_CONNECTION } from '../../db.constants';
+import { getMongoCollectionToken, MONGO_DB_CONNECTION } from '../../db.constants';
 import { LoggerService } from '@work-tools/logger-service';
 import { type Connection } from 'mongoose';
 import { isDefined } from '@work-tools/utils';
 import type { Optional } from '@work-tools/ts';
-import { ExSchema, getMongoCollectionToken, type MongoModel, type MongoSchemaDef } from '@work-tools/extra-db';
+import { ExSchema, type MongoModel, type MongoSchemaDef } from '@work-tools/extra-db';
 
 export function MongoCollectionFactory<T, M = {}>(collectionName: string, schemaDef: MongoSchemaDef<T>): FactoryProvider<MongoModel<T, M>> {
     return {
