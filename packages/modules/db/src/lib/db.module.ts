@@ -1,13 +1,15 @@
 import { Global, Module } from '@nestjs/common';
-import { mongoDbConnectionProvider } from './providers/mongo-db-connection.provider';
-import { MongoDbShutdownProvider } from './providers/mongo-db-shutdown.provider';
+import { clickHouseDbConnectionProvider } from './providers/clickhouse/clickhouse-db-connection.provider';
+import { ClickHouseDbShutdownProvider } from './providers/clickhouse/clickhouse-db-shutdown.provider';
+import { mongoDbConnectionProvider } from './providers/mongo/mongo-db-connection.provider';
+import { MongoDbShutdownProvider } from './providers/mongo/mongo-db-shutdown.provider';
 
-const providers = [mongoDbConnectionProvider];
+const providers = [mongoDbConnectionProvider, clickHouseDbConnectionProvider];
 
 @Global()
 @Module({
     controllers: [],
-    providers: [...providers, MongoDbShutdownProvider],
+    providers: [...providers, MongoDbShutdownProvider, ClickHouseDbShutdownProvider],
     exports: [...providers],
 })
 export class DbModule {}
