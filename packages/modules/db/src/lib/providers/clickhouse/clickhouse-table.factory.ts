@@ -2,8 +2,7 @@ import type { FactoryProvider } from '@nestjs/common';
 import type { ClickHouseClient } from '@clickhouse/client';
 import { LoggerService } from '@work-tools/logger-service';
 import type { ClickHouseQueryParams, ClickHouseTable, ClickHouseTableRow } from '../../../@types';
-import { CLICKHOUSE_DB_CONNECTION } from '../../db.constants';
-import { getClickHouseTableToken } from '@work-tools/extra-db';
+import { CLICKHOUSE_DB_CONNECTION, getClickHouseTableToken } from '../../db.constants';
 
 export function ClickHouseTableFactory<T extends ClickHouseTableRow = ClickHouseTableRow>(tableName: string): FactoryProvider<ClickHouseTable<T>> {
     return {
