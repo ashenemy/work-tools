@@ -1,0 +1,28 @@
+{
+    "name": "@work-tool/config-cenerator",
+    "version": "0.0.1",
+    "private": true,
+    "nx": {
+        "targets": {
+            "build": {
+                "executor": "nx:run-commands",
+                "options": {
+                    "cwd": "apps/config-generator",
+                    "command": "ts-node src/main.ts"
+                },
+                "dependsOn": [
+                    "typings"
+                ]
+            },
+            "typings": {
+                "executor": "nx:run-commands",
+                "options": {
+                    "cwd": "apps/config-generator",
+                    "command": "npx tsc \"src/config/config.toml.ts\" --declaration --emitDeclarationOnly --declarationDir ./dist"
+                }
+            }
+        }
+    },
+    "main": "./dist/config.toml",
+    "types": "./dist/config.toml.d.ts"
+}
