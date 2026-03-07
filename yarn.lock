@@ -1425,6 +1425,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@clickhouse/client-common@npm:1.18.1":
+  version: 1.18.1
+  resolution: "@clickhouse/client-common@npm:1.18.1"
+  checksum: 10c0/2545bab6471c06d3e826ffb0fe0f5dc86e39ae08a7d3cb247a624fef83378f74e50028037d3afb40293c9fa55bdda4efe1d4555f4e0c4d83880ac7d19dd87490
+  languageName: node
+  linkType: hard
+
+"@clickhouse/client@npm:^1.18.1":
+  version: 1.18.1
+  resolution: "@clickhouse/client@npm:1.18.1"
+  dependencies:
+    "@clickhouse/client-common": "npm:1.18.1"
+  checksum: 10c0/707345c5db3548795f99790ecf06e0cb5ec32b29fbfa0446054d62fe261653023adcdc112aa88ecc0cde38a36b8b68713062312f3dd4b5f2bbfe6fc489204c04
+  languageName: node
+  linkType: hard
+
 "@cryptography/aes@npm:^0.1.1":
   version: 0.1.1
   resolution: "@cryptography/aes@npm:0.1.1"
@@ -4620,6 +4636,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@work-tools/bots@workspace:packages/components/bots":
+  version: 0.0.0-use.local
+  resolution: "@work-tools/bots@workspace:packages/components/bots"
+  languageName: unknown
+  linkType: soft
+
 "@work-tools/broker-service@workspace:packages/modules/broker":
   version: 0.0.0-use.local
   resolution: "@work-tools/broker-service@workspace:packages/modules/broker"
@@ -4662,9 +4684,39 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@work-tools/files@workspace:packages/components/files":
+  version: 0.0.0-use.local
+  resolution: "@work-tools/files@workspace:packages/components/files"
+  languageName: unknown
+  linkType: soft
+
+"@work-tools/log-files@workspace:packages/components/log-files":
+  version: 0.0.0-use.local
+  resolution: "@work-tools/log-files@workspace:packages/components/log-files"
+  languageName: unknown
+  linkType: soft
+
+"@work-tools/log@workspace:packages/components/log":
+  version: 0.0.0-use.local
+  resolution: "@work-tools/log@workspace:packages/components/log"
+  languageName: unknown
+  linkType: soft
+
 "@work-tools/logger-service@workspace:packages/modules/logger":
   version: 0.0.0-use.local
   resolution: "@work-tools/logger-service@workspace:packages/modules/logger"
+  languageName: unknown
+  linkType: soft
+
+"@work-tools/passwords@workspace:packages/components/passwords":
+  version: 0.0.0-use.local
+  resolution: "@work-tools/passwords@workspace:packages/components/passwords"
+  languageName: unknown
+  linkType: soft
+
+"@work-tools/persons@workspace:packages/components/persons":
+  version: 0.0.0-use.local
+  resolution: "@work-tools/persons@workspace:packages/components/persons"
   languageName: unknown
   linkType: soft
 
@@ -4679,6 +4731,7 @@ __metadata:
   resolution: "@work-tools/source@workspace:."
   dependencies:
     7zip-min: "npm:^3.0.0"
+    "@clickhouse/client": "npm:^1.18.1"
     "@fast-csv/format": "npm:^5.0.5"
     "@fast-csv/parse": "npm:^5.0.5"
     "@grammyjs/files": "npm:^1.2.0"

@@ -44,6 +44,24 @@
         },
         {
             "path": "./packages/modules/queue"
+        },
+        {
+            "path": "./packages/components/log-files"
+        },
+        {
+            "path": "./packages/components/passwords"
+        },
+        {
+            "path": "./packages/components/persons"
+        },
+        {
+            "path": "./packages/components/log"
+        },
+        {
+            "path": "./packages/components/bots"
+        },
+        {
+            "path": "./packages/components/files"
         }
     ]
 }
