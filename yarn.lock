@@ -4620,6 +4620,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@work-tools/broker-service@workspace:packages/modules/broker":
+  version: 0.0.0-use.local
+  resolution: "@work-tools/broker-service@workspace:packages/modules/broker"
+  languageName: unknown
+  linkType: soft
+
 "@work-tools/config-service@workspace:packages/modules/config":
   version: 0.0.0-use.local
   resolution: "@work-tools/config-service@workspace:packages/modules/config"
@@ -4659,6 +4665,12 @@ __metadata:
 "@work-tools/logger-service@workspace:packages/modules/logger":
   version: 0.0.0-use.local
   resolution: "@work-tools/logger-service@workspace:packages/modules/logger"
+  languageName: unknown
+  linkType: soft
+
+"@work-tools/queue-service@workspace:packages/modules/queue":
+  version: 0.0.0-use.local
+  resolution: "@work-tools/queue-service@workspace:packages/modules/queue"
   languageName: unknown
   linkType: soft
 

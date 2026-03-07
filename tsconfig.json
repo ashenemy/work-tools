@@ -38,6 +38,12 @@
         },
         {
             "path": "./packages/libs/extra-db"
+        },
+        {
+            "path": "./packages/modules/broker"
+        },
+        {
+            "path": "./packages/modules/queue"
         }
     ]
 }
