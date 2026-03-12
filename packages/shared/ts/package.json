@@ -12,5 +12,18 @@
             "default": "./src/index.ts"
         },
         "./package.json": "./package.json"
+    },
+    "nx": {
+        "targets": {
+            "check": {
+                "executor": "@work-tools/nx-biome:check"
+            },
+            "check-fix": {
+                "executor": "@work-tools/nx-biome:check",
+                "options": {
+                    "fix": true
+                }
+            }
+        }
     }
 }

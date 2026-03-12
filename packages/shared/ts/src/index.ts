@@ -1,10 +1,10 @@
-export type { RequireExactlyOne } from './lib/require-exactly-one.type.js';
-export type { IsRequired } from './lib/is-required.type.js';
-export type { TypeOrArray } from './lib/type-or-array.type.js';
-export type { JsonArray, JsonLike, JsonObject, JsonPrimitive } from './lib/json-like.type.js';
 export type { Ctor } from './lib/ctor.type.js';
+export type { IsRequired } from './lib/is-required.type.js';
+export type { JsonArray, JsonLike, JsonObject, JsonPrimitive } from './lib/json-like.type.js';
 export type { Nil } from './lib/nil.type.js';
 export type { Nillable } from './lib/nillable.type.js';
+export type { Nullable } from './lib/nullable.type.js';
 export type { Optional } from './lib/optional.type.js';
 export type { OptionalStrict } from './lib/optional-strict.type.js';
-export type { Nullable } from './lib/nullable.type.js';
+export type { RequireExactlyOne } from './lib/require-exactly-one.type.js';
+export type { TypeOrArray } from './lib/type-or-array.type.js';
