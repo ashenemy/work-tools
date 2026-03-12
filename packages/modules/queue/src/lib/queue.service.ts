@@ -1,13 +1,12 @@
+import { randomUUID } from 'node:crypto';
 import { Inject, Injectable, OnApplicationBootstrap, OnApplicationShutdown, Optional as Optional_ } from '@nestjs/common';
 import { BrokerService } from '@work-tools/broker-service';
 import { LoggerService } from '@work-tools/logger-service';
+import type { TaskQueueOptions, TaskQueueProgressEvent, TaskQueueRegistryEvent, TaskQueueTaskEvent } from '@work-tools/taskqueue';
 import { TaskQueue, TaskQueueCoordinator } from '@work-tools/taskqueue';
 import type { JsonLike } from '@work-tools/ts';
-import type { TaskQueueOptions, TaskQueueProgressEvent, TaskQueueRegistryEvent, TaskQueueTaskEvent } from '@work-tools/taskqueue';
-import { randomUUID } from 'node:crypto';
 import { Subscription } from 'rxjs';
 import { QUEUE_MODULE_OPTIONS, QUEUE_SNAPSHOT_VERSION, QUEUE_STATE_STORE } from './queue.constants';
-import { QueueTask } from './utils/queue-task.class';
 import type {
     QueueResolvedOptions,
     QueueRestoreSummary,
@@ -20,6 +19,7 @@ import type {
     QueueTaskHandlerRegistration,
     QueueTaskStateRecord,
 } from './queue.types';
+import { QueueTask } from './utils/queue-task.class';
 
 @Injectable()
 export class QueueService implements OnApplicationBootstrap, OnApplicationShutdown {
@@ -68,7 +68,10 @@ export class QueueService implements OnApplicationBootstrap, OnApplicationShutdo
         await this._persistState();
     }
 
-    public registerTaskHandler<TPayload extends JsonLike = JsonLike, TResult = unknown>(taskType: string, handler: QueueTaskHandler<TPayload, TResult>): void {
+    public registerTaskHandler<TPayload extends JsonLike = JsonLike, TResult = unknown>(
+        taskType: string,
+        handler: QueueTaskHandler<TPayload, TResult>,
+    ): void {
         const normalizedTaskType = this._normalizeNonEmptyString(taskType, 'Task type');
         this._taskHandlers.set(normalizedTaskType, handler as QueueTaskHandler<JsonLike, unknown>);
     }
@@ -179,7 +182,9 @@ export class QueueService implements OnApplicationBootstrap, OnApplicationShutdo
         return this._cloneState(this._state);
     }
 
-    public async enqueue<TPayload extends JsonLike = JsonLike, TResult = unknown>(descriptor: QueueTaskDescriptor<TPayload>): Promise<TResult> {
+    public async enqueue<TPayload extends JsonLike = JsonLike, TResult = unknown>(
+        descriptor: QueueTaskDescriptor<TPayload>,
+    ): Promise<TResult> {
         const queueName = this._normalizeNonEmptyString(descriptor.queueName, 'Queue name');
         const taskType = this._normalizeNonEmptyString(descriptor.taskType, 'Task type');
         const queueOptions = descriptor.queueOptions ?? this._resolveQueueOptionsFromState(queueName) ?? { concurrency: 1 };
@@ -212,11 +217,7 @@ export class QueueService implements OnApplicationBootstrap, OnApplicationShutdo
         }
 
         if (this._alreadyRestored && !force) {
-            return {
-                total: 0,
-                restored: 0,
-                failed: 0,
-            };
+            return { failed: 0, restored: 0, total: 0 };
         }
 
         this._restoreInProgress = this._restorePendingTasks().finally(() => {
@@ -284,12 +285,10 @@ export class QueueService implements OnApplicationBootstrap, OnApplicationShutdo
     }
 
     private async _restorePendingTasks(): Promise<QueueRestoreSummary> {
-        const pendingTaskRecords = Object.values(this._state.tasks).filter((taskRecord) => taskRecord.status === 'pending' || taskRecord.status === 'running');
-        const summary: QueueRestoreSummary = {
-            total: pendingTaskRecords.length,
-            restored: 0,
-            failed: 0,
-        };
+        const pendingTaskRecords = Object.values(this._state.tasks).filter(
+            (taskRecord) => taskRecord.status === 'pending' || taskRecord.status === 'running',
+        );
+        const summary: QueueRestoreSummary = { failed: 0, restored: 0, total: pendingTaskRecords.length };
 
         for (const taskRecord of pendingTaskRecords) {
             const handler = this._taskHandlers.get(taskRecord.taskType);
@@ -301,10 +300,7 @@ export class QueueService implements OnApplicationBootstrap, OnApplicationShutdo
             }
 
             try {
-                this.createQueue(taskRecord.queueName, {
-                    concurrency: taskRecord.queueConcurrency,
-                    type: taskRecord.queueType,
-                });
+                this.createQueue(taskRecord.queueName, { concurrency: taskRecord.queueConcurrency, type: taskRecord.queueType });
 
                 taskRecord.status = 'pending';
                 taskRecord.updatedAt = new Date().toISOString();
@@ -324,9 +320,7 @@ export class QueueService implements OnApplicationBootstrap, OnApplicationShutdo
         }
 
         await this._persistState();
-        await this._emitEvent(this._options.eventSubjects.restoreSummary, {
-            summary,
-        });
+        await this._emitEvent(this._options.eventSubjects.restoreSummary, { summary });
 
         return summary;
     }
@@ -336,10 +330,7 @@ export class QueueService implements OnApplicationBootstrap, OnApplicationShutdo
 
         if (taskRecord) {
             taskRecord.status = event.status;
-            taskRecord.progress = {
-                total: event.progress.total,
-                success: event.progress.success,
-            };
+            taskRecord.progress = { success: event.progress.success, total: event.progress.total };
             taskRecord.updatedAt = new Date().toISOString();
 
             if (event.event === 'started') {
@@ -353,10 +344,7 @@ export class QueueService implements OnApplicationBootstrap, OnApplicationShutdo
 
         void this._persistState();
 
-        const payload: QueueTaskChangedEvent = {
-            event,
-            state: taskRecord,
-        };
+        const payload: QueueTaskChangedEvent = { event, state: taskRecord };
 
         await this._emitEvent(this._options.eventSubjects.taskChanged, payload);
 
@@ -366,9 +354,7 @@ export class QueueService implements OnApplicationBootstrap, OnApplicationShutdo
     }
 
     private async _handleQueueProgressEvent(event: TaskQueueProgressEvent): Promise<void> {
-        await this._emitEvent(this._options.eventSubjects.queueProgress, {
-            event,
-        });
+        await this._emitEvent(this._options.eventSubjects.queueProgress, { event });
     }
 
     private async _handleQueueRegistryEvent(event: TaskQueueRegistryEvent): Promise<void> {
@@ -382,39 +368,38 @@ export class QueueService implements OnApplicationBootstrap, OnApplicationShutdo
             void this._persistState();
         }
 
-        await this._emitEvent(this._options.eventSubjects.queueRegistry, {
-            event,
-        });
+        await this._emitEvent(this._options.eventSubjects.queueRegistry, { event });
     }
 
-    private _createTaskRecord<TPayload extends JsonLike>(queue: TaskQueue, descriptor: QueueTaskDescriptor<TPayload>, taskId: string): QueueTaskStateRecord<TPayload> {
+    private _createTaskRecord<TPayload extends JsonLike>(
+        queue: TaskQueue,
+        descriptor: QueueTaskDescriptor<TPayload>,
+        taskId: string,
+    ): QueueTaskStateRecord<TPayload> {
         const now = new Date().toISOString();
         const progressTotal = this._normalizeNonNegativeInteger(descriptor.progressTotal);
 
         return {
-            id: taskId,
-            queueName: queue.name,
-            queueType: queue.type,
-            queueConcurrency: queue.getConcurrency(),
-            taskType: descriptor.taskType,
-            taskName: descriptor.taskName?.trim() || descriptor.taskType,
-            payload: descriptor.payload,
-            progress: {
-                total: progressTotal,
-                success: 0,
-            },
-            status: 'pending',
             attempts: 0,
             createdAt: now,
+            id: taskId,
+            payload: descriptor.payload,
+            progress: { success: 0, total: progressTotal },
+            queueConcurrency: queue.getConcurrency(),
+            queueName: queue.name,
+            queueType: queue.type,
+            status: 'pending',
+            taskName: descriptor.taskName?.trim() || descriptor.taskType,
+            taskType: descriptor.taskType,
             updatedAt: now,
         };
     }
 
-    private _createRuntimeTask<TResult = unknown>(record: QueueTaskStateRecord, handler: QueueTaskHandler<JsonLike, TResult>): QueueTask<TResult> {
-        return new QueueTask(record, handler, {
-            queueName: record.queueName,
-            queueType: record.queueType,
-        });
+    private _createRuntimeTask<TResult = unknown>(
+        record: QueueTaskStateRecord,
+        handler: QueueTaskHandler<JsonLike, TResult>,
+    ): QueueTask<TResult> {
+        return new QueueTask(record, handler, { queueName: record.queueName, queueType: record.queueType });
     }
 
     private _upsertQueueState(queue: TaskQueue): void {
@@ -422,12 +407,9 @@ export class QueueService implements OnApplicationBootstrap, OnApplicationShutdo
         const existed = this._state.queues[queue.name];
 
         this._state.queues[queue.name] = {
-            name: queue.name,
-            options: {
-                concurrency: queue.getConcurrency(),
-                type: queue.type,
-            },
             createdAt: existed?.createdAt ?? now,
+            name: queue.name,
+            options: { concurrency: queue.getConcurrency(), type: queue.type },
             updatedAt: now,
         };
     }
@@ -446,15 +428,15 @@ export class QueueService implements OnApplicationBootstrap, OnApplicationShutdo
 
         await this._emitEvent(this._options.eventSubjects.taskError, {
             event: {
+                error,
+                event: 'failed',
+                progress: taskRecord.progress,
                 queueName: taskRecord.queueName,
                 queueType: taskRecord.queueType,
+                status: 'failed',
                 taskId: taskRecord.id,
                 taskName: taskRecord.taskName,
                 taskType: taskRecord.taskType,
-                status: 'failed',
-                progress: taskRecord.progress,
-                event: 'failed',
-                error,
             },
             state: taskRecord,
         });
@@ -478,10 +460,7 @@ export class QueueService implements OnApplicationBootstrap, OnApplicationShutdo
             return undefined;
         }
 
-        return {
-            concurrency: queueRecord.options.concurrency,
-            type: queueRecord.options.type,
-        };
+        return { concurrency: queueRecord.options.concurrency, type: queueRecord.options.type };
     }
 
     private _assertTaskIdAvailable(taskId: string): void {
@@ -499,10 +478,7 @@ export class QueueService implements OnApplicationBootstrap, OnApplicationShutdo
     }
 
     private _normalizeQueueOptions(options: TaskQueueOptions): TaskQueueOptions {
-        return {
-            concurrency: this._normalizeConcurrency(options.concurrency),
-            type: options.type?.trim() || undefined,
-        };
+        return { concurrency: this._normalizeConcurrency(options.concurrency), type: options.type?.trim() || undefined };
     }
 
     private _normalizeConcurrency(value: number): number {
@@ -533,31 +509,18 @@ export class QueueService implements OnApplicationBootstrap, OnApplicationShutdo
 
     private _serializeError(error: unknown): QueueTaskErrorSnapshot {
         if (error instanceof Error) {
-            return {
-                name: error.name,
-                message: error.message,
-                stack: error.stack,
-            };
+            return { message: error.message, name: error.name, stack: error.stack };
         }
 
         if (typeof error === 'string' && error.trim().length > 0) {
-            return {
-                message: error,
-            };
+            return { message: error };
         }
 
-        return {
-            message: 'Unknown error',
-        };
+        return { message: 'Unknown error' };
     }
 
     private _createEmptyState(): QueueStateSnapshot {
-        return {
-            version: QUEUE_SNAPSHOT_VERSION,
-            updatedAt: new Date().toISOString(),
-            queues: {},
-            tasks: {},
-        };
+        return { queues: {}, tasks: {}, updatedAt: new Date().toISOString(), version: QUEUE_SNAPSHOT_VERSION };
     }
 
     private _cloneState(state: QueueStateSnapshot): QueueStateSnapshot {

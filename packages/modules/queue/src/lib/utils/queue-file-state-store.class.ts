@@ -1,7 +1,7 @@
-import { ensureDir, pathExists, readFile, writeFile } from 'fs-extra';
 import { dirname, resolve } from 'node:path';
-import { QUEUE_SNAPSHOT_VERSION } from '../queue.constants';
+import { ensureDir, pathExists, readFile, writeFile } from 'fs-extra';
 import type { QueueStateQueueRecord, QueueStateSnapshot, QueueStateStore, QueueTaskStateRecord } from '../../@types';
+import { QUEUE_SNAPSHOT_VERSION } from '../queue.constants';
 
 const ALLOWED_TASK_STATUSES = new Set(['pending', 'running', 'success', 'failed']);
 
@@ -47,12 +47,7 @@ export class QueueFileStateStore implements QueueStateStore {
     private _createEmptyState(): QueueStateSnapshot {
         const timestamp = new Date().toISOString();
 
-        return {
-            version: QUEUE_SNAPSHOT_VERSION,
-            updatedAt: timestamp,
-            queues: {},
-            tasks: {},
-        };
+        return { queues: {}, tasks: {}, updatedAt: timestamp, version: QUEUE_SNAPSHOT_VERSION };
     }
 
     private _normalizeState(raw: unknown): QueueStateSnapshot {
@@ -76,12 +71,9 @@ export class QueueFileStateStore implements QueueStateStore {
             const now = new Date().toISOString();
 
             normalizedQueues[queueName] = {
-                name: this._normalizeOptionalString(queueRecord.name) ?? queueName,
-                options: {
-                    concurrency,
-                    type: queueType,
-                },
                 createdAt: this._normalizeOptionalString(queueRecord.createdAt) ?? now,
+                name: this._normalizeOptionalString(queueRecord.name) ?? queueName,
+                options: { concurrency, type: queueType },
                 updatedAt: this._normalizeOptionalString(queueRecord.updatedAt) ?? now,
             };
         }
@@ -106,30 +98,27 @@ export class QueueFileStateStore implements QueueStateStore {
             }
 
             normalizedTasks[taskId] = {
-                id: this._normalizeOptionalString(taskRecord.id) ?? taskId,
-                queueName: normalizedQueueName,
-                queueType: this._normalizeOptionalString(taskRecord.queueType) ?? 'default',
-                queueConcurrency: this._normalizeConcurrency(taskRecord.queueConcurrency),
-                taskType: this._normalizeOptionalString(taskRecord.taskType) ?? 'default',
-                taskName: this._normalizeOptionalString(taskRecord.taskName) ?? 'Task',
-                payload: this._normalizeJsonLike(taskRecord.payload),
-                progress: {
-                    total: progressTotal,
-                    success: progressSuccess,
-                },
-                status,
                 attempts: this._normalizeNonNegativeInteger(taskRecord.attempts),
                 createdAt: this._normalizeOptionalString(taskRecord.createdAt) ?? now,
-                updatedAt: this._normalizeOptionalString(taskRecord.updatedAt) ?? now,
+                id: this._normalizeOptionalString(taskRecord.id) ?? taskId,
                 lastError: this._normalizeError(taskRecord.lastError),
+                payload: this._normalizeJsonLike(taskRecord.payload),
+                progress: { success: progressSuccess, total: progressTotal },
+                queueConcurrency: this._normalizeConcurrency(taskRecord.queueConcurrency),
+                queueName: normalizedQueueName,
+                queueType: this._normalizeOptionalString(taskRecord.queueType) ?? 'default',
+                status,
+                taskName: this._normalizeOptionalString(taskRecord.taskName) ?? 'Task',
+                taskType: this._normalizeOptionalString(taskRecord.taskType) ?? 'default',
+                updatedAt: this._normalizeOptionalString(taskRecord.updatedAt) ?? now,
             };
         }
 
         return {
-            version: QUEUE_SNAPSHOT_VERSION,
-            updatedAt: this._normalizeOptionalString(raw.updatedAt) ?? new Date().toISOString(),
             queues: normalizedQueues,
             tasks: normalizedTasks,
+            updatedAt: this._normalizeOptionalString(raw.updatedAt) ?? new Date().toISOString(),
+            version: QUEUE_SNAPSHOT_VERSION,
         };
     }
 
@@ -143,11 +132,7 @@ export class QueueFileStateStore implements QueueStateStore {
             return undefined;
         }
 
-        return {
-            name: this._normalizeOptionalString(raw.name),
-            message,
-            stack: this._normalizeOptionalString(raw.stack),
-        };
+        return { message, name: this._normalizeOptionalString(raw.name), stack: this._normalizeOptionalString(raw.stack) };
     }
 
     private _normalizeTaskStatus(value: unknown): QueueTaskStateRecord['status'] {

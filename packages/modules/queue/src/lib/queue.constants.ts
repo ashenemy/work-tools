@@ -5,9 +5,9 @@ export const QUEUE_SNAPSHOT_VERSION = 1;
 export const QUEUE_DEFAULT_STORAGE_FILE_PATH = 'storage/queue/queue-state.json';
 
 export const QUEUE_EVENT_SUBJECTS = {
-    taskChanged: 'queue.task.changed',
-    taskError: 'queue.task.error',
     queueProgress: 'queue.progress.changed',
     queueRegistry: 'queue.registry.changed',
     restoreSummary: 'queue.restore.summary',
+    taskChanged: 'queue.task.changed',
+    taskError: 'queue.task.error',
 } as const;
