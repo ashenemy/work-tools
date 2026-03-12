@@ -1,4 +1,15 @@
-import type { HydratedDocument, InsertManyOptions, Model, ProjectionType, QueryOptions, SaveOptions, Schema, SchemaDefinition, SchemaDefinitionType, UpdateQuery } from 'mongoose';
+import type {
+    HydratedDocument,
+    InsertManyOptions,
+    Model,
+    ProjectionType,
+    QueryOptions,
+    SaveOptions,
+    Schema,
+    SchemaDefinition,
+    SchemaDefinitionType,
+    UpdateQuery,
+} from 'mongoose';
 
 export type MongoDoc<T, M = {}> = HydratedDocument<T, M>;
 export type MongoModel<T, M = {}> = Model<T, {}, M>;

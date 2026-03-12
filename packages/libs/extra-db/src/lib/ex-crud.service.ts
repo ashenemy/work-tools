@@ -1,5 +1,15 @@
-import type { MongoCreate, MongoDoc, MongoFilter, MongoId, MongoInsertOptions, MongoModel, MongoQueryOptions, MongoSaveOptions, MongoUpdate } from '../@types';
 import { NotFoundException } from '@nestjs/common';
+import type {
+    MongoCreate,
+    MongoDoc,
+    MongoFilter,
+    MongoId,
+    MongoInsertOptions,
+    MongoModel,
+    MongoQueryOptions,
+    MongoSaveOptions,
+    MongoUpdate,
+} from '../@types';
 
 export class ExCrudService<T extends object, M = {}> {
     constructor(protected readonly _model: MongoModel<T, M>) {}
@@ -57,32 +67,23 @@ export class ExCrudService<T extends object, M = {}> {
 
     public async updateById(id: MongoId<T, M>, update: MongoUpdate<T>, options: MongoQueryOptions<T> = {}): Promise<MongoDoc<T, M> | null> {
         return (await this._model
-            .findByIdAndUpdate(id, update, {
-                ...options,
-                new: options.new ?? true,
-                runValidators: options.runValidators ?? true,
-            })
+            .findByIdAndUpdate(id, update, { ...options, new: options.new ?? true, runValidators: options.runValidators ?? true })
             .exec()) as MongoDoc<T, M> | null;
     }
 
-    public async updateOne(filter: MongoFilter<T>, update: MongoUpdate<T>, options: MongoQueryOptions<T> = {}): Promise<MongoDoc<T, M> | null> {
+    public async updateOne(
+        filter: MongoFilter<T>,
+        update: MongoUpdate<T>,
+        options: MongoQueryOptions<T> = {},
+    ): Promise<MongoDoc<T, M> | null> {
         return (await this._model
-            .findOneAndUpdate(filter, update, {
-                ...options,
-                new: options.new ?? true,
-                runValidators: options.runValidators ?? true,
-            })
+            .findOneAndUpdate(filter, update, { ...options, new: options.new ?? true, runValidators: options.runValidators ?? true })
             .exec()) as MongoDoc<T, M> | null;
     }
 
     public async upsertOne(filter: MongoFilter<T>, update: MongoUpdate<T>, options: MongoQueryOptions<T> = {}): Promise<MongoDoc<T, M>> {
         const doc = (await this._model
-            .findOneAndUpdate(filter, update, {
-                ...options,
-                upsert: true,
-                new: true,
-                runValidators: options.runValidators ?? true,
-            })
+            .findOneAndUpdate(filter, update, { ...options, new: true, runValidators: options.runValidators ?? true, upsert: true })
             .exec()) as MongoDoc<T, M> | null;
 
         return this._ensureFound(doc, `Failed to upsert document in ${this._model.collection.name}`);
