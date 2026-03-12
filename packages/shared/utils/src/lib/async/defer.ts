@@ -7,5 +7,5 @@ export function defer<T>(): Deferred<T> {
         resolve = res;
         reject = rej;
     });
-    return { promise, resolve, reject };
+    return { promise, reject, resolve };
 }

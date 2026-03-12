@@ -1,4 +1,4 @@
-import { Optional } from '@work-tools/ts';
+import type { Optional } from '@work-tools/ts';
 import { isNumber } from '../is/is-number.js';
 import { isString } from '../is/is-string.js';
 

@@ -9,10 +9,10 @@ export function isPlainObject(value: unknown): value is Record<string, unknown> 
     }
 
     const Ctor = Object.prototype.hasOwnProperty.call(proto, 'constructor') && proto.constructor;
-    
+
     return (
-        typeof Ctor === 'function' && 
-        Ctor instanceof Ctor && 
+        typeof Ctor === 'function' &&
+        Ctor instanceof Ctor &&
         Function.prototype.toString.call(Ctor) === Function.prototype.toString.call(Object)
     );
 }

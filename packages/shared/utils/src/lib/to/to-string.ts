@@ -1,7 +1,7 @@
-import { Optional } from '@work-tools/ts';
-import { isString } from '../is/is-string.js';
-import { isNumber } from '../is/is-number.js';
+import type { Optional } from '@work-tools/ts';
 import { isBoolean } from '../is/is-boolean.js';
+import { isNumber } from '../is/is-number.js';
+import { isString } from '../is/is-string.js';
 
 export function toString(value: unknown): Optional<string> {
     if (isString(value)) {
