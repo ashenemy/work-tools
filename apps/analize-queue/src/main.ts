@@ -1,0 +1,1 @@
+console.log('Analize queue app running')
