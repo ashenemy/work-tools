@@ -1,11 +1,11 @@
-import { join } from 'path';
+import type { Dirent } from 'node:fs';
 import type { Optional } from '@work-tools/ts';
 import { isDefined } from '@work-tools/utils';
-import { Dirent } from 'node:fs';
-import { BaseArchiveFile } from './archive/base-archive-file.class';
+import { join } from 'path';
 import { ArchiveFileTypeError } from '../errors/file-type/archive-file-type.error';
-import { Folder } from '../primitives/folder.class';
 import { File } from '../primitives/file.class';
+import { Folder } from '../primitives/folder.class';
+import { BaseArchiveFile } from './archive/base-archive-file.class';
 
 export class ArchiveFile extends BaseArchiveFile {
     protected _possiblePasswords: Array<Optional<string>> = [];

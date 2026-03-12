@@ -1,8 +1,8 @@
 import type { Nullable, Optional } from '@work-tools/ts';
+import type { File } from '../lib/primitives/file.class';
+import type { Folder } from '../lib/primitives/folder.class';
 import type { ArchiveFile } from '../lib/types/archive-file.class';
 import type { ArchivePathFile } from '../lib/types/archive-path-file.class';
-import type { Folder } from '../lib/primitives/folder.class';
-import type { File } from '../lib/primitives/file.class';
 import type { AudioFile } from '../lib/types/audio-file.class';
 import type { CsvFile } from '../lib/types/csv-file.class';
 import type { EnvFile } from '../lib/types/env-file.class';
@@ -30,8 +30,20 @@ export type ArchiveParseResult = {
     globPattern: Optional<string>;
 };
 
-export type FileTree = {
-    [key: string]: Nullable<FileTree>;
-};
+export type FileTree = { [key: string]: Nullable<FileTree> };
 
-export type FsItem = File | Folder | ArchiveFile | ArchivePathFile | AudioFile | CsvFile | EnvFile | ExcelFile | JsonFile | PDFFile | TomlFile | TxtFile | VideoFile | WordFile;
+export type FsItem =
+    | File
+    | Folder
+    | ArchiveFile
+    | ArchivePathFile
+    | AudioFile
+    | CsvFile
+    | EnvFile
+    | ExcelFile
+    | JsonFile
+    | PDFFile
+    | TomlFile
+    | TxtFile
+    | VideoFile
+    | WordFile;

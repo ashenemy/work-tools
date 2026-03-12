@@ -1,7 +1,7 @@
 import { Dirent } from 'node:fs';
-import type { ArchiveParseResult, SupportedArchiveType } from '../../../@types';
 import type { Optional } from '@work-tools/ts';
 import { getFileName, isType, pad } from '@work-tools/utils';
+import type { ArchiveParseResult, SupportedArchiveType } from '../../../@types';
 import { AbstractBinaryFile } from '../../abstracts/abstract-binary-file.class';
 import { File } from '../../primitives/file.class';
 
@@ -60,15 +60,15 @@ export class BaseArchiveFile extends AbstractBinaryFile {
             const idx = Number(m[2]);
             const entryFileName = `${baseName}.7z.${pad(1, m[2].length)}`;
             return {
-                fileName,
-                isArchive: true,
                 archiveKind: '7z',
-                isPart: true,
-                isFirstPart: idx === 1,
-                partIndex: Number.isFinite(idx) ? idx : undefined,
                 baseName,
                 entryFileName,
+                fileName,
                 globPattern: `${baseName}.7z.*`,
+                isArchive: true,
+                isFirstPart: idx === 1,
+                isPart: true,
+                partIndex: Number.isFinite(idx) ? idx : undefined,
             };
         }
 
@@ -78,15 +78,15 @@ export class BaseArchiveFile extends AbstractBinaryFile {
             const idx = Number(m[2]);
             const entryFileName = `${baseName}.zip.${pad(1, m[2].length)}`;
             return {
-                fileName,
-                isArchive: true,
                 archiveKind: 'zip',
-                isPart: true,
-                isFirstPart: idx === 1,
-                partIndex: Number.isFinite(idx) ? idx : undefined,
                 baseName,
                 entryFileName,
+                fileName,
                 globPattern: `${baseName}.zip.*`,
+                isArchive: true,
+                isFirstPart: idx === 1,
+                isPart: true,
+                partIndex: Number.isFinite(idx) ? idx : undefined,
             };
         }
 
@@ -97,15 +97,15 @@ export class BaseArchiveFile extends AbstractBinaryFile {
             const idx = Number(m[2]);
             const entryFileName = `${baseName}.part${pad(1, digits)}.rar`;
             return {
-                fileName,
-                isArchive: true,
                 archiveKind: 'rar',
-                isPart: true,
-                isFirstPart: idx === 1,
-                partIndex: Number.isFinite(idx) ? idx : undefined,
                 baseName,
                 entryFileName,
+                fileName,
                 globPattern: `${baseName}.part*.rar`,
+                isArchive: true,
+                isFirstPart: idx === 1,
+                isPart: true,
+                partIndex: Number.isFinite(idx) ? idx : undefined,
             };
         }
 
@@ -114,15 +114,15 @@ export class BaseArchiveFile extends AbstractBinaryFile {
             const baseName = m[1];
             const idx = Number(m[2]);
             return {
-                fileName,
-                isArchive: true,
                 archiveKind: 'rar',
-                isPart: true,
-                isFirstPart: false,
-                partIndex: Number.isFinite(idx) ? idx : undefined,
                 baseName,
                 entryFileName: `${baseName}.rar`,
+                fileName,
                 globPattern: `{${baseName}.rar,${baseName}.r??}`,
+                isArchive: true,
+                isFirstPart: false,
+                isPart: true,
+                partIndex: Number.isFinite(idx) ? idx : undefined,
             };
         }
 
@@ -131,15 +131,15 @@ export class BaseArchiveFile extends AbstractBinaryFile {
             const baseName = m[1];
             const idx = Number(m[2]);
             return {
-                fileName,
-                isArchive: true,
                 archiveKind: 'zip',
-                isPart: true,
-                isFirstPart: false,
-                partIndex: Number.isFinite(idx) ? idx : undefined,
                 baseName,
                 entryFileName: `${baseName}.zip`,
+                fileName,
                 globPattern: `{${baseName}.zip,${baseName}.z??}`,
+                isArchive: true,
+                isFirstPart: false,
+                isPart: true,
+                partIndex: Number.isFinite(idx) ? idx : undefined,
             };
         }
 
@@ -149,43 +149,43 @@ export class BaseArchiveFile extends AbstractBinaryFile {
             const kind = m[2].toLowerCase() as SupportedArchiveType;
 
             return {
-                fileName,
-                isArchive: true,
                 archiveKind: kind,
-                isPart: false,
-                isFirstPart: undefined,
-                partIndex: undefined,
                 baseName,
                 entryFileName: fileName,
+                fileName,
                 globPattern: undefined,
+                isArchive: true,
+                isFirstPart: undefined,
+                isPart: false,
+                partIndex: undefined,
             };
         }
 
         m = fileName.match(/^(.*)\.(\d{3,})$/);
         if (m) {
             return {
-                fileName,
-                isArchive: true,
                 archiveKind: 'generic',
-                isPart: true,
-                isFirstPart: Number(m[2]) === 1,
-                partIndex: Number(m[2]),
                 baseName: m[1],
                 entryFileName: undefined,
+                fileName,
                 globPattern: `${m[1]}.*`,
+                isArchive: true,
+                isFirstPart: Number(m[2]) === 1,
+                isPart: true,
+                partIndex: Number(m[2]),
             };
         }
 
         return {
-            fileName,
-            isArchive: false,
             archiveKind: undefined,
-            isPart: false,
-            isFirstPart: undefined,
-            partIndex: undefined,
             baseName: fileName,
             entryFileName: undefined,
+            fileName,
             globPattern: undefined,
+            isArchive: false,
+            isFirstPart: undefined,
+            isPart: false,
+            partIndex: undefined,
         };
     }
 }

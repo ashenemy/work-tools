@@ -1,6 +1,6 @@
-import { Dirent } from 'node:fs';
-import { BaseArchiveFile } from './archive/base-archive-file.class';
+import type { Dirent } from 'node:fs';
 import { ArchivePartFileTypeError } from '../errors/file-type/archive-part-file-type.error';
+import { BaseArchiveFile } from './archive/base-archive-file.class';
 
 export class ArchivePathFile extends BaseArchiveFile {
     constructor(filePath: string | Dirent) {

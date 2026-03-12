@@ -1,6 +1,6 @@
 import type { JsonLike } from '@work-tools/ts';
-import type { ExcelSheet } from '../../@types';
 import { readFile } from 'fs-extra';
+import type { ExcelSheet } from '../../@types';
 import { File } from '../primitives/file.class';
 
 export abstract class AbstractTextFile<T extends string | JsonLike | ExcelSheet> extends File<string> {

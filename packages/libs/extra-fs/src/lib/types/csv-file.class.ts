@@ -1,9 +1,9 @@
-import type { ExcelSheet } from '../../@types';
+import type { Dirent } from 'node:fs';
 import { parseString } from '@fast-csv/parse';
-import { Dirent } from 'node:fs';
-import { File } from '../primitives/file.class';
-import { CsvFileTypeError } from '../errors/file-type/csv-file-type.error';
+import type { ExcelSheet } from '../../@types';
 import { AbstractTextFile } from '../abstracts/abstract-text-file.class';
+import { CsvFileTypeError } from '../errors/file-type/csv-file-type.error';
+import { File } from '../primitives/file.class';
 
 export class CsvFile<T extends ExcelSheet = Array<Array<any>>> extends AbstractTextFile<T> {
     public static readonly EXTENSIONS: Array<string> = ['csv'];

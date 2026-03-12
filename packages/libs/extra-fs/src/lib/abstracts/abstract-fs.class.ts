@@ -1,9 +1,9 @@
-import { Dirent, Stats } from 'node:fs';
-import { isType } from '@work-tools/utils';
-import { basename, dirname, relative, resolve } from 'path';
-import { access, copy, move, remove, stat } from 'fs-extra';
-import type { Ctor, Optional } from '@work-tools/ts';
+import { Dirent, type Stats } from 'node:fs';
 import { parse } from 'node:path';
+import type { Ctor, Optional } from '@work-tools/ts';
+import { isType } from '@work-tools/utils';
+import { access, copy, move, remove, stat } from 'fs-extra';
+import { basename, dirname, relative, resolve } from 'path';
 
 export abstract class AbstractFs {
     protected _fullPath: string;

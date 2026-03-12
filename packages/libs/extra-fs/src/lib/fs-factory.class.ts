@@ -1,9 +1,9 @@
-import { Dirent } from 'node:fs';
+import type { Dirent } from 'node:fs';
 import type { FsItem } from '../@types';
-import { ArchivePathFile } from './types/archive-path-file.class';
-import { ArchiveFile } from './types/archive-file.class';
 import { File } from './primitives/file.class';
 import { Folder } from './primitives/folder.class';
+import { ArchiveFile } from './types/archive-file.class';
+import { ArchivePathFile } from './types/archive-path-file.class';
 import { AudioFile } from './types/audio-file.class';
 import { CsvFile } from './types/csv-file.class';
 import { EnvFile } from './types/env-file.class';
@@ -16,7 +16,6 @@ import { VideoFile } from './types/video-file.class';
 import { WordFile } from './types/word-file.class';
 
 export class FsFactory {
-
     public static fromPath(path: string | Dirent): FsItem {
         if (Folder.isFolder(path)) {
             return new Folder(path);

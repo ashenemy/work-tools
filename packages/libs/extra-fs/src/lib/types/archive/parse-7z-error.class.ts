@@ -1,18 +1,16 @@
-import { WrongPasswordArchiveError } from '../../errors/archive/wrong-password-archive.error';
-import { MissingArchivePartError } from '../../errors/archive/missing-archive-part.error';
-import { CorruptedArchiveError } from '../../errors/archive/corrupted-archive.error';
-import { UnknownArchiveError } from '../../errors/archive/unknown-archive.error';
-import { SevenZipMinError } from '7zip-min';
+import type { SevenZipMinError } from '7zip-min';
 import { basename } from 'path';
+import { CorruptedArchiveError } from '../../errors/archive/corrupted-archive.error';
+import { MissingArchivePartError } from '../../errors/archive/missing-archive-part.error';
+import { UnknownArchiveError } from '../../errors/archive/unknown-archive.error';
+import { WrongPasswordArchiveError } from '../../errors/archive/wrong-password-archive.error';
 
-type Parse7zErrorContext = {
-    archivePath?: string;
-    isMultipart?: boolean;
-    missingHint?: string;
-};
+type Parse7zErrorContext = { archivePath?: string; isMultipart?: boolean; missingHint?: string };
 
 function buildOutput(err: SevenZipMinError): string {
-    return [err.message, err.stdout, err.stderr].filter((part): part is string => typeof part === 'string' && part.trim().length > 0).join('\n');
+    return [err.message, err.stdout, err.stderr]
+        .filter((part): part is string => typeof part === 'string' && part.trim().length > 0)
+        .join('\n');
 }
 
 function looksLikeMultipartPath(path?: string): boolean {
@@ -22,7 +20,13 @@ function looksLikeMultipartPath(path?: string): boolean {
 
     const name = basename(path).toLowerCase();
 
-    return /\.(7z|zip)\.\d{3,}$/.test(name) || /\.part\d+\.rar$/.test(name) || /\.r\d{2}$/.test(name) || /\.z\d{2}$/.test(name) || /\.\d{3,}$/.test(name);
+    return (
+        /\.(7z|zip)\.\d{3,}$/.test(name) ||
+        /\.part\d+\.rar$/.test(name) ||
+        /\.r\d{2}$/.test(name) ||
+        /\.z\d{2}$/.test(name) ||
+        /\.\d{3,}$/.test(name)
+    );
 }
 
 function extractMissingPart(output: string): string | undefined {
@@ -49,15 +53,25 @@ export function parse7zError(err: unknown, context: Parse7zErrorContext = {}): n
     const text = output.toLowerCase();
 
     const isMultipart = context.isMultipart ?? looksLikeMultipartPath(context.archivePath);
-    const missingPart = extractMissingPart(output) ?? context.missingHint ?? (context.archivePath ? basename(context.archivePath) : 'unknown part');
+    const missingPart =
+        extractMissingPart(output) ?? context.missingHint ?? (context.archivePath ? basename(context.archivePath) : 'unknown part');
 
-    if (text.includes('wrong password') || text.includes('data error in encrypted file') || text.includes('data error : wrong password') || text.includes('can not open encrypted archive. wrong password?')) {
+    if (
+        text.includes('wrong password') ||
+        text.includes('data error in encrypted file') ||
+        text.includes('data error : wrong password') ||
+        text.includes('can not open encrypted archive. wrong password?')
+    ) {
         throw new WrongPasswordArchiveError();
     }
 
-    const hasOpenInputError = text.includes('can not open input file') || text.includes('no more input files') || text.includes('no more files');
+    const hasOpenInputError =
+        text.includes('can not open input file') || text.includes('no more input files') || text.includes('no more files');
 
-    const hasArchiveOpenError = text.includes('open error: can not open the file as [7z] archive') || text.includes('can not open the file as [7z] archive') || text.includes("can't open as archive");
+    const hasArchiveOpenError =
+        text.includes('open error: can not open the file as [7z] archive') ||
+        text.includes('can not open the file as [7z] archive') ||
+        text.includes("can't open as archive");
 
     const hasUnexpectedEnd = text.includes('unexpected end of archive');
 
@@ -65,7 +79,14 @@ export function parse7zError(err: unknown, context: Parse7zErrorContext = {}): n
         throw new MissingArchivePartError(missingPart);
     }
 
-    if (text.includes('data error') || text.includes('crc failed') || text.includes('crc error') || text.includes('headers error') || hasArchiveOpenError || hasUnexpectedEnd) {
+    if (
+        text.includes('data error') ||
+        text.includes('crc failed') ||
+        text.includes('crc error') ||
+        text.includes('headers error') ||
+        hasArchiveOpenError ||
+        hasUnexpectedEnd
+    ) {
         throw new CorruptedArchiveError(output.slice(0, 500));
     }
 

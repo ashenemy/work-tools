@@ -1,7 +1,7 @@
-import { Dirent } from 'node:fs';
-import { MediaFile } from '../primitives/media-file.class';
+import type { Dirent } from 'node:fs';
 import { AudioFileTypeError } from '../errors/file-type/audio-file-type.error';
 import { File } from '../primitives/file.class';
+import { MediaFile } from '../primitives/media-file.class';
 
 export class AudioFile extends MediaFile {
     public static readonly EXTENSIONS: Array<string> = ['mp3', 'wav', 'ogg'];

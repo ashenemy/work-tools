@@ -1,13 +1,13 @@
 import { Dirent } from 'node:fs';
-import { emptydir, ensureDir, ensureDirSync, mkdir, readdir, statSync } from 'fs-extra';
-import { File } from './file.class';
-import { isErrorNoException, isType } from '@work-tools/utils';
-import type { FileTree } from '../../@types';
-import fg, { Options } from 'fast-glob';
-import { AbstractFs } from '../abstracts/abstract-fs.class';
 import type { Optional } from '@work-tools/ts';
+import { isErrorNoException, isType } from '@work-tools/utils';
 import _7z from '7zip-min';
+import fg, { type Options } from 'fast-glob';
+import { emptydir, ensureDir, ensureDirSync, mkdir, readdir, statSync } from 'fs-extra';
 import { dirname, extname, join, resolve } from 'path';
+import type { FileTree } from '../../@types';
+import { AbstractFs } from '../abstracts/abstract-fs.class';
+import { File } from './file.class';
 
 export class Folder extends AbstractFs {
     public static isFolder(path: string | Dirent, canBeCreate: boolean = false): boolean {
@@ -74,7 +74,7 @@ export class Folder extends AbstractFs {
     }
 
     public async listFiles(): Promise<Array<Dirent>> {
-        const nodes = await readdir(this.absPath, { withFileTypes: true, recursive: true });
+        const nodes = await readdir(this.absPath, { recursive: true, withFileTypes: true });
 
         return nodes.filter((item) => item.isFile());
     }
@@ -103,10 +103,10 @@ export class Folder extends AbstractFs {
             dot: true,
             extglob: true,
             globstar: true,
-            unique: true,
             objectMode: false,
-            onlyFiles: false,
             onlyDirectories: false,
+            onlyFiles: false,
+            unique: true,
             ...opt,
         };
 

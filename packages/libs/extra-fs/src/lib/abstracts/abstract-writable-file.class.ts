@@ -1,10 +1,13 @@
-import { AbstractTextFile } from './abstract-text-file.class';
 import type { JsonLike } from '@work-tools/ts';
-import type { ExcelSheet } from '../../@types';
 import { createFile, ensureDir, writeFile } from 'fs-extra';
 import { dirname } from 'path';
+import type { ExcelSheet } from '../../@types';
+import { AbstractTextFile } from './abstract-text-file.class';
 
-export abstract class AbstractWritableFile<T1 extends string | JsonLike | ExcelSheet, T2 extends string | JsonLike | ExcelSheet = T1> extends AbstractTextFile<T1> {
+export abstract class AbstractWritableFile<
+    T1 extends string | JsonLike | ExcelSheet,
+    T2 extends string | JsonLike | ExcelSheet = T1,
+> extends AbstractTextFile<T1> {
     public async write(content: T2): Promise<void> {
         await ensureDir(dirname(this.absPath));
 

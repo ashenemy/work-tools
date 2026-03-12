@@ -1,6 +1,6 @@
-import { Dirent } from 'node:fs';
-import { DocFile } from '../primitives/doc-file.class';
+import type { Dirent } from 'node:fs';
 import { PdfFileTypeError } from '../errors/file-type/pdf-file-type.error';
+import { DocFile } from '../primitives/doc-file.class';
 import { File } from '../primitives/file.class';
 
 export class PDFFile extends DocFile {

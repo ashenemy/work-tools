@@ -1,7 +1,7 @@
-import { Dirent } from 'node:fs';
-import { MediaFile } from '../primitives/media-file.class';
+import type { Dirent } from 'node:fs';
 import { VideoFileTypeError } from '../errors/file-type/video-file-type.error';
 import { File } from '../primitives/file.class';
+import { MediaFile } from '../primitives/media-file.class';
 
 export class VideoFile extends MediaFile {
     public static readonly EXTENSIONS: Array<string> = ['mp4', 'avi', 'mov', 'mkv'];

@@ -1,9 +1,9 @@
+import type { Dirent } from 'node:fs';
 import dotenv from 'dotenv';
-import { Dirent } from 'node:fs';
-import { File } from '../primitives/file.class';
-import { EnvFileTypeError } from '../errors/file-type/env-file-type.error';
-import { AbstractTextFile } from '../abstracts/abstract-text-file.class';
 import { basename, resolve } from 'path';
+import { AbstractTextFile } from '../abstracts/abstract-text-file.class';
+import { EnvFileTypeError } from '../errors/file-type/env-file-type.error';
+import { File } from '../primitives/file.class';
 
 export class EnvFile<T extends Record<string, string> = Record<string, string>> extends AbstractTextFile<T> {
     public static readonly EXTENSIONS: Array<string> = ['env'];

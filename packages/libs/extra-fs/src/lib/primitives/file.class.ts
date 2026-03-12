@@ -1,9 +1,9 @@
-import { createFile, ensureDir, ensureFile, ensureFileSync, readFile, statSync, truncate } from 'fs-extra';
 import { Dirent } from 'node:fs';
-import { isDefined, isErrorNoException, isType } from '@work-tools/utils';
-import mime from 'mime-types';
 import type { Optional } from '@work-tools/ts';
+import { isDefined, isErrorNoException, isType } from '@work-tools/utils';
 import _7z from '7zip-min';
+import { createFile, ensureDir, ensureFile, ensureFileSync, readFile, statSync, truncate } from 'fs-extra';
+import mime from 'mime-types';
 import { dirname, extname, resolve } from 'path';
 import { AbstractFs } from '../abstracts/abstract-fs.class';
 

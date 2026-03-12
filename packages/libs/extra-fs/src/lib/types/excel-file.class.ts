@@ -1,8 +1,8 @@
-import type { ExcelSheet } from '../../@types';
+import type { Dirent } from 'node:fs';
 import xlsx from 'node-xlsx';
-import { Dirent } from 'node:fs';
-import { File } from '../primitives/file.class';
+import type { ExcelSheet } from '../../@types';
 import { ExcelFileTypeError } from '../errors/file-type/excel-file-type.error';
+import { File } from '../primitives/file.class';
 
 export class ExcelFile<T extends ExcelSheet = Array<Array<any>>> extends File<any> {
     public static readonly EXTENSIONS: Array<string> = ['xlsx', 'xls'];

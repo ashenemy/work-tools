@@ -1,6 +1,6 @@
-import { Dirent } from 'node:fs';
-import { DocFile } from '../primitives/doc-file.class';
+import type { Dirent } from 'node:fs';
 import { WordFileTypeError } from '../errors/file-type/word-file-type.error';
+import { DocFile } from '../primitives/doc-file.class';
 import { File } from '../primitives/file.class';
 
 export class WordFile extends DocFile {

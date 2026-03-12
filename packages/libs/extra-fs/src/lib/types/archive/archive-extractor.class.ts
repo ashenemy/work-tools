@@ -1,10 +1,10 @@
-import _7z, { getConfig, ListItem } from '7zip-min';
-import { ArchiveFile } from '../archive-file.class';
+import type { Progress } from '@work-tools/taskqueue';
 import { isDefined, isType, isUndefined } from '@work-tools/utils';
+import _7z, { getConfig, type ListItem } from '7zip-min';
 import { execa } from 'execa';
-import { Observable, Subject } from 'rxjs';
-import { Progress } from '@work-tools/taskqueue';
+import { type Observable, Subject } from 'rxjs';
 import { WrongPasswordArchiveError } from '../../errors/archive/wrong-password-archive.error';
+import type { ArchiveFile } from '../archive-file.class';
 import { parse7zError } from './parse-7z-error.class';
 
 export class ArchiveExtractor {
@@ -75,7 +75,7 @@ export class ArchiveExtractor {
             if (match && total > 0) {
                 const percent = parseInt(match[1], 10);
                 const success = Math.round((percent / 100) * total);
-                this._progress$.next({ total, success });
+                this._progress$.next({ success, total });
             }
         });
 
@@ -85,10 +85,10 @@ export class ArchiveExtractor {
             try {
                 parse7zError(
                     {
-                        message: result.shortMessage ?? `7-zip exited with code ${result.exitCode}.`,
-                        stdout: result.stdout,
-                        stderr: result.stderr,
                         code: result.exitCode,
+                        message: result.shortMessage ?? `7-zip exited with code ${result.exitCode}.`,
+                        stderr: result.stderr,
+                        stdout: result.stdout,
                     },
                     this._errorContext,
                 );
@@ -113,7 +113,9 @@ export class ArchiveExtractor {
     }
 
     private async _getArchiveList(): Promise<ListItem[]> {
-        const args = this._archive.password ? ['l', '-slt', this._archive.absPath, `-p${this._archive.password}`] : ['l', '-slt', this._archive.absPath];
+        const args = this._archive.password
+            ? ['l', '-slt', this._archive.absPath, `-p${this._archive.password}`]
+            : ['l', '-slt', this._archive.absPath];
 
         try {
             return (await _7z.cmd(args)) as unknown as ListItem[];

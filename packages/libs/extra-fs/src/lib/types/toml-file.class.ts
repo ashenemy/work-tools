@@ -1,6 +1,6 @@
-import type { JsonLike } from '@work-tools/ts';
+import type { Dirent } from 'node:fs';
 import TOML from '@iarna/toml';
-import { Dirent } from 'node:fs';
+import type { JsonLike } from '@work-tools/ts';
 import { AbstractTextFile } from '../abstracts/abstract-text-file.class';
 import { TomlFileTypeError } from '../errors/file-type/toml-file-type.error';
 import { File } from '../primitives/file.class';

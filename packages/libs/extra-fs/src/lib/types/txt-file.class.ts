@@ -1,4 +1,4 @@
-import { Dirent } from 'node:fs';
+import type { Dirent } from 'node:fs';
 import { AbstractWritableFile } from '../abstracts/abstract-writable-file.class';
 import { TxtFileTypeError } from '../errors/file-type/txt-file-type.error';
 import { File } from '../primitives/file.class';

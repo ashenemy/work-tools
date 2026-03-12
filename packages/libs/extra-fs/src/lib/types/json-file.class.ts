@@ -1,8 +1,8 @@
+import type { Dirent } from 'node:fs';
 import type { JsonLike } from '@work-tools/ts';
-import { Dirent } from 'node:fs';
-import { File } from '../primitives/file.class';
-import { JsonFileTypeError } from '../errors/file-type/json-file-type.error';
 import { AbstractWritableFile } from '../abstracts/abstract-writable-file.class';
+import { JsonFileTypeError } from '../errors/file-type/json-file-type.error';
+import { File } from '../primitives/file.class';
 
 export class JsonFile<T extends JsonLike = {}> extends AbstractWritableFile<T> {
     public static readonly EXTENSIONS: Array<string> = ['json'];
