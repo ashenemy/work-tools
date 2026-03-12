@@ -1,17 +1,16 @@
 import type { Optional } from '@work-tools/ts';
-import type { MTPClientActionEvent, MTPClientActionFilter, MTPClientActionTrigger } from '../../../@types';
+import { isDefined, isUndefined } from '@work-tools/utils';
 import { type Observable, Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { isDefined, isUndefined } from '@work-tools/utils';
-import { NewMessage } from 'telegram/events';
-import { EventBuilder } from 'telegram/events/common';
 import type { EntityLike } from 'telegram/define';
+import { NewMessage } from 'telegram/events';
+import type { EventBuilder } from 'telegram/events/common';
+import type { MTPClientActionEvent, MTPClientActionFilter, MTPClientActionTrigger } from '../../../@types';
 
 export class MtpClientAction {
     private _filter: Optional<MTPClientActionFilter> = undefined;
 
-    constructor() {
-    }
+    constructor() {}
 
     private _trigger: Optional<MTPClientActionTrigger> = undefined;
 
@@ -40,7 +39,7 @@ export class MtpClientAction {
     }
 
     public build(): Observable<MTPClientActionEvent> {
-        if(isUndefined(this._trigger)) {
+        if (isUndefined(this._trigger)) {
             throw new Error('Trigger is not set');
         }
 
@@ -63,10 +62,7 @@ export class MtpClientAction {
 
     public getTgEvent(chat: EntityLike): Optional<EventBuilder> {
         if (isDefined(this._trigger)) {
-            return new NewMessage({
-                chats: [chat],
-                incoming: true,
-            });
+            return new NewMessage({ chats: [chat], incoming: true });
         }
 
         return undefined;

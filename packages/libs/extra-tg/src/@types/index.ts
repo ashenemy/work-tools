@@ -1,3 +1,32 @@
-export type { BotApiEvent, BotApiTopicTarget, BotApiNewLogFlowPayload, BotApiFileResolver, BotApiKVValue, BotApiClientConfig, BotApiForceReply, BotApiInlineKeyboardButton, BotApiInlineKeyboardMarkup, BotApiKeyboardButton, BotApiMessagePayload, BotApiParseMode, BotApiReplyKeyboardMarkup, BotApiReplyKeyboardRemove, BotApiReplyMarkup } from './bot-api-types';
-export type { UrlBotData, TruncateResult, NormalizeDomainResult } from './common-types';
-export type { MTPClientConfig, MTPFileDownloadProgress, MTPChatHistoryOptions, MTPClientActionEvent, MTPClientActionFilter, MTPClientActionTrigger, MTPClientConnectionWatchdog, MTPClientReconnectionOptions, MTPClientSendMessageData, MTPClientStatus, MTPDownloadOptions, MTPMessageFileInfo } from './mtp-types';
+export type {
+    BotApiClientConfig,
+    BotApiEvent,
+    BotApiFileResolver,
+    BotApiForceReply,
+    BotApiInlineKeyboardButton,
+    BotApiInlineKeyboardMarkup,
+    BotApiKeyboardButton,
+    BotApiKVValue,
+    BotApiMessagePayload,
+    BotApiNewLogFlowPayload,
+    BotApiParseMode,
+    BotApiReplyKeyboardMarkup,
+    BotApiReplyKeyboardRemove,
+    BotApiReplyMarkup,
+    BotApiTopicTarget,
+} from './bot-api-types';
+export type { NormalizeDomainResult, TruncateResult, UrlBotData } from './common-types';
+export type {
+    MTPChatHistoryOptions,
+    MTPClientActionEvent,
+    MTPClientActionFilter,
+    MTPClientActionTrigger,
+    MTPClientConfig,
+    MTPClientConnectionWatchdog,
+    MTPClientReconnectionOptions,
+    MTPClientSendMessageData,
+    MTPClientStatus,
+    MTPDownloadOptions,
+    MTPFileDownloadProgress,
+    MTPMessageFileInfo,
+} from './mtp-types';

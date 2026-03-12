@@ -4,10 +4,10 @@ export function truncateWithEllipsis(input: string, limit: number): TruncateResu
     const s = String(input ?? '');
     const n = Math.max(0, Math.floor(limit));
 
-    if (n === 0) return { value: s.length ? '…' : '', truncated: s.length > 0 };
-    if (s.length <= n) return { value: s, truncated: false };
+    if (n === 0) return { truncated: s.length > 0, value: s.length ? '…' : '' };
+    if (s.length <= n) return { truncated: false, value: s };
 
     const cut = Math.max(0, n - 1);
     const chunk = s.slice(0, cut).trimEnd();
-    return { value: chunk + '…', truncated: true };
+    return { truncated: true, value: chunk + '…' };
 }

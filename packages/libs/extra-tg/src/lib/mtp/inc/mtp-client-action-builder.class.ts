@@ -1,8 +1,8 @@
-import { MtpClientAction } from './mtp-client-action.class';
-import type { MtpClient } from '../mtp-client.class';
 import type { EntityLike } from 'telegram/define';
 import type { NewMessageEvent } from 'telegram/events';
+import type { MtpClient } from '../mtp-client.class';
 import { MtpMessage } from '../types/mtp-message.class';
+import { MtpClientAction } from './mtp-client-action.class';
 
 export class MtpClientActionBuilder {
     private _actions: Array<MtpClientAction> = [];
@@ -32,10 +32,7 @@ export class MtpClientActionBuilder {
 
             const trigger = action.trigger;
             this._client.client.addEventHandler((event: NewMessageEvent) => {
-                action.event$.next({
-                    trigger,
-                    message: MtpMessage.fromEvent(event),
-                });
+                action.event$.next({ message: MtpMessage.fromEvent(event), trigger });
             }, eventBuilder);
             this._setupActions.add(action);
         }

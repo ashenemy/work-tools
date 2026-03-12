@@ -1,10 +1,10 @@
-import { Api } from 'telegram';
-import { Optional } from '@work-tools/ts';
+import type { Optional } from '@work-tools/ts';
 import { isDefined, isNull, isTwoDArrayType, isType, isUndefined } from '@work-tools/utils';
-import { UrlBotData } from '../../../@types';
-import { MtpClient } from '../mtp-client.class';
-import { NewMessageEvent } from 'telegram/events';
+import { Api } from 'telegram';
 import type { EntityLike } from 'telegram/define';
+import type { NewMessageEvent } from 'telegram/events';
+import type { UrlBotData } from '../../../@types';
+import type { MtpClient } from '../mtp-client.class';
 import { MtpMessageFile } from './mtp-message-file.class';
 
 export class MtpMessage {
@@ -119,10 +119,7 @@ export class MtpMessage {
         const m = url.match(re);
 
         if (!isNull(m) && isDefined(m[1]) && isDefined(m[2])) {
-            return {
-                botName: m[1],
-                startArg: m[2],
-            };
+            return { botName: m[1], startArg: m[2] };
         }
 
         return undefined;

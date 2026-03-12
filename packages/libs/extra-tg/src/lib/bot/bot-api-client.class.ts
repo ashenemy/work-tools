@@ -1,9 +1,9 @@
-import { Bot, Context, InlineKeyboard } from 'grammy';
 import type { FileFlavor } from '@grammyjs/files';
-import type { BotApiClientConfig, BotApiEvent, BotApiNewLogFlowPayload, BotApiTopicTarget } from '../../@types';
 import type { Optional } from '@work-tools/ts';
 import { humanNumber, isDefined, isUndefined } from '@work-tools/utils';
+import { Bot, type Context, InlineKeyboard } from 'grammy';
 import { type Observable, Subject } from 'rxjs';
+import type { BotApiClientConfig, BotApiEvent, BotApiNewLogFlowPayload, BotApiTopicTarget } from '../../@types';
 import { BOT_API_ICONS } from './messages/bot-api-icons';
 import { BotApiTextBuilder } from './messages/builders/bot-api-text-builder.class';
 
@@ -56,11 +56,7 @@ export class BotApiClient {
     }
 
     public async sendMessage(chat: string, text: Array<string>): Promise<number> {
-        return (
-            await this.client.api.sendMessage(chat, text.join('\n'), {
-                parse_mode: 'HTML',
-            })
-        ).message_id;
+        return (await this.client.api.sendMessage(chat, text.join('\n'), { parse_mode: 'HTML' })).message_id;
     }
 
     public async sendNewLogMessage(target: BotApiTopicTarget, p: BotApiNewLogFlowPayload): Promise<number> {
@@ -97,7 +93,7 @@ export class BotApiClient {
     private _setListeners(): void {
         for (const command of this.commands) {
             this.client.command(command, (ctx) => {
-                this._commands$.next({ name: command, ctx });
+                this._commands$.next({ ctx, name: command });
             });
         }
 
@@ -111,9 +107,9 @@ export class BotApiClient {
             }
 
             if (isDefined(ctx.message.document)) {
-                this._commands$.next({ name: 'file', ctx });
+                this._commands$.next({ ctx, name: 'file' });
             } else {
-                this._commands$.next({ name: 'text', ctx });
+                this._commands$.next({ ctx, name: 'text' });
             }
         });
     }

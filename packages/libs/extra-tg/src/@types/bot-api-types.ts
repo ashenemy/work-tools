@@ -1,24 +1,14 @@
 import type { Context } from 'grammy';
 
-export type BotApiClientConfig = {
-    botToken: string;
-    botName: string;
-};
+export type BotApiClientConfig = { botToken: string; botName: string };
 
 export type BotApiParseMode = 'HTML' | 'MarkdownV2';
 
-export type BotApiInlineKeyboardButton = {
-    text: string;
-} & ({ callback_data: string } | { url: string } | { web_app: { url: string } });
+export type BotApiInlineKeyboardButton = { text: string } & ({ callback_data: string } | { url: string } | { web_app: { url: string } });
 
-export type BotApiInlineKeyboardMarkup = {
-    inline_keyboard: BotApiInlineKeyboardButton[][];
-};
+export type BotApiInlineKeyboardMarkup = { inline_keyboard: BotApiInlineKeyboardButton[][] };
 
-export type BotApiKeyboardButton = {
-    text: string;
-    web_app?: { url: string };
-};
+export type BotApiKeyboardButton = { text: string; web_app?: { url: string } };
 
 export type BotApiReplyKeyboardMarkup = {
     keyboard: BotApiKeyboardButton[][];
@@ -29,24 +19,13 @@ export type BotApiReplyKeyboardMarkup = {
     is_persistent?: boolean;
 };
 
-export type BotApiReplyKeyboardRemove = {
-    remove_keyboard: true;
-    selective?: boolean;
-};
+export type BotApiReplyKeyboardRemove = { remove_keyboard: true; selective?: boolean };
 
-export type BotApiForceReply = {
-    force_reply: true;
-    selective?: boolean;
-    input_field_placeholder?: string;
-};
+export type BotApiForceReply = { force_reply: true; selective?: boolean; input_field_placeholder?: string };
 
 export type BotApiReplyMarkup = BotApiInlineKeyboardMarkup | BotApiReplyKeyboardMarkup | BotApiReplyKeyboardRemove | BotApiForceReply;
 
-export type BotApiMessagePayload = {
-    text: string;
-    parse_mode?: BotApiParseMode;
-    reply_markup?: BotApiReplyMarkup;
-};
+export type BotApiMessagePayload = { text: string; parse_mode?: BotApiParseMode; reply_markup?: BotApiReplyMarkup };
 
 export type BotApiKVValue = string | number;
 
@@ -62,12 +41,6 @@ export type BotApiNewLogFlowPayload = {
     fileName: string;
 };
 
-export type BotApiTopicTarget = {
-    chatId: number | string;
-    threadId?: number;
-};
+export type BotApiTopicTarget = { chatId: number | string; threadId?: number };
 
-export type BotApiEvent = {
-    name: string;
-    ctx: Context;
-};
+export type BotApiEvent = { name: string; ctx: Context };

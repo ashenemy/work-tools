@@ -1,15 +1,15 @@
-import { MtpClient } from '../mtp-client.class';
-import type { MtpMessage } from '../types/mtp-message.class';
-import { createWriteStream, WriteStream } from 'node:fs';
+import { createWriteStream, type WriteStream } from 'node:fs';
+import { join } from 'node:path';
+import { finished } from 'node:stream/promises';
 import { File } from '@work-tools/extra-fs';
+import { isUndefined } from '@work-tools/utils';
+import bigInt from 'big-integer';
 import { type Observable, Subject } from 'rxjs';
 import type { MTPFileDownloadProgress } from '../../../@types';
+import type { MtpClient } from '../mtp-client.class';
 import { TG_FILE_DOWNLOAD_OPTIONS } from '../mtp-client.constants';
+import type { MtpMessage } from '../types/mtp-message.class';
 import type { MtpMessageFile } from '../types/mtp-message-file.class';
-import { isUndefined } from '@work-tools/utils';
-import { join } from 'node:path';
-import bigInt from 'big-integer';
-import { finished } from 'node:stream/promises';
 
 export class MtpClientFileDownloader {
     private _attempt = 0;
@@ -50,13 +50,14 @@ export class MtpClientFileDownloader {
         const ws = createWriteStream(this._saveFile.absPath, { flags, start: offset });
 
         try {
-            for await (const chunk of this._client.client.iterDownload({ file: this._downloadableFile.downloadable, offset: bigInt(offset), requestSize: TG_FILE_DOWNLOAD_OPTIONS.requestSize })) {
+            for await (const chunk of this._client.client.iterDownload({
+                file: this._downloadableFile.downloadable,
+                offset: bigInt(offset),
+                requestSize: TG_FILE_DOWNLOAD_OPTIONS.requestSize,
+            })) {
                 await this._writeChunk(ws, chunk);
                 const success = offset + ws.bytesWritten;
-                this._progress$.next({
-                    total: this._downloadableFile.size,
-                    downloaded: success,
-                });
+                this._progress$.next({ downloaded: success, total: this._downloadableFile.size });
             }
 
             ws.end();

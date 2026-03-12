@@ -4,7 +4,7 @@ export class BotApiInlineKbBuilder {
     private _rows: BotApiInlineKeyboardButton[][] = [[]];
 
     public text(label: string, callbackData: string): this {
-        this._currentRow().push({ text: label, callback_data: callbackData });
+        this._currentRow().push({ callback_data: callbackData, text: label });
         return this;
     }
 
@@ -19,7 +19,7 @@ export class BotApiInlineKbBuilder {
     }
 
     public disabled(label: string, data = 'mk:disabled'): this {
-        this._currentRow().push({ text: label, callback_data: data });
+        this._currentRow().push({ callback_data: data, text: label });
         return this;
     }
 

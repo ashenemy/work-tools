@@ -1,15 +1,20 @@
-import type { Optional } from '@work-tools/ts';
-import { TelegramClient } from 'telegram';
-import { expBackoff, isDefined, isString, isUndefined, sleep, withTimeout } from '@work-tools/utils';
-import { type MTPClientConfig, type MTPClientSendMessageData, MTPClientStatus } from '../../@types';
-import { BehaviorSubject } from 'rxjs';
-import { StringSession } from 'telegram/sessions';
-import { MTP_CLIENT_CONNECTION_RECONNECT_OPTIONS, MTP_CLIENT_INIT_OPTIONS, MTP_CLIENT_WATCHDOG_CONNECTION_OPTIONS, TG_CHAT_HISTORY_LOOKUP_HISTORY } from './mtp-client.constants';
 import { input } from '@inquirer/prompts';
+import type { Optional } from '@work-tools/ts';
+import { expBackoff, isDefined, isString, isUndefined, sleep, withTimeout } from '@work-tools/utils';
+import { BehaviorSubject } from 'rxjs';
+import { TelegramClient } from 'telegram';
+import type * as messageMethods from 'telegram/client/messages';
 import type { EntityLike } from 'telegram/define';
-import { MtpMessage } from './types/mtp-message.class';
-import * as messageMethods from 'telegram/client/messages';
+import { StringSession } from 'telegram/sessions';
+import type { MTPClientConfig, MTPClientSendMessageData, MTPClientStatus } from '../../@types';
 import { MtpClientActionBuilder } from './inc/mtp-client-action-builder.class';
+import {
+    MTP_CLIENT_CONNECTION_RECONNECT_OPTIONS,
+    MTP_CLIENT_INIT_OPTIONS,
+    MTP_CLIENT_WATCHDOG_CONNECTION_OPTIONS,
+    TG_CHAT_HISTORY_LOOKUP_HISTORY,
+} from './mtp-client.constants';
+import { MtpMessage } from './types/mtp-message.class';
 
 export class MtpClient {
     private _currentStatus: MTPClientStatus = 'stopped';
@@ -183,9 +188,12 @@ export class MtpClient {
         try {
             await withTimeout(this.client.connect(), MTP_CLIENT_CONNECTION_RECONNECT_OPTIONS.connectTimeoutMs, 'connect timeout');
             await withTimeout(this.client.getMe(), MTP_CLIENT_CONNECTION_RECONNECT_OPTIONS.healthCheckTimeoutMs, 'healthcheck timeout');
-            return;
         } catch (e) {
-            const delay = expBackoff(attempt, MTP_CLIENT_CONNECTION_RECONNECT_OPTIONS.retryDelayMs, MTP_CLIENT_CONNECTION_RECONNECT_OPTIONS.backoffMaxMs);
+            const delay = expBackoff(
+                attempt,
+                MTP_CLIENT_CONNECTION_RECONNECT_OPTIONS.retryDelayMs,
+                MTP_CLIENT_CONNECTION_RECONNECT_OPTIONS.backoffMaxMs,
+            );
             await sleep(delay);
             throw e;
         }
@@ -193,15 +201,12 @@ export class MtpClient {
 
     private async _signIn(): Promise<void> {
         await this.client.signInUser(
+            { apiHash: this.clientConnectionConfig.apiHash, apiId: this.clientConnectionConfig.apiId },
             {
-                apiId: this.clientConnectionConfig.apiId,
-                apiHash: this.clientConnectionConfig.apiHash,
-            },
-            {
-                phoneNumber: this.clientConnectionConfig.phoneNumber,
+                onError: (err) => console.log(err),
                 password: async () => Promise.resolve(this.clientConnectionConfig.password),
                 phoneCode: async () => input({ message: 'Enter code' }),
-                onError: (err) => console.log(err),
+                phoneNumber: this.clientConnectionConfig.phoneNumber,
             },
         );
     }

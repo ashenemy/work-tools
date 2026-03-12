@@ -1,6 +1,6 @@
 import { escapeHtml } from '@work-tools/utils';
-import { normalizeDomains, obfuscateDomainDots } from '../format/domain';
 import type { BotApiKVValue, BotApiMessagePayload } from '../../../../@types';
+import { normalizeDomains, obfuscateDomainDots } from '../format/domain';
 import { hr } from '../format/hr';
 
 export class BotApiTextBuilder {
@@ -89,6 +89,6 @@ export class BotApiTextBuilder {
     }
 
     public build(): BotApiMessagePayload {
-        return { text: this._out.join('\n'), parse_mode: 'HTML' };
+        return { parse_mode: 'HTML', text: this._out.join('\n') };
     }
 }

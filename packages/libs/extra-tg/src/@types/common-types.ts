@@ -1,7 +1,4 @@
-export type UrlBotData = {
-    botName: string;
-    startArg: string;
-};
+export type UrlBotData = { botName: string; startArg: string };
 
 export type TruncateResult = { value: string; truncated: boolean };
 

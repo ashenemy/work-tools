@@ -1,9 +1,10 @@
-import { MtpMessage } from './mtp-message.class';
+import type { Optional } from '@work-tools/ts';
 import { isType, isUndefined } from '@work-tools/utils';
-import { Api } from 'telegram';
 import { extension } from 'mime-types';
-import { Optional } from '@work-tools/ts';
+import { Api } from 'telegram';
 import type { MTPMessageFileInfo } from '../../../@types';
+import type { MtpMessage } from './mtp-message.class';
+
 import TypeMessageMedia = Api.TypeMessageMedia;
 
 export class MtpMessageFile {
@@ -52,13 +53,13 @@ export class MtpMessageFile {
 
     public async getInfo(): Promise<MTPMessageFileInfo> {
         return {
-            messageId: this._message.messageId,
-            peerId: this._message.peerId,
             fileName: this.fileName,
-            size: this.size,
             filePassword: this.filePassword,
+            messageId: this._message.messageId,
             mimeType: this._document.mimeType,
             peerAccessHash: await this._message.getInputPeerAccessHash(),
+            peerId: this._message.peerId,
+            size: this.size,
         };
     }
 }
