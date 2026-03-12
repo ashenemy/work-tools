@@ -6,16 +6,6 @@ import { LoggerService } from './logger.service';
 @Module({})
 export class LoggerModule {
     public static forRoot(appName?: string): DynamicModule {
-        return {
-            module: LoggerModule,
-            providers: [
-                {
-                    provide: APP_NAME,
-                    useValue: appName,
-                },
-                LoggerService,
-            ],
-            exports: [LoggerService],
-        };
+        return { exports: [LoggerService], module: LoggerModule, providers: [{ provide: APP_NAME, useValue: appName }, LoggerService] };
     }
 }

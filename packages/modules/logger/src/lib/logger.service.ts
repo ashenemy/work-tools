@@ -1,22 +1,22 @@
-import { Global, Inject, Injectable, LoggerService as _LoggerService, Optional as Optional_ } from '@nestjs/common';
 import { inspect } from 'node:util';
-import { APP_NAME } from './logger.constants';
+import { LoggerService as _LoggerService, Global, Inject, Injectable, Optional as Optional_ } from '@nestjs/common';
+import type { Optional } from '@work-tools/ts';
+import { isDefined } from '@work-tools/utils';
 import type { ConsoleMethods, LevelStyle, LogLevel } from '../@types';
 import { LoggerDesign } from './lib/logger-design.class';
 import { enableSourceMapSupport } from './lib/source-map';
-import type { Optional } from '@work-tools/ts';
-import { isDefined } from '@work-tools/utils';
+import { APP_NAME } from './logger.constants';
 
 @Global()
 @Injectable()
 export class LoggerService implements _LoggerService {
     private static _currentLogger: Optional<LoggerService> = undefined;
     private static readonly _originalConsole: ConsoleMethods = {
-        log: console.log.bind(console),
-        info: console.info.bind(console),
-        warn: console.warn.bind(console),
-        error: console.error.bind(console),
         debug: console.debug.bind(console),
+        error: console.error.bind(console),
+        info: console.info.bind(console),
+        log: console.log.bind(console),
+        warn: console.warn.bind(console),
     };
 
     constructor(
@@ -121,7 +121,11 @@ export class LoggerService implements _LoggerService {
         const ts = new Date().toISOString().replace('T', ' ').slice(0, 19);
         const name = this.appName ?? 'app';
 
-        return [`${LoggerDesign.COLORS.dim}${ts}${LoggerDesign.COLORS.reset}`, `${style.color}${style.icon} ${style.tag}${LoggerDesign.COLORS.reset}`, `${LoggerDesign.COLORS.gray}[${name}]${LoggerDesign.COLORS.reset}`].join(' ');
+        return [
+            `${LoggerDesign.COLORS.dim}${ts}${LoggerDesign.COLORS.reset}`,
+            `${style.color}${style.icon} ${style.tag}${LoggerDesign.COLORS.reset}`,
+            `${LoggerDesign.COLORS.gray}[${name}]${LoggerDesign.COLORS.reset}`,
+        ].join(' ');
     }
 
     private _format(value: unknown): string {
@@ -133,12 +137,7 @@ export class LoggerService implements _LoggerService {
             return value;
         }
 
-        return inspect(value, {
-            colors: true,
-            depth: 6,
-            compact: false,
-            breakLength: 120,
-        });
+        return inspect(value, { breakLength: 120, colors: true, compact: false, depth: 6 });
     }
 
     private _capture(level: LogLevel, args: unknown[]): void {
