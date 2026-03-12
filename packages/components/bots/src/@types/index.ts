@@ -1,4 +1,1 @@
-export type BotEntity = {
-    botName: string;
-    allowedUsers: string[];
-};
+export type BotEntity = { botName: string; allowedUsers: string[] };

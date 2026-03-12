@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ExCrudService, getMongoCollectionToken, type MongoModel } from '@work-tools/extra-db';
+import { getMongoCollectionToken } from '@work-tools/db-service';
+import { ExCrudService, type MongoModel } from '@work-tools/extra-db';
 import type { BotEntity } from '../@types';
 import { BOTS_COLLECTION } from './bots.constants';
 
