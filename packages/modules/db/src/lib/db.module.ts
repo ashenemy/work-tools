@@ -7,9 +7,5 @@ import { MongoDbShutdownProvider } from './providers/mongo/mongo-db-shutdown.pro
 const providers = [mongoDbConnectionProvider, clickHouseDbConnectionProvider];
 
 @Global()
-@Module({
-    controllers: [],
-    providers: [...providers, MongoDbShutdownProvider, ClickHouseDbShutdownProvider],
-    exports: [...providers],
-})
+@Module({ controllers: [], exports: [...providers], providers: [...providers, MongoDbShutdownProvider, ClickHouseDbShutdownProvider] })
 export class DbModule {}

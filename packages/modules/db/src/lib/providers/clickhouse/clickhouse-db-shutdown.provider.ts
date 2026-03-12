@@ -1,6 +1,6 @@
-import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
 import type { ClickHouseClient } from '@clickhouse/client';
-import { LoggerService } from '@work-tools/logger-service';
+import { Inject, Injectable, type OnModuleDestroy } from '@nestjs/common';
+import type { LoggerService } from '@work-tools/logger-service';
 import { CLICKHOUSE_DB_CONNECTION } from '../../db.constants';
 
 @Injectable()

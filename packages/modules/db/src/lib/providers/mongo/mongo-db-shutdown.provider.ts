@@ -1,4 +1,4 @@
-import { Inject, Injectable, OnApplicationShutdown } from '@nestjs/common';
+import { Inject, Injectable, type OnApplicationShutdown } from '@nestjs/common';
 import type { Connection } from 'mongoose';
 import { MONGO_DB_CONNECTION } from '../../db.constants';
 
