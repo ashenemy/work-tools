@@ -1,5 +1,5 @@
 {
-    "name": "@work-tool/config-cenerator",
+    "name": "@work-tools/config-cenerator",
     "version": "0.0.1",
     "private": true,
     "nx": {
@@ -18,11 +18,20 @@
                 "executor": "nx:run-commands",
                 "options": {
                     "cwd": "apps/config-generator",
-                    "command": "npx tsc \"src/config/config.toml.ts\" --declaration --emitDeclarationOnly --declarationDir ./dist"
+                    "command": "npx tsc \"src/config/config.toml.ts\" --declaration --emitDeclarationOnly --declarationDir ./build"
+                }
+            },
+            "check": {
+                "executor": "@work-tools/nx-biome:check"
+            },
+            "check-fix": {
+                "executor": "@work-tools/nx-biome:check",
+                "options": {
+                    "fix": true
                 }
             }
         }
     },
-    "main": "./dist/config.toml",
-    "types": "./dist/config.toml.d.ts"
+    "main": "./build/config.toml",
+    "types": "./build/config.toml.d.ts"
 }

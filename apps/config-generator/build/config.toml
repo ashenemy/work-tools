@@ -1,0 +1,207 @@
+scope = "@work-tools"
+mode = "dev"
+root = "C:\\Projects\\work-tools"
+
+[main]
+name = "runner"
+dist = ""
+
+[fs]
+fileSaveTo = "C:\\STORAGE\\download"
+fileExtractTo = "C:\\STORAGE\\extract"
+passSaveTo = "C:\\STORAGE\\passwords"
+
+[mongoDB]
+connectionUri = "mongodb://workTools:workTools@localhost:27017/workTools"
+
+[nats]
+server = "nats://localhost:4222"
+monitoring = "http://localhost:8222"
+
+[clickHouse]
+connectionUri = "clickhouse://workTools:workTools@localhost:9000/workTools"
+
+[apps.cc-buyer-bot]
+name = "cc-buyer-bot"
+dist = ""
+schedule = true
+every = 3_600
+disable = true
+
+[apps.installer-bot]
+name = "installer-bot"
+dist = ""
+onEvent = "new-group-install"
+disable = true
+
+[apps.helper-bot]
+name = "helper-bot"
+dist = ""
+autoLoad = true
+priority = 20
+disable = true
+
+[apps.notify-bot]
+name = "notify-bot"
+dist = ""
+autoLoad = true
+priority = 20
+disable = true
+
+[apps.doc-loader-bot]
+name = "doc-loader-bot"
+dist = ""
+autoLoad = true
+priority = 20
+disable = true
+
+[apps.watcher-bot]
+name = "watcher-bot"
+dist = ""
+autoLoad = true
+priority = 20
+disable = true
+
+[apps.optimizer-queuee]
+name = "optimizer-queuee"
+dist = ""
+autoLoad = true
+priority = 10
+disable = true
+
+[apps.download-queue]
+name = "analize-queue"
+dist = ""
+autoLoad = true
+priority = 10
+disable = true
+
+[apps.extractor-queue]
+name = "extractor-queue"
+dist = ""
+autoLoad = true
+priority = 10
+disable = true
+
+[apps.analize-queue]
+name = "download-queue"
+dist = ""
+autoLoad = true
+priority = 10
+disable = true
+
+[tg.bot.watcher]
+appId = 31_618_789
+apiHash = "53dca6f0ca57b1e528d4b8f61e968482"
+phoneNumber = "+37433618001"
+password = "Qwerty12as12!"
+
+[tg.bot.docLoader]
+appId = 31_618_789
+apiHash = "53dca6f0ca57b1e528d4b8f61e968482"
+phoneNumber = "+37433618001"
+password = "Qwerty12as12!"
+
+[tg.bot.installer]
+appId = 31_618_789
+apiHash = "53dca6f0ca57b1e528d4b8f61e968482"
+phoneNumber = "+37433618001"
+password = "Qwerty12as12!"
+
+[tg.bot.notify]
+name = ""
+token = ""
+
+[tg.bot.helper]
+name = ""
+token = ""
+
+[tg.groups]
+tmp = "@my"
+notifications = -3_889_280_097
+
+[tg.logsFrom]
+run = [ "@WeTransfer1bot" ]
+
+  [tg.logsFrom.watching]
+  bots = [ "@WeTransfer1bot", "@boxedrobot" ]
+  groups = [
+  "-1833254475",
+  "@Everlasting_Logs",
+  "@bugatti_cloudnew",
+  "-3898748913"
+]
+
+[container.mongo]
+port = 27_017
+internalPort = 27_017
+
+  [container.mongo.docker]
+  image = "mongo:7"
+  container = "work-tools-mongo"
+
+  [container.mongo.root]
+  username = "admin"
+  password = "admin"
+
+  [container.mongo.app]
+  db = "workTools"
+  collection = "workTools"
+  username = "workTools"
+  password = "workTools"
+
+[container.mongo.fs.data]
+dir = "./.data/mongo/data"
+targetDir = "/data/db"
+
+[container.mongo.fs.initob]
+targetDir = "/docker-entrypoint-initdb.d"
+
+[container.clickHouse.docker]
+image = "clickhouse/clickhouse-server:25.11"
+container = "work-tools-clickhouse"
+
+[container.clickHouse.ports.http]
+port = 8_123
+internalPort = 8_123
+
+[container.clickHouse.ports.tcp]
+port = 9_000
+internalPort = 9_000
+
+[container.clickHouse.app]
+db = "workTools"
+username = "workTools"
+password = "workTools"
+
+[container.clickHouse.fs.data]
+targetDir = "/var/lib/clickhouse"
+dir = "./.data/clickhouse/data"
+
+[container.clickHouse.fs.log]
+targetDir = "/var/log/clickhouse-server"
+dir = "./.data/clickhouse/logs"
+
+[container.clickHouse.fs.config]
+targetDir = "/etc/clickhouse-server/config.d"
+
+[container.clickHouse.fs.initob]
+targetDir = "/docker-entrypoint-initdb.d"
+
+[container.nats]
+port = 4_222
+internalPort = 4_222
+serverName = "work-tools-nats"
+
+  [container.nats.docker]
+  container = "work-tools-nats"
+
+  [container.nats.monitor]
+  port = 8_222
+  internalPort = 8_222
+
+[container.nats.fs.data]
+dir = "./.data/nats/data"
+
+[container.nats.fs.store]
+dir = "/data/jetstream"
