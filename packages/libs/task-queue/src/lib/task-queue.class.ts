@@ -1,20 +1,18 @@
-import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
-import { PendingQueueItem, Progress, TaskQueueOptions, TaskQueueStats, TaskQueueTaskEvent, TaskQueueTaskEventType, TaskStatus } from '../@types';
-import { Task } from './task.class';
+import { BehaviorSubject, type Observable, Subject, type Subscription } from 'rxjs';
+import type {
+    PendingQueueItem,
+    Progress,
+    TaskQueueOptions,
+    TaskQueueStats,
+    TaskQueueTaskEvent,
+    TaskQueueTaskEventType,
+    TaskStatus,
+} from '../@types';
+import type { Task } from './task.class';
 
-type Deferred<TResult> = {
-    promise: Promise<TResult>;
-    resolve: (value: TResult) => void;
-    reject: (error: unknown) => void;
-};
-type EnqueueAccepted<TResult> = {
-    accepted: true;
-    promise: Promise<TResult>;
-};
-type EnqueueRejected = {
-    accepted: false;
-    reason: unknown;
-};
+type Deferred<TResult> = { promise: Promise<TResult>; resolve: (value: TResult) => void; reject: (error: unknown) => void };
+type EnqueueAccepted<TResult> = { accepted: true; promise: Promise<TResult> };
+type EnqueueRejected = { accepted: false; reason: unknown };
 type EnqueueResult<TResult> = EnqueueAccepted<TResult> | EnqueueRejected;
 
 export class TaskQueue {
@@ -47,15 +45,12 @@ export class TaskQueue {
         this._concurrency = this._normalizeConcurrency(opts.concurrency);
 
         this._statsSubject = new BehaviorSubject<TaskQueueStats>({
-            total: 0,
-            success: 0,
             failed: 0,
-            work: {
-                total: 0,
-                success: 0,
-            },
-            running: 0,
             pending: 0,
+            running: 0,
+            success: 0,
+            total: 0,
+            work: { success: 0, total: 0 },
         });
 
         this.stats$ = this._statsSubject.asObservable();
@@ -89,12 +84,12 @@ export class TaskQueue {
 
     public getStats(): TaskQueueStats {
         return {
-            total: this._total,
-            success: this._success,
             failed: this._failed,
-            work: this._resolveWorkProgress(),
-            running: this._running,
             pending: this._pending.length,
+            running: this._running,
+            success: this._success,
+            total: this._total,
+            work: this._resolveWorkProgress(),
         };
     }
 
@@ -109,18 +104,11 @@ export class TaskQueue {
 
     public tryEnqueue<TPayload, TResult>(task: Task<TPayload, TResult>): EnqueueResult<TResult> {
         if (this._destroyed) {
-            return {
-                accepted: false,
-                reason: this._shutdownReason,
-            };
+            return { accepted: false, reason: this._shutdownReason };
         }
 
         const deferred = this._createDeferred<TResult>();
-        this._pending.push({
-            task,
-            resolve: deferred.resolve,
-            reject: deferred.reject,
-        });
+        this._pending.push({ reject: deferred.reject, resolve: deferred.resolve, task });
         this._total += 1;
 
         this._emitTaskEvent(task, 'enqueued', 'pending');
@@ -128,10 +116,7 @@ export class TaskQueue {
         this._emitStats();
         void this._drain();
 
-        return {
-            accepted: true,
-            promise: deferred.promise,
-        };
+        return { accepted: true, promise: deferred.promise };
     }
 
     public clearPending(reason: unknown = new Error(`Queue "${this.name}" pending items were cleared.`)): number {
@@ -151,10 +136,7 @@ export class TaskQueue {
 
     public shutdown(reason: unknown = new Error(`Queue "${this.name}" was stopped.`)): { pending: number; running: number } {
         if (this._destroyed) {
-            return {
-                pending: 0,
-                running: 0,
-            };
+            return { pending: 0, running: 0 };
         }
 
         this._destroyed = true;
@@ -191,10 +173,7 @@ export class TaskQueue {
         this._taskEventsSubject.complete();
         this._statsSubject.complete();
 
-        return {
-            pending,
-            running,
-        };
+        return { pending, running };
     }
 
     private async _drain(): Promise<void> {
@@ -296,10 +275,7 @@ export class TaskQueue {
             success += progress.success;
         }
 
-        return {
-            total,
-            success,
-        };
+        return { success, total };
     }
 
     private _emitStats(): void {
@@ -310,20 +286,25 @@ export class TaskQueue {
         this._statsSubject.next(this.getStats());
     }
 
-    private _emitTaskEvent(task: Task<any, any>, event: TaskQueueTaskEventType, status: TaskStatus = task.getStatus(), error?: unknown): void {
+    private _emitTaskEvent(
+        task: Task<any, any>,
+        event: TaskQueueTaskEventType,
+        status: TaskStatus = task.getStatus(),
+        error?: unknown,
+    ): void {
         if (this._taskEventsSubject.closed || this._taskEventsSubject.isStopped) {
             return;
         }
 
         const eventPayload: TaskQueueTaskEvent = {
+            event,
+            progress: this._taskProgressMap.get(task.id) ?? this._normalizeProgress(task.getProgress()),
             queueName: this.name,
             queueType: this.type,
+            status,
             taskId: task.id,
             taskName: task.name,
             taskType: task.type,
-            status,
-            progress: this._taskProgressMap.get(task.id) ?? this._normalizeProgress(task.getProgress()),
-            event,
         };
 
         if (error !== undefined) {
@@ -337,10 +318,7 @@ export class TaskQueue {
         const total = this._toNonNegativeCount(progress.total);
         const success = Math.min(this._toNonNegativeCount(progress.success), total);
 
-        return {
-            total,
-            success,
-        };
+        return { success, total };
     }
 
     private _normalizeConcurrency(value: number): number {
@@ -372,10 +350,6 @@ export class TaskQueue {
             throw new Error('Failed to create deferred promise.');
         }
 
-        return {
-            promise,
-            resolve: resolveRef,
-            reject: rejectRef,
-        };
+        return { promise, reject: rejectRef, resolve: resolveRef };
     }
 }

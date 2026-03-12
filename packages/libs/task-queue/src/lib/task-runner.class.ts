@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
-import { CalculatedProgress, Progress, TaskRunnerEvent, TaskRunnerEventType, TaskStatus } from '../@types';
-import { Task } from './task.class';
+import type { CalculatedProgress, Progress, TaskRunnerEvent, TaskRunnerEventType, TaskStatus } from '../@types';
+import type { Task } from './task.class';
 
 export class TaskRunner {
     public run<TPayload, TResult>(task: Task<TPayload, TResult>): Observable<TaskRunnerEvent<TResult>> {
@@ -10,7 +10,13 @@ export class TaskRunner {
 
             const progressSubscription = task.progress$.subscribe((progress) => {
                 if (isStarted) {
-                    this._emitEvent(subscriber, task, 'progress', task.getStatus(), this._resolveProgress(progress, startedAtMs, isStarted));
+                    this._emitEvent(
+                        subscriber,
+                        task,
+                        'progress',
+                        task.getStatus(),
+                        this._resolveProgress(progress, startedAtMs, isStarted),
+                    );
                 }
             });
 
@@ -18,18 +24,39 @@ export class TaskRunner {
                 if (status === 'running' && !isStarted) {
                     isStarted = true;
                     startedAtMs = Date.now();
-                    this._emitEvent(subscriber, task, 'started', 'running', this._resolveProgress(task.getProgress(), startedAtMs, isStarted));
+                    this._emitEvent(
+                        subscriber,
+                        task,
+                        'started',
+                        'running',
+                        this._resolveProgress(task.getProgress(), startedAtMs, isStarted),
+                    );
                 }
             });
 
             void task
                 .execute()
                 .then((result) => {
-                    this._emitEvent(subscriber, task, 'success', task.getStatus(), this._resolveProgress(task.getProgress(), startedAtMs, isStarted), result);
+                    this._emitEvent(
+                        subscriber,
+                        task,
+                        'success',
+                        task.getStatus(),
+                        this._resolveProgress(task.getProgress(), startedAtMs, isStarted),
+                        result,
+                    );
                     subscriber.complete();
                 })
                 .catch((error: unknown) => {
-                    this._emitEvent(subscriber, task, 'failed', 'failed', this._resolveProgress(task.getProgress(), startedAtMs, isStarted), undefined, error);
+                    this._emitEvent(
+                        subscriber,
+                        task,
+                        'failed',
+                        'failed',
+                        this._resolveProgress(task.getProgress(), startedAtMs, isStarted),
+                        undefined,
+                        error,
+                    );
                     subscriber.error(error);
                 })
                 .finally(() => {
@@ -57,14 +84,7 @@ export class TaskRunner {
             return;
         }
 
-        const payload: TaskRunnerEvent<TResult> = {
-            taskId: task.id,
-            taskName: task.name,
-            taskType: task.type,
-            status,
-            progress,
-            event,
-        };
+        const payload: TaskRunnerEvent<TResult> = { event, progress, status, taskId: task.id, taskName: task.name, taskType: task.type };
 
         if (result !== undefined) {
             payload.result = result;
@@ -83,22 +103,12 @@ export class TaskRunner {
         const percent = total <= 0 ? 0 : Number(((success / total) * 100).toFixed(2));
 
         if (!isStarted || startedAtMs <= 0) {
-            return {
-                total,
-                success,
-                percent,
-                speed: 0,
-            };
+            return { percent, speed: 0, success, total };
         }
 
         const elapsedSeconds = (Date.now() - startedAtMs) / 1000;
         const speed = elapsedSeconds <= 0 ? 0 : Number((success / elapsedSeconds).toFixed(2));
 
-        return {
-            total,
-            success,
-            percent,
-            speed,
-        };
+        return { percent, speed, success, total };
     }
 }

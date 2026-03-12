@@ -1,14 +1,24 @@
 import type { Optional } from '@work-tools/ts';
-import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
-import { PersistedTaskDescriptor, QueueTypeProgress, RestoreTasksResult, TaskQueueOptions, TaskQueueProgressEvent, TaskQueueRegistryEvent, TaskQueueStats } from '../@types';
-import { Task } from './task.class';
+import { BehaviorSubject, type Observable, Subject, type Subscription } from 'rxjs';
+import type {
+    PersistedTaskDescriptor,
+    QueueTypeProgress,
+    RestoreTasksResult,
+    TaskQueueOptions,
+    TaskQueueProgressEvent,
+    TaskQueueRegistryEvent,
+    TaskQueueStats,
+} from '../@types';
+import type { Task } from './task.class';
 import { TaskQueue } from './task-queue.class';
 
 export class TaskQueueCoordinator {
     private readonly _queues: Map<string, TaskQueue> = new Map();
     private readonly _queueStatsSubscriptions: Map<string, Subscription> = new Map();
 
-    private readonly _progressByTypesSubject: BehaviorSubject<Record<string, QueueTypeProgress>> = new BehaviorSubject<Record<string, QueueTypeProgress>>({});
+    private readonly _progressByTypesSubject: BehaviorSubject<Record<string, QueueTypeProgress>> = new BehaviorSubject<
+        Record<string, QueueTypeProgress>
+    >({});
     public readonly progressByTypes$: Observable<Record<string, QueueTypeProgress>> = this._progressByTypesSubject.asObservable();
 
     private readonly _registryEventsSubject: Subject<TaskQueueRegistryEvent> = new Subject<TaskQueueRegistryEvent>();
@@ -26,10 +36,7 @@ export class TaskQueueCoordinator {
         this._queues.set(name, queue);
         this._bindQueue(queue);
         this._emitTypeProgress(queue.type);
-        this._emitRegistryEvent({
-            type: 'created',
-            queueName: name,
-        });
+        this._emitRegistryEvent({ queueName: name, type: 'created' });
         return queue;
     }
 
@@ -80,7 +87,10 @@ export class TaskQueueCoordinator {
         return queue.enqueue(task);
     }
 
-    public async restoreSavedTasks<TRecord>(records: Iterable<TRecord> | AsyncIterable<TRecord>, mapper: (record: TRecord) => PersistedTaskDescriptor | Promise<PersistedTaskDescriptor>): Promise<RestoreTasksResult<TRecord>> {
+    public async restoreSavedTasks<TRecord>(
+        records: Iterable<TRecord> | AsyncIterable<TRecord>,
+        mapper: (record: TRecord) => PersistedTaskDescriptor | Promise<PersistedTaskDescriptor>,
+    ): Promise<RestoreTasksResult<TRecord>> {
         const errors: Array<{ record: TRecord; error: unknown }> = [];
         let total = 0;
         let enqueued = 0;
@@ -106,16 +116,11 @@ export class TaskQueueCoordinator {
                 void executionPromise.catch(() => undefined);
                 enqueued += 1;
             } catch (error: unknown) {
-                errors.push({ record, error });
+                errors.push({ error, record });
             }
         }
 
-        return {
-            total,
-            enqueued,
-            failed: errors.length,
-            errors,
-        };
+        return { enqueued, errors, failed: errors.length, total };
     }
 
     public removeQueue(name: string): boolean {
@@ -134,10 +139,7 @@ export class TaskQueueCoordinator {
 
         this._queues.delete(name);
         this._emitTypeProgress(queue.type);
-        this._emitRegistryEvent({
-            type: 'destroyed',
-            queueName: name,
-        });
+        this._emitRegistryEvent({ queueName: name, type: 'destroyed' });
         return true;
     }
 
@@ -146,9 +148,7 @@ export class TaskQueueCoordinator {
             this.removeQueue(queueName);
         }
 
-        this._emitRegistryEvent({
-            type: 'cleared',
-        });
+        this._emitRegistryEvent({ type: 'cleared' });
     }
 
     public getTypeProgress(type: string): Optional<QueueTypeProgress> {
@@ -156,18 +156,12 @@ export class TaskQueueCoordinator {
     }
 
     public getProgressByTypes(): Record<string, QueueTypeProgress> {
-        return {
-            ...this._progressByTypesSubject.value,
-        };
+        return { ...this._progressByTypesSubject.value };
     }
 
     private _bindQueue(queue: TaskQueue): void {
         const queueStatsSubscription = queue.stats$.subscribe((stats) => {
-            this._queueProgressSubject.next({
-                queueName: queue.name,
-                queueType: queue.type,
-                stats,
-            });
+            this._queueProgressSubject.next({ queueName: queue.name, queueType: queue.type, stats });
 
             this._emitTypeProgress(queue.type);
         });
@@ -205,19 +199,13 @@ export class TaskQueueCoordinator {
         }
 
         currentProgressByType[type] = {
-            type,
-            queues: sameTypeQueues.length,
-            tasks: {
-                total: tasksTotal,
-                success: tasksSuccess,
-            },
             failed,
-            work: {
-                total: workTotal,
-                success: workSuccess,
-            },
-            running,
             pending,
+            queues: sameTypeQueues.length,
+            running,
+            tasks: { success: tasksSuccess, total: tasksTotal },
+            type,
+            work: { success: workSuccess, total: workTotal },
         };
 
         this._progressByTypesSubject.next(currentProgressByType);

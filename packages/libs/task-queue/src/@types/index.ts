@@ -1,30 +1,14 @@
 import type { Task } from '../lib/task.class';
 
-export type Progress = {
-    total: number;
-    success: number;
-};
+export type Progress = { total: number; success: number };
 
-export type CalculatedProgress = Progress & {
-    percent: number;
-    speed: number;
-};
+export type CalculatedProgress = Progress & { percent: number; speed: number };
 
 export type TaskStatus = 'pending' | 'running' | 'success' | 'failed';
 
-export type TaskQueueOptions = {
-    concurrency: number;
-    type?: string;
-};
+export type TaskQueueOptions = { concurrency: number; type?: string };
 
-export type TaskQueueStats = {
-    total: number;
-    success: number;
-    failed: number;
-    work: Progress;
-    running: number;
-    pending: number;
-};
+export type TaskQueueStats = { total: number; success: number; failed: number; work: Progress; running: number; pending: number };
 
 export type QueueTypeProgress = {
     type: string;
@@ -52,27 +36,13 @@ export type TaskQueueTaskEvent = {
 
 export type TaskQueueRegistryEventType = 'created' | 'destroyed' | 'cleared';
 
-export type TaskQueueRegistryEvent = {
-    type: TaskQueueRegistryEventType;
-    queueName?: string;
-};
+export type TaskQueueRegistryEvent = { type: TaskQueueRegistryEventType; queueName?: string };
 
-export type TaskQueueProgressEvent = {
-    queueName: string;
-    queueType: string;
-    stats: TaskQueueStats;
-};
+export type TaskQueueProgressEvent = { queueName: string; queueType: string; stats: TaskQueueStats };
 
-export type PersistedTaskDescriptor<TResult = unknown> = {
-    queueName: string;
-    queueOptions?: TaskQueueOptions;
-    task: Task<any, TResult>;
-};
+export type PersistedTaskDescriptor<TResult = unknown> = { queueName: string; queueOptions?: TaskQueueOptions; task: Task<any, TResult> };
 
-export type RestoreTasksError<TRecord = unknown> = {
-    record: TRecord;
-    error: unknown;
-};
+export type RestoreTasksError<TRecord = unknown> = { record: TRecord; error: unknown };
 
 export type RestoreTasksResult<TRecord = unknown> = {
     total: number;
@@ -81,18 +51,9 @@ export type RestoreTasksResult<TRecord = unknown> = {
     errors: Array<RestoreTasksError<TRecord>>;
 };
 
-export type TaskOptions = {
-    id?: string;
-    type?: string;
-    name?: string;
-    progressTotal?: number;
-};
+export type TaskOptions = { id?: string; type?: string; name?: string; progressTotal?: number };
 
-export type PendingQueueItem<TResult> = {
-    task: Task<any, TResult>;
-    resolve: (value: TResult) => void;
-    reject: (error: unknown) => void;
-};
+export type PendingQueueItem<TResult> = { task: Task<any, TResult>; resolve: (value: TResult) => void; reject: (error: unknown) => void };
 
 export type TaskRunnerEventType = 'started' | 'progress' | 'success' | 'failed';
 

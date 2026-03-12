@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { Progress, TaskOptions, TaskStatus } from '../@types';
+import { BehaviorSubject, type Observable } from 'rxjs';
+import type { Progress, TaskOptions, TaskStatus } from '../@types';
 
 export abstract class Task<TPayload, TResult> {
     public readonly id: string;
@@ -23,10 +23,7 @@ export abstract class Task<TPayload, TResult> {
         this.name = options.name ?? this.constructor.name;
 
         const normalizedTotal = this._normalizeTotal(options.progressTotal ?? 0, 0);
-        this._progressSubject = new BehaviorSubject<Progress>({
-            total: normalizedTotal,
-            success: 0,
-        });
+        this._progressSubject = new BehaviorSubject<Progress>({ success: 0, total: normalizedTotal });
         this._statusSubject = new BehaviorSubject<TaskStatus>('pending');
 
         this.progress$ = this._progressSubject.asObservable();
@@ -86,10 +83,7 @@ export abstract class Task<TPayload, TResult> {
     protected setProgress(success: number, total: number = this.getProgress().total): void {
         const normalizedTotal = this._normalizeTotal(total, success);
         const normalizedSuccess = this._normalizeSuccess(success, normalizedTotal);
-        this._progressSubject.next({
-            total: normalizedTotal,
-            success: normalizedSuccess,
-        });
+        this._progressSubject.next({ success: normalizedSuccess, total: normalizedTotal });
     }
 
     protected setProgressTotal(total: number): void {
