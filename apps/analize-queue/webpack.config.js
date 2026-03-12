@@ -3,29 +3,21 @@ const { join } = require('path');
 
 module.exports = {
     output: {
-        path: join(__dirname, 'dist'),
         clean: true,
-        ...(process.env.NODE_ENV !== 'production' && {
-            devtoolModuleFilenameTemplate: '[absolute-resource-path]',
-        }),
+        path: join(__dirname, 'dist'),
+        ...(process.env.NODE_ENV !== 'production' && { devtoolModuleFilenameTemplate: '[absolute-resource-path]' }),
     },
     plugins: [
         new NxAppWebpackPlugin({
-            target: 'node',
+            assets: [{ glob: 'config.toml', input: 'apps/config-generator/build', output: '.' }],
             compiler: 'tsc',
+            generatePackageJson: false,
             main: './src/main.ts',
-            tsConfig: './tsconfig.app.json',
-            assets: [
-                {
-                    input: 'apps/config-generator/build',
-                    glob: 'config.toml',
-                    output: '.',
-                },
-            ],
             optimization: false,
             outputHashing: 'none',
-            generatePackageJson: false,
             sourceMap: true,
+            target: 'node',
+            tsConfig: './tsconfig.app.json',
         }),
     ],
 };

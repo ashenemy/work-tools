@@ -2,7 +2,9 @@
     "extends": "../../tsconfig.base.json",
     "compilerOptions": {
         "outDir": "dist",
-        "types": ["node"],
+        "types": [
+            "node"
+        ],
         "rootDir": "src",
         "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
         "experimentalDecorators": true,
@@ -14,6 +16,8 @@
         "forceConsistentCasingInFileNames": true,
         "noFallthroughCasesInSwitch": true
     },
-    "include": ["src/**/*.ts"],
+    "include": [
+        "src/**/*.ts"
+    ],
     "exclude": []
 }

@@ -1,1 +1,1 @@
-console.log('Analize queue app running')
+console.log('Analize queue app running');
