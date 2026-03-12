@@ -22,10 +22,7 @@ export class PasswordsService {
               AND userName = {userName:String}
             LIMIT 1
             `,
-            {
-                url,
-                userName,
-            },
+            { url, userName },
         );
 
         if (rows.length === 0) {
@@ -41,46 +38,23 @@ export class PasswordsService {
         const incomingPasswords = this._normalizePasswords(payload.password);
 
         if (url.length === 0 || userName.length === 0 || incomingPasswords.length === 0) {
-            return {
-                inserted: false,
-                updated: false,
-                skipped: true,
-                data: {
-                    url,
-                    userName,
-                    password: incomingPasswords,
-                },
-            };
+            return { data: { password: incomingPasswords, url, userName }, inserted: false, skipped: true, updated: false };
         }
 
         const existed = await this.findOne(url, userName);
 
         if (!existed) {
-            const newData: PasswordEntity = {
-                url,
-                userName,
-                password: incomingPasswords,
-            };
+            const newData: PasswordEntity = { password: incomingPasswords, url, userName };
 
             await this._table.insert([newData]);
 
-            return {
-                inserted: true,
-                updated: false,
-                skipped: false,
-                data: newData,
-            };
+            return { data: newData, inserted: true, skipped: false, updated: false };
         }
 
         const mergedPasswords = this._mergePasswords(existed.password, incomingPasswords);
 
         if (mergedPasswords.length === existed.password.length) {
-            return {
-                inserted: false,
-                updated: false,
-                skipped: true,
-                data: existed,
-            };
+            return { data: existed, inserted: false, skipped: true, updated: false };
         }
 
         await this._table.command(
@@ -90,30 +64,17 @@ export class PasswordsService {
             WHERE url = {url:String}
               AND userName = {userName:String}
             `,
-            {
-                password: mergedPasswords,
-                url,
-                userName,
-            },
+            { password: mergedPasswords, url, userName },
         );
 
-        return {
-            inserted: false,
-            updated: true,
-            skipped: false,
-            data: {
-                url,
-                userName,
-                password: mergedPasswords,
-            },
-        };
+        return { data: { password: mergedPasswords, url, userName }, inserted: false, skipped: false, updated: true };
     }
 
     private _normalizeRecord(record: PasswordEntity): PasswordEntity {
         return {
+            password: this._normalizePasswords(record.password),
             url: String(record.url).trim(),
             userName: String(record.userName).trim(),
-            password: this._normalizePasswords(record.password),
         };
     }
 
@@ -135,9 +96,7 @@ export class PasswordsService {
 
     private _normalizePasswords(passwords: string[] | string): string[] {
         const values = Array.isArray(passwords) ? passwords : [passwords];
-        const normalized = values
-            .map((password) => String(password).trim())
-            .filter((password) => password.length > 0);
+        const normalized = values.map((password) => String(password).trim()).filter((password) => password.length > 0);
 
         return Array.from(new Set(normalized));
     }
