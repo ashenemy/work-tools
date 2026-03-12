@@ -75,6 +75,186 @@
             "skipFiles": ["<node_internals>/**"],
             "sourceMaps": true,
             "outFiles": ["${workspaceFolder}/apps/test-app/dist/**/*.(m|c|)js", "!**/node_modules/**"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug @work-tool/runner with Nx",
+            "runtimeExecutable": "yarn",
+            "runtimeArgs": ["nx", "serve", "@work-tool/runner"],
+            "env": {
+                "NODE_OPTIONS": "--inspect=9234"
+            },
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": ["<node_internals>/**"],
+            "sourceMaps": true,
+            "outFiles": ["${workspaceFolder}/apps/runner/dist/**/*.(m|c|)js", "!**/node_modules/**"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug @work-tool/helper-bot with Nx",
+            "runtimeExecutable": "yarn",
+            "runtimeArgs": ["nx", "serve", "@work-tool/helper-bot"],
+            "env": {
+                "NODE_OPTIONS": "--inspect=9235"
+            },
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": ["<node_internals>/**"],
+            "sourceMaps": true,
+            "outFiles": ["${workspaceFolder}/apps/helper-bot/dist/**/*.(m|c|)js", "!**/node_modules/**"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug @work-tool/notify-bot with Nx",
+            "runtimeExecutable": "yarn",
+            "runtimeArgs": ["nx", "serve", "@work-tool/notify-bot"],
+            "env": {
+                "NODE_OPTIONS": "--inspect=9236"
+            },
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": ["<node_internals>/**"],
+            "sourceMaps": true,
+            "outFiles": ["${workspaceFolder}/apps/notify-bot/dist/**/*.(m|c|)js", "!**/node_modules/**"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug @work-tool/watcher-bot with Nx",
+            "runtimeExecutable": "yarn",
+            "runtimeArgs": ["nx", "serve", "@work-tool/watcher-bot"],
+            "env": {
+                "NODE_OPTIONS": "--inspect=9237"
+            },
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": ["<node_internals>/**"],
+            "sourceMaps": true,
+            "outFiles": ["${workspaceFolder}/apps/watcher-bot/dist/**/*.(m|c|)js", "!**/node_modules/**"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug @work-tool/doc-loader-bot with Nx",
+            "runtimeExecutable": "yarn",
+            "runtimeArgs": ["nx", "serve", "@work-tool/doc-loader-bot"],
+            "env": {
+                "NODE_OPTIONS": "--inspect=9238"
+            },
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": ["<node_internals>/**"],
+            "sourceMaps": true,
+            "outFiles": ["${workspaceFolder}/apps/doc-loader-bot/dist/**/*.(m|c|)js", "!**/node_modules/**"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug @work-tool/installer-bot with Nx",
+            "runtimeExecutable": "yarn",
+            "runtimeArgs": ["nx", "serve", "@work-tool/installer-bot"],
+            "env": {
+                "NODE_OPTIONS": "--inspect=9239"
+            },
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": ["<node_internals>/**"],
+            "sourceMaps": true,
+            "outFiles": ["${workspaceFolder}/apps/installer-bot/dist/**/*.(m|c|)js", "!**/node_modules/**"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug @work-tool/cc-buyer-bot with Nx",
+            "runtimeExecutable": "yarn",
+            "runtimeArgs": ["nx", "serve", "@work-tool/cc-buyer-bot"],
+            "env": {
+                "NODE_OPTIONS": "--inspect=9240"
+            },
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": ["<node_internals>/**"],
+            "sourceMaps": true,
+            "outFiles": ["${workspaceFolder}/apps/cc-buyer-bot/dist/**/*.(m|c|)js", "!**/node_modules/**"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug @work-tool/download-queue with Nx",
+            "runtimeExecutable": "yarn",
+            "runtimeArgs": ["nx", "serve", "@work-tool/download-queue"],
+            "env": {
+                "NODE_OPTIONS": "--inspect=9241"
+            },
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": ["<node_internals>/**"],
+            "sourceMaps": true,
+            "outFiles": ["${workspaceFolder}/apps/download-queue/dist/**/*.(m|c|)js", "!**/node_modules/**"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug @work-tool/extractor-queue with Nx",
+            "runtimeExecutable": "yarn",
+            "runtimeArgs": ["nx", "serve", "@work-tool/extractor-queue"],
+            "env": {
+                "NODE_OPTIONS": "--inspect=9242"
+            },
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": ["<node_internals>/**"],
+            "sourceMaps": true,
+            "outFiles": ["${workspaceFolder}/apps/extractor-queue/dist/**/*.(m|c|)js", "!**/node_modules/**"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug @work-tool/analize-queue with Nx",
+            "runtimeExecutable": "yarn",
+            "runtimeArgs": ["nx", "serve", "@work-tool/analize-queue"],
+            "env": {
+                "NODE_OPTIONS": "--inspect=9243"
+            },
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": ["<node_internals>/**"],
+            "sourceMaps": true,
+            "outFiles": ["${workspaceFolder}/apps/analize-queue/dist/**/*.(m|c|)js", "!**/node_modules/**"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug @work-tool/optimizer-queue with Nx",
+            "runtimeExecutable": "yarn",
+            "runtimeArgs": ["nx", "serve", "@work-tool/optimizer-queue"],
+            "env": {
+                "NODE_OPTIONS": "--inspect=9244"
+            },
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": ["<node_internals>/**"],
+            "sourceMaps": true,
+            "outFiles": ["${workspaceFolder}/apps/optimizer-queue/dist/**/*.(m|c|)js", "!**/node_modules/**"]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug @work-tool/config-cenerator with Nx",
+            "runtimeExecutable": "yarn",
+            "runtimeArgs": ["nx", "serve", "@work-tool/config-cenerator"],
+            "env": {
+                "NODE_OPTIONS": "--inspect=9245"
+            },
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": ["<node_internals>/**"],
+            "sourceMaps": true,
+            "outFiles": ["${workspaceFolder}/apps/config-generator/dist/**/*.(m|c|)js", "!**/node_modules/**"]
         }
     ]
 }

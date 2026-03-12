@@ -62,6 +62,45 @@
         },
         {
             "path": "./packages/components/files"
+        },
+        {
+            "path": "./apps/runner"
+        },
+        {
+            "path": "./apps/helper-bot"
+        },
+        {
+            "path": "./apps/notify-bot"
+        },
+        {
+            "path": "./apps/watcher-bot"
+        },
+        {
+            "path": "./apps/doc-loader-bot"
+        },
+        {
+            "path": "./apps/installer-bot"
+        },
+        {
+            "path": "./apps/cc-buyer-bot"
+        },
+        {
+            "path": "./apps/download-queue"
+        },
+        {
+            "path": "./apps/extractor-queue"
+        },
+        {
+            "path": "./apps/analize-queue"
+        },
+        {
+            "path": "./apps/optimizer-queue"
+        },
+        {
+            "path": "./apps/config-generator"
+        },
+        {
+            "path": "./packages/tools/biome"
         }
     ]
 }

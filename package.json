@@ -5,16 +5,17 @@
     "private": true,
     "workspaces": [
         "packages/*",
-        "packages/components/*",
         "apps/*",
         "packages/libs/*",
         "packages/shared/*",
         "packages/runttime/*",
         "packages/modules/*",
-        "packages/components/*"
+        "packages/components/*",
+        "packages/tools/*"
     ],
     "scripts": {
         "test": "jest",
+        "config:toml:generate": "node --import @swc-node/register/esm tools/tomlConfigGenerate/index.mjs",
         "db:up": "pm2 start tools/docker/ecosystem.config.cjs",
         "db:up:mongo": "pm2 start tools/docker/ecosystem.config.cjs --only db-mongo",
         "db:up:clickhouse": "pm2 start tools/docker/ecosystem.config.cjs --only db-clickhouse",
@@ -24,14 +25,19 @@
     },
     "packageManager": "yarn@4.12.0",
     "devDependencies": {
+        "@biomejs/biome": "2.4.6",
         "@nestjs/schematics": "^11.0.9",
         "@nestjs/testing": "^11.0.0",
-        "@nx/js": "^22.5.3",
+        "@nx/esbuild": "22.5.3",
+        "@nx/jest": "22.5.4",
+        "@nx/js": "22.5.4",
         "@nx/nest": "^22.5.3",
         "@nx/node": "^22.5.3",
+        "@nx/plugin": "^22.5.4",
         "@nx/web": "^22.5.3",
         "@nx/webpack": "^22.5.3",
         "@swc-node/register": "^1.11.1",
+        "@swc/cli": "~0.8.0",
         "@swc/core": "^1.15.17",
         "@swc/helpers": "^0.5.19",
         "@types/fs-extra": "^11",
@@ -40,11 +46,13 @@
         "@types/node": "^25.3.2",
         "esbuild": "^0.27.3",
         "jest": "^30.2.0",
+        "lefthook": "^2.1.4",
         "memfs": "^4.56.10",
         "mongodb-memory-server": "^11.0.1",
         "nx": "^22.5.3",
         "prettier": "^3.8.1",
         "ts-jest": "^29.4.6",
+        "ts-node": "^10.9.2",
         "tslib": "^2.8.1",
         "typescript": "^5.9.3",
         "webpack-cli": "^6.0.1"
@@ -61,11 +69,13 @@
         "@nestjs/core": "^11.1.14",
         "@nestjs/microservices": "^11.1.14",
         "@nestjs/platform-express": "^11.1.14",
+        "@nx/devkit": "22.5.4",
         "@unblessed/blessed": "^1.0.0-alpha.23",
         "dotenv": "^17.3.1",
         "execa": "^9.6.1",
         "fast-glob": "^3.3.3",
         "fs-extra": "^11.3.3",
+        "g": "^2.0.1",
         "grammy": "^1.41.1",
         "inquirer": "^13.3.0",
         "js7z-tools": "^2.5.0",
@@ -76,6 +86,7 @@
         "node-xlsx": "^0.24.0",
         "reflect-metadata": "^0.2.2",
         "rxjs": "^7.8.2",
-        "telegram": "^2.26.22"
+        "telegram": "^2.26.22",
+        "yarn": "^1.22.22"
     }
 }

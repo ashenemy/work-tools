@@ -1,0 +1,10 @@
+{
+    "$schema": "http://json-schema.org/schema",
+    "generators": {
+        "config": {
+            "description": "Create biome.json for the selected Nx project",
+            "factory": "./src/generators/config/generator",
+            "schema": "./src/generators/config/schema.json"
+        }
+    }
+}

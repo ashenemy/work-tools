@@ -1,0 +1,13 @@
+{
+    "$schema": "http://json-schema.org/schema",
+    "additionalProperties": false,
+    "properties": {
+        "fix": { "default": false, "description": "Run Biome in fix/write mode.", "type": "boolean" },
+        "projectName": {
+            "description": "Nx project name. Optional when running the target from a project, because Nx provides it via context.",
+            "type": "string"
+        }
+    },
+    "title": "Biome check executor schema",
+    "type": "object"
+}

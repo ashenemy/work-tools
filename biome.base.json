@@ -1,0 +1,190 @@
+{
+    "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+    "files": {
+        "includes": [
+            "**",
+            "!**/node_modules",
+            "!**/dist",
+            "!**/build",
+            "!**/coverage",
+            "!**/.next",
+            "!**/.nuxt",
+            "!**/.output",
+            "!**/.turbo",
+            "!**/.cache",
+            "!**/.yarn",
+            "!**/.pnpm-store",
+            "!**/tmp",
+            "!**/temp",
+            "!**/.stakpak",
+            "!**/.nx",
+            "!**/.idea",
+            "!**/.vscode",
+            "!**/out",
+            "!**/release",
+            "!**/public",
+            "!**/storybook-static",
+            "!**/.vercel",
+            "!**/.parcel-cache",
+            "!**/.svelte-kit",
+            "!**/generated",
+            "!**/*.min.js",
+            "!**/*.min.css"
+        ],
+        "ignoreUnknown": false,
+        "maxSize": 1048576
+    },
+    "vcs": {
+        "enabled": true,
+        "clientKind": "git",
+        "useIgnoreFile": true,
+        "defaultBranch": "main"
+    },
+    "formatter": {
+        "enabled": true,
+        "formatWithErrors": false,
+        "indentStyle": "space",
+        "indentWidth": 4,
+        "lineEnding": "lf",
+        "lineWidth": 140,
+        "attributePosition": "auto",
+        "bracketSpacing": true,
+        "expand": "never",
+        "trailingNewline": true,
+        "useEditorconfig": true
+    },
+    "linter": {
+        "enabled": true,
+        "rules": {
+            "recommended": false,
+            "performance": {
+                "noAwaitInLoops": "error"
+            },
+            "style": {
+                "recommended": true,
+                "useExportType": "error",
+                "useImportType": "error",
+                "useObjectSpread": "error"
+            },
+            "nursery": {
+                "useAwaitThenable": "error",
+                "useArraySortCompare": "error",
+                "noUselessReturn": "error",
+                "noUnnecessaryConditions": "error",
+                "noShadow": "error",
+                "noReturnAssign": "error",
+                "noMultiStr": "error",
+                "noMultiAssign": "error",
+                "noForIn": "error",
+                "noFloatingPromises": "error"
+            }
+        }
+    },
+    "assist": {
+        "enabled": true,
+        "actions": {
+            "recommended": true,
+            "source": {
+                "recommended": true,
+                "organizeImports": "on",
+                "useSortedInterfaceMembers": "on",
+                "useSortedKeys": "on"
+            }
+        }
+    },
+    "javascript": {
+        "parser": {
+            "jsxEverywhere": false,
+            "unsafeParameterDecoratorsEnabled": true
+        },
+        "formatter": {
+            "quoteStyle": "single",
+            "quoteProperties": "asNeeded",
+            "trailingCommas": "all",
+            "semicolons": "always",
+            "arrowParentheses": "always",
+            "operatorLinebreak": "after"
+        },
+        "globals": [],
+        "linter": {
+            "enabled": true
+        },
+        "assist": {
+            "enabled": true
+        },
+        "experimentalEmbeddedSnippetsEnabled": false
+    },
+    "json": {
+        "parser": {
+            "allowComments": false,
+            "allowTrailingCommas": false
+        },
+        "formatter": {
+            "expand": "always",
+            "trailingCommas": "none"
+        },
+        "linter": {
+            "enabled": true
+        },
+        "assist": {
+            "enabled": true
+        }
+    },
+    "overrides": [
+        {
+            "includes": [
+                "**/*.module.ts",
+                "**/*.service.ts",
+                "**/*.controller.ts",
+                "**/*.guard.ts",
+                "**/*.interceptor.ts",
+                "**/*.filter.ts",
+                "**/*.pipe.ts",
+                "**/*.resolver.ts"
+            ],
+            "linter": {
+                "rules": {
+                    "style": {
+                        "useImportType": "off"
+                    }
+                }
+            }
+        },
+        {
+            "includes": [
+                "**/package.json",
+                "**/biome.json",
+                "**/biome.base.json",
+                "**/tsconfig*.json",
+                "**/nx.json"
+            ],
+            "assist": {
+                "actions": {
+                    "source": {
+                        "useSortedKeys": "off"
+                    }
+                }
+            }
+        },
+        {
+            "includes": [
+                "**/*.json",
+                "**/*.jsonc",
+                ".vscode/**/*.json",
+                ".vscode/**/*.jsonc",
+                "**/tsconfig*.json",
+                "**/nx.json",
+                "**/project.json",
+                "**/package.json",
+                "**/biome.json",
+                "**/biome.base.json"
+            ],
+            "json": {
+                "parser": {
+                    "allowComments": true,
+                    "allowTrailingCommas": true
+                }
+            }
+        }
+    ]
+}

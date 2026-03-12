@@ -1,0 +1,16 @@
+{
+    "$id": "ConfigGeneratorSchema",
+    "$schema": "http://json-schema.org/schema",
+    "additionalProperties": false,
+    "properties": {
+        "projectName": {
+            "$default": { "$source": "argv", "index": 0 },
+            "description": "Nx project name where biome.json should be created",
+            "type": "string",
+            "x-prompt": "Enter the project name"
+        }
+    },
+    "required": ["projectName"],
+    "title": "Biome config generator",
+    "type": "object"
+}

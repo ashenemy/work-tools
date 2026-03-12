@@ -1,0 +1,45 @@
+{
+    "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+    "root": true,
+    "extends": [
+        "./biome.base.json"
+    ],
+    "files": {
+        "includes": [
+            "*.json",
+            "*.jsonc",
+            "tools/**",
+            "!apps/**",
+            "!packages/**",
+            "!**/node_modules",
+            "!**/dist",
+            "!**/build",
+            "!**/coverage",
+            "!**/.next",
+            "!**/.nuxt",
+            "!**/.output",
+            "!**/.turbo",
+            "!**/.cache",
+            "!**/.yarn",
+            "!**/.pnpm-store",
+            "!**/tmp",
+            "!**/temp",
+            "!**/.stakpak",
+            "!**/.nx",
+            "!**/.idea",
+            "!**/.vscode",
+            "!**/out",
+            "!**/release",
+            "!**/public",
+            "!**/storybook-static",
+            "!**/.vercel",
+            "!**/.parcel-cache",
+            "!**/.svelte-kit",
+            "!**/generated",
+            "!**/*.min.js",
+            "!**/*.min.css"
+        ],
+        "ignoreUnknown": false,
+        "maxSize": 1048576
+    }
+}

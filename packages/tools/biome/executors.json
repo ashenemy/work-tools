@@ -1,0 +1,10 @@
+{
+    "$schema": "https://json-schema.org/schema",
+    "executors": {
+        "check": {
+            "description": "Run Biome check for a selected Nx project",
+            "implementation": "./src/executors/check/executor",
+            "schema": "./src/executors/check/schema.json"
+        }
+    }
+}

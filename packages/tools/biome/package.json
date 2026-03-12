@@ -1,0 +1,62 @@
+{
+    "name": "@work-tools/nx-biome",
+    "version": "0.0.1",
+    "private": true,
+    "main": "./dist/index.js",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "generators": "./generators.json",
+    "executors": "./executors.json",
+    "exports": {
+        "./package.json": "./package.json",
+        ".": {
+            "@work-tools/source": "./src/index.ts",
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "default": "./dist/index.js"
+        }
+    },
+    "nx": {
+        "targets": {
+            "build": {
+                "executor": "@nx/js:tsc",
+                "outputs": [
+                    "{options.outputPath}"
+                ],
+                "options": {
+                    "outputPath": "packages/tools/biome/dist",
+                    "main": "packages/tools/biome/src/index.ts",
+                    "tsConfig": "packages/tools/biome/tsconfig.lib.json",
+                    "rootDir": "packages/tools/biome/src",
+                    "generatePackageJson": false,
+                    "assets": [
+                        {
+                            "input": "./packages/tools/biome/src",
+                            "glob": "**/!(*.ts)",
+                            "output": "."
+                        },
+                        {
+                            "input": "./packages/tools/biome/src",
+                            "glob": "**/*.d.ts",
+                            "output": "."
+                        }
+                    ]
+                }
+            },
+            "check": {
+                "executor": "@work-tools/nx-biome:check"
+            },
+            "check-fix": {
+                "executor": "@work-tools/nx-biome:check",
+                "options": {
+                    "fix": true
+                }
+            }
+        }
+    },
+    "dependencies": {
+        "@nx/devkit": "22.5.4",
+        "execa": "^9.6.1",
+        "tslib": "^2.8.1"
+    }
+}
