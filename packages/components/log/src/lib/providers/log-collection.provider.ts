@@ -5,17 +5,17 @@ import type { LogEntity } from '../../@types';
 import { LOG_COLLECTION } from '../log.constants';
 
 const logSchemaDef: MongoSchemaDef<LogEntity> = {
-    country: { type: String, default: null },
-    isMak: { type: Boolean, required: true },
-    file: { type: Schema.Types.ObjectId, ref: 'files', required: true },
-    archivePath: { type: String, required: true },
-    soft: [{ type: String, required: true }],
-    wallets: [{ type: String, required: true }],
-    passCounts: { type: Number, required: true },
-    analyzeResult: [{ type: String, required: true }],
-    category: { type: String, default: null },
-    three: { type: Schema.Types.Mixed, default: null },
-    inUser: { type: Number, default: null },
+    analyzeResult: [{ required: true, type: String }],
+    archivePath: { required: true, type: String },
+    category: { default: null, type: String },
+    country: { default: null, type: String },
+    file: { ref: 'files', required: true, type: Schema.Types.ObjectId },
+    inUser: { default: null, type: Number },
+    isMak: { required: true, type: Boolean },
+    passCounts: { required: true, type: Number },
+    soft: [{ required: true, type: String }],
+    three: { default: null, type: Schema.Types.Mixed },
+    wallets: [{ required: true, type: String }],
 };
 
 export const logCollectionProvider = MongoCollectionFactory<LogEntity>(LOG_COLLECTION, logSchemaDef);
