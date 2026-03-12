@@ -1,16 +1,14 @@
-import { Optional } from '@work-tools/ts';
-import { configDotenv } from 'dotenv';
-import { isDefined, isUndefined, toBoolean, toNumber, toString } from '@work-tools/utils';
 import { resolve } from 'node:path';
+import type { Optional } from '@work-tools/ts';
+import { isDefined, isUndefined, toBoolean, toNumber, toString } from '@work-tools/utils';
+import { configDotenv } from 'dotenv';
 
 export class EnvConfig {
     private static _instance: Optional<EnvConfig> = undefined;
     private readonly _configs: Record<string, string> = {};
 
     private constructor(root: Optional<string> = undefined) {
-        const config = configDotenv({
-            path: resolve(isUndefined(root) ? process.cwd() : root, '.env'),
-        });
+        const config = configDotenv({ path: resolve(isUndefined(root) ? process.cwd() : root, '.env') });
 
         if (isDefined(config.parsed)) {
             this._configs = this._processEnvMerge(config.parsed);
@@ -31,7 +29,7 @@ export class EnvConfig {
     public getNumber(key: string, def: number): number;
     public getNumber(key: string): Optional<number>;
     public getNumber(key: string, def?: number): Optional<number> {
-        let value: Optional<number> = toNumber(this._get(key));
+        const value: Optional<number> = toNumber(this._get(key));
 
         if (isDefined(def)) {
             return this._defaultWhenUndefined<number>(value, def);
@@ -47,7 +45,7 @@ export class EnvConfig {
     public getString(key: string, def: string): string;
     public getString(key: string): Optional<string>;
     public getString(key: string, def?: string): Optional<string> {
-        let value: Optional<string> = toString(this._get(key));
+        const value: Optional<string> = toString(this._get(key));
 
         if (isDefined(def)) {
             return this._defaultWhenUndefined<string>(value, def);
@@ -63,7 +61,7 @@ export class EnvConfig {
     public getBoolean(key: string, def: boolean): boolean;
     public getBoolean(key: string): Optional<boolean>;
     public getBoolean(key: string, def?: boolean): Optional<boolean> {
-        let value: Optional<boolean> = toBoolean(this._get(key));
+        const value: Optional<boolean> = toBoolean(this._get(key));
 
         if (isDefined(def)) {
             return this._defaultWhenUndefined<boolean>(value, def);
@@ -77,10 +75,7 @@ export class EnvConfig {
     }
 
     private _processEnvMerge(env: Record<string, string>): Record<string, string> {
-        return {
-            ...process.env,
-            ...env,
-        } as Record<string, string>;
+        return { ...process.env, ...env } as Record<string, string>;
     }
 
     private _defaultWhenUndefined<T = string>(value: Optional<T>, def: T): T {
