@@ -8,6 +8,7 @@ import { ConfigService } from './config.service';
 export class ConfigModule {
     public static forRoot<T extends JsonLike>(configFilePath: string) {
         return {
+            exports: [CONFIG_SERVICE],
             module: ConfigModule,
             providers: [
                 {
@@ -17,7 +18,6 @@ export class ConfigModule {
                     },
                 },
             ],
-            exports: [CONFIG_SERVICE],
         };
     }
 }

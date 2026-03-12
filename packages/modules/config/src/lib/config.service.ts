@@ -4,6 +4,7 @@ import { isDefined, isUndefined, toBoolean, toNumber, toString } from '@work-too
 import type { ConfigPath, ConfigPathValue } from '../@types';
 
 export class ConfigService<T extends JsonLike = {}> {
+    private static readonly _envTokenPattern = /\$\{([A-Za-z_][A-Za-z0-9_]*)(?::-([^}]*))?\}/g;
     private readonly _configFile: AbstractTextFile<T>;
     private _configData: Optional<T> = undefined;
 
@@ -26,7 +27,8 @@ export class ConfigService<T extends JsonLike = {}> {
     }
 
     public async init(): Promise<void> {
-        this._configData = await this._configFile.read();
+        const configData = await this._configFile.read();
+        this._configData = this._resolveEnvTokens(configData) as T;
     }
 
     public getNumber<K extends ConfigPath<T>>(key: K, def: number): number;
@@ -137,5 +139,46 @@ export class ConfigService<T extends JsonLike = {}> {
 
     private _defaultWhenUndefined<V>(value: Optional<V>, def: V): V {
         return isDefined(value) ? value : def;
+    }
+
+    private _resolveEnvTokens(value: unknown, path: string = ''): unknown {
+        if (Array.isArray(value)) {
+            return value.map((item, index) => this._resolveEnvTokens(item, `${path}[${index}]`));
+        }
+
+        if (typeof value === 'string') {
+            return this._resolveEnvTokensInString(value, path);
+        }
+
+        if (value !== null && typeof value === 'object') {
+            const result: Record<string, unknown> = {};
+
+            for (const [key, item] of Object.entries(value as Record<string, unknown>)) {
+                const nextPath = path.length > 0 ? `${path}.${key}` : key;
+                result[key] = this._resolveEnvTokens(item, nextPath);
+            }
+
+            return result;
+        }
+
+        return value;
+    }
+
+    private _resolveEnvTokensInString(value: string, path: string): string {
+        return value.replace(ConfigService._envTokenPattern, (_match, envKeyRaw, defaultValueRaw) => {
+            const envKey = String(envKeyRaw);
+            const envValue = process.env[envKey];
+
+            if (isDefined(envValue)) {
+                return envValue;
+            }
+
+            if (isDefined(defaultValueRaw)) {
+                return String(defaultValueRaw);
+            }
+
+            const keyPath = path.length > 0 ? path : '<root>';
+            throw new Error(`Env variable "${envKey}" is not set for config key "${keyPath}".`);
+        });
     }
 }
