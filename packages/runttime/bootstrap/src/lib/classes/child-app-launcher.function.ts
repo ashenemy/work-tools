@@ -32,13 +32,7 @@ export function launchChildAppProcess(app: ChildAppDefinition, mode?: BootstrapR
             stdio: ['inherit', 'inherit', 'inherit', 'ipc'],
         });
 
-        return {
-            child,
-            mode: resolvedMode,
-            runner: 'node',
-            command: process.execPath,
-            args: [absEntryFile, ...args],
-        };
+        return { args: [absEntryFile, ...args], child, command: process.execPath, mode: resolvedMode, runner: 'node' };
     }
 
     const nxTarget = app.nx?.target;
@@ -50,18 +44,7 @@ export function launchChildAppProcess(app: ChildAppDefinition, mode?: BootstrapR
     const nxCliPath = require.resolve('nx/bin/nx.js');
     const args = ['run', nxTarget, ...(app.nx?.args ?? [])];
 
-    const child = fork(nxCliPath, args, {
-        cwd,
-        env,
-        execArgv: app.nx?.execArgv ?? [],
-        stdio: ['inherit', 'inherit', 'inherit', 'ipc'],
-    });
+    const child = fork(nxCliPath, args, { cwd, env, execArgv: app.nx?.execArgv ?? [], stdio: ['inherit', 'inherit', 'inherit', 'ipc'] });
 
-    return {
-        child,
-        mode: resolvedMode,
-        runner: 'nx',
-        command: process.execPath,
-        args: [nxCliPath, ...args],
-    };
+    return { args: [nxCliPath, ...args], child, command: process.execPath, mode: resolvedMode, runner: 'nx' };
 }

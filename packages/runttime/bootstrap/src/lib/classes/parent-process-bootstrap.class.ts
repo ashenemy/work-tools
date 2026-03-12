@@ -1,6 +1,14 @@
 import type { ChildProcess } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import type { BootstrapRuntimeMode, ChildAppDefinition, ChildLogLevel, ChildToParentIpcMessage, ParentBootstrapOptions, ParentChildStatus, ParentToChildIpcMessage } from '../../@types';
+import type {
+    BootstrapRuntimeMode,
+    ChildAppDefinition,
+    ChildLogLevel,
+    ChildToParentIpcMessage,
+    ParentBootstrapOptions,
+    ParentChildStatus,
+    ParentToChildIpcMessage,
+} from '../../@types';
 import { launchChildAppProcess, resolveBootstrapMode } from './child-app-launcher.function';
 
 type ManagedChildProcess = {
@@ -13,10 +21,7 @@ type ManagedChildProcess = {
     stopping: boolean;
 };
 
-type StopManagedChildOptions = {
-    reason?: string;
-    forRestart?: boolean;
-};
+type StopManagedChildOptions = { reason?: string; forRestart?: boolean };
 
 const DEFAULT_HEALTH_CHECK_INTERVAL_MS = 10_000;
 const DEFAULT_HEALTH_CHECK_TIMEOUT_MS = 30_000;
@@ -89,13 +94,15 @@ export class ParentProcessBootstrap {
             const runner: ParentChildStatus['runner'] = this._mode === 'production' ? 'node' : 'nx';
 
             statuses.push({
+                alive: Boolean(
+                    managedChild?.process.pid && managedChild.process.exitCode === null && managedChild.process.signalCode === null,
+                ),
+                lastHeartbeatAt: managedChild?.lastHeartbeatAt,
+                mode: managedChild?.mode ?? this._mode,
                 name: childName,
                 pid: managedChild?.process.pid,
-                runner: managedChild?.runner ?? runner,
-                mode: managedChild?.mode ?? this._mode,
                 restarts: managedChild?.restarts ?? this._restartCounters.get(childName) ?? 0,
-                lastHeartbeatAt: managedChild?.lastHeartbeatAt,
-                alive: Boolean(managedChild?.process.pid && managedChild.process.exitCode === null && managedChild.process.signalCode === null),
+                runner: managedChild?.runner ?? runner,
             });
         }
 
@@ -117,21 +124,17 @@ export class ParentProcessBootstrap {
         const launch = launchChildAppProcess(definition, this._mode);
         const managedChild: ManagedChildProcess = {
             definition,
-            process: launch.child,
-            mode: launch.mode,
-            runner: launch.runner,
-            restarts: this._restartCounters.get(childName) ?? 0,
             lastHeartbeatAt: Date.now(),
+            mode: launch.mode,
+            process: launch.child,
+            restarts: this._restartCounters.get(childName) ?? 0,
+            runner: launch.runner,
             stopping: false,
         };
 
         this._activeChildren.set(childName, managedChild);
         this._attachChildHandlers(childName, managedChild);
-        this._sendToChild(managedChild, {
-            type: 'lifecycle:hello',
-            sentAt: Date.now(),
-            parentPid: process.pid,
-        });
+        this._sendToChild(managedChild, { parentPid: process.pid, sentAt: Date.now(), type: 'lifecycle:hello' });
 
         return this._toStatus(childName, managedChild);
     }
@@ -143,9 +146,7 @@ export class ParentProcessBootstrap {
             return;
         }
 
-        await this._stopManagedChild(childName, managedChild, {
-            reason,
-        });
+        await this._stopManagedChild(childName, managedChild, { reason });
 
         this._activeChildren.delete(childName);
     }
@@ -154,10 +155,7 @@ export class ParentProcessBootstrap {
         const managedChild = this._activeChildren.get(childName);
 
         if (managedChild) {
-            await this._stopManagedChild(childName, managedChild, {
-                forRestart: true,
-                reason,
-            });
+            await this._stopManagedChild(childName, managedChild, { forRestart: true, reason });
             this._activeChildren.delete(childName);
         }
 
@@ -238,7 +236,12 @@ export class ParentProcessBootstrap {
         }
     }
 
-    private async _handleChildExit(childName: string, managedChild: ManagedChildProcess, code: number | null, signal: NodeJS.Signals | null): Promise<void> {
+    private async _handleChildExit(
+        childName: string,
+        managedChild: ManagedChildProcess,
+        code: number | null,
+        signal: NodeJS.Signals | null,
+    ): Promise<void> {
         this._activeChildren.delete(childName);
 
         if (this._stopping || managedChild.stopping) {
@@ -306,7 +309,8 @@ export class ParentProcessBootstrap {
                 continue;
             }
 
-            const timeoutMs = managedChild.definition.healthCheckTimeoutMs ?? this._options.healthCheckTimeoutMs ?? DEFAULT_HEALTH_CHECK_TIMEOUT_MS;
+            const timeoutMs =
+                managedChild.definition.healthCheckTimeoutMs ?? this._options.healthCheckTimeoutMs ?? DEFAULT_HEALTH_CHECK_TIMEOUT_MS;
             const heartbeatAge = now - managedChild.lastHeartbeatAt;
 
             if (heartbeatAge > timeoutMs) {
@@ -315,11 +319,7 @@ export class ParentProcessBootstrap {
                 continue;
             }
 
-            this._sendToChild(managedChild, {
-                type: 'health:ping',
-                sentAt: now,
-                requestId: randomUUID(),
-            });
+            this._sendToChild(managedChild, { requestId: randomUUID(), sentAt: now, type: 'health:ping' });
         }
     }
 
@@ -331,9 +331,9 @@ export class ParentProcessBootstrap {
         managedChild.stopping = true;
 
         this._sendToChild(managedChild, {
-            type: options.forRestart ? 'control:restart' : 'control:shutdown',
-            sentAt: Date.now(),
             reason: options.reason,
+            sentAt: Date.now(),
+            type: options.forRestart ? 'control:restart' : 'control:shutdown',
         });
 
         const stopTimeoutMs = this._options.stopTimeoutMs ?? DEFAULT_STOP_TIMEOUT_MS;
@@ -388,13 +388,13 @@ export class ParentProcessBootstrap {
 
     private _toStatus(childName: string, managedChild: ManagedChildProcess): ParentChildStatus {
         return {
+            alive: managedChild.process.exitCode === null && managedChild.process.signalCode === null,
+            lastHeartbeatAt: managedChild.lastHeartbeatAt,
+            mode: managedChild.mode,
             name: childName,
             pid: managedChild.process.pid,
-            runner: managedChild.runner,
-            mode: managedChild.mode,
             restarts: managedChild.restarts,
-            lastHeartbeatAt: managedChild.lastHeartbeatAt,
-            alive: managedChild.process.exitCode === null && managedChild.process.signalCode === null,
+            runner: managedChild.runner,
         };
     }
 
@@ -430,44 +430,44 @@ export class ParentProcessBootstrap {
         switch (rawMessage.type) {
             case 'lifecycle:ready':
                 return {
-                    type: 'lifecycle:ready',
-                    sentAt: Number(rawMessage.sentAt ?? Date.now()),
                     appName: String(rawMessage.appName ?? ''),
                     pid: Number(rawMessage.pid ?? 0),
+                    sentAt: Number(rawMessage.sentAt ?? Date.now()),
+                    type: 'lifecycle:ready',
                 };
             case 'lifecycle:stopping':
                 return {
-                    type: 'lifecycle:stopping',
-                    sentAt: Number(rawMessage.sentAt ?? Date.now()),
                     appName: String(rawMessage.appName ?? ''),
                     pid: Number(rawMessage.pid ?? 0),
                     reason: typeof rawMessage.reason === 'string' ? rawMessage.reason : undefined,
+                    sentAt: Number(rawMessage.sentAt ?? Date.now()),
+                    type: 'lifecycle:stopping',
                 };
             case 'lifecycle:restart-request':
                 return {
-                    type: 'lifecycle:restart-request',
-                    sentAt: Number(rawMessage.sentAt ?? Date.now()),
                     appName: String(rawMessage.appName ?? ''),
                     pid: Number(rawMessage.pid ?? 0),
                     reason: typeof rawMessage.reason === 'string' ? rawMessage.reason : undefined,
+                    sentAt: Number(rawMessage.sentAt ?? Date.now()),
+                    type: 'lifecycle:restart-request',
                 };
             case 'health:pong':
                 return {
-                    type: 'health:pong',
-                    sentAt: Number(rawMessage.sentAt ?? Date.now()),
                     appName: String(rawMessage.appName ?? ''),
                     pid: Number(rawMessage.pid ?? 0),
-                    uptimeMs: Number(rawMessage.uptimeMs ?? 0),
                     requestId: typeof rawMessage.requestId === 'string' ? rawMessage.requestId : undefined,
+                    sentAt: Number(rawMessage.sentAt ?? Date.now()),
+                    type: 'health:pong',
+                    uptimeMs: Number(rawMessage.uptimeMs ?? 0),
                 };
             case 'lifecycle:log':
                 return {
-                    type: 'lifecycle:log',
-                    sentAt: Number(rawMessage.sentAt ?? Date.now()),
                     appName: String(rawMessage.appName ?? ''),
-                    pid: Number(rawMessage.pid ?? 0),
                     level: this._normalizeLogLevel(rawMessage.level),
                     message: String(rawMessage.message ?? ''),
+                    pid: Number(rawMessage.pid ?? 0),
+                    sentAt: Number(rawMessage.sentAt ?? Date.now()),
+                    type: 'lifecycle:log',
                 };
             default:
                 return null;

@@ -25,12 +25,7 @@ export class ChildProcessBridge {
 
         this._started = true;
         process.on('message', this._messageHandler);
-        this._emit({
-            type: 'lifecycle:ready',
-            sentAt: Date.now(),
-            appName: this._appName,
-            pid: process.pid,
-        });
+        this._emit({ appName: this._appName, pid: process.pid, sentAt: Date.now(), type: 'lifecycle:ready' });
     }
 
     public stop(reason?: string): void {
@@ -40,34 +35,15 @@ export class ChildProcessBridge {
 
         process.off('message', this._messageHandler);
         this._started = false;
-        this._emit({
-            type: 'lifecycle:stopping',
-            sentAt: Date.now(),
-            appName: this._appName,
-            pid: process.pid,
-            reason,
-        });
+        this._emit({ appName: this._appName, pid: process.pid, reason, sentAt: Date.now(), type: 'lifecycle:stopping' });
     }
 
     public requestRestart(reason?: string): void {
-        this._emit({
-            type: 'lifecycle:restart-request',
-            sentAt: Date.now(),
-            appName: this._appName,
-            pid: process.pid,
-            reason,
-        });
+        this._emit({ appName: this._appName, pid: process.pid, reason, sentAt: Date.now(), type: 'lifecycle:restart-request' });
     }
 
     public sendLog(level: ChildLogLevel, message: string): void {
-        this._emit({
-            type: 'lifecycle:log',
-            sentAt: Date.now(),
-            appName: this._appName,
-            pid: process.pid,
-            level,
-            message,
-        });
+        this._emit({ appName: this._appName, level, message, pid: process.pid, sentAt: Date.now(), type: 'lifecycle:log' });
     }
 
     private async _handleParentMessage(message: unknown): Promise<void> {
@@ -83,21 +59,16 @@ export class ChildProcessBridge {
 
         switch (parsedMessage.type) {
             case 'lifecycle:hello':
-                this._emit({
-                    type: 'lifecycle:ready',
-                    sentAt: Date.now(),
-                    appName: this._appName,
-                    pid: process.pid,
-                });
+                this._emit({ appName: this._appName, pid: process.pid, sentAt: Date.now(), type: 'lifecycle:ready' });
                 break;
             case 'health:ping':
                 this._emit({
-                    type: 'health:pong',
-                    sentAt: Date.now(),
                     appName: this._appName,
                     pid: process.pid,
-                    uptimeMs: Math.floor(process.uptime() * 1000),
                     requestId: parsedMessage.requestId,
+                    sentAt: Date.now(),
+                    type: 'health:pong',
+                    uptimeMs: Math.floor(process.uptime() * 1000),
                 });
                 break;
             case 'control:shutdown':
@@ -162,33 +133,33 @@ export class ChildProcessBridge {
 
         if (rawMessage.type === 'lifecycle:hello') {
             return {
-                type: 'lifecycle:hello',
-                sentAt: Number(rawMessage.sentAt ?? Date.now()),
                 parentPid: Number(rawMessage.parentPid ?? 0),
+                sentAt: Number(rawMessage.sentAt ?? Date.now()),
+                type: 'lifecycle:hello',
             };
         }
 
         if (rawMessage.type === 'health:ping') {
             return {
-                type: 'health:ping',
-                sentAt: Number(rawMessage.sentAt ?? Date.now()),
                 requestId: typeof rawMessage.requestId === 'string' ? rawMessage.requestId : '',
+                sentAt: Number(rawMessage.sentAt ?? Date.now()),
+                type: 'health:ping',
             };
         }
 
         if (rawMessage.type === 'control:shutdown') {
             return {
-                type: 'control:shutdown',
-                sentAt: Number(rawMessage.sentAt ?? Date.now()),
                 reason: typeof rawMessage.reason === 'string' ? rawMessage.reason : undefined,
+                sentAt: Number(rawMessage.sentAt ?? Date.now()),
+                type: 'control:shutdown',
             };
         }
 
         if (rawMessage.type === 'control:restart') {
             return {
-                type: 'control:restart',
-                sentAt: Number(rawMessage.sentAt ?? Date.now()),
                 reason: typeof rawMessage.reason === 'string' ? rawMessage.reason : undefined,
+                sentAt: Number(rawMessage.sentAt ?? Date.now()),
+                type: 'control:restart',
             };
         }
 

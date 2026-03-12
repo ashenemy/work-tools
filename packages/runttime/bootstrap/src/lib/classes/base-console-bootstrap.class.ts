@@ -4,11 +4,7 @@ import type { MicroserviceOptions } from '@nestjs/microservices';
 import { Transport } from '@nestjs/microservices';
 import type { ConsoleAppModule, ConsoleBootstrapNatsOptions, ConsoleBootstrapOptions } from '../../@types';
 
-type NatsTransportOptions = {
-    servers: string[];
-    queue?: string;
-    name?: string;
-};
+type NatsTransportOptions = { servers: string[]; queue?: string; name?: string };
 
 type NestFactoryContextOptions = Omit<ConsoleBootstrapOptions, 'shutdownSignals' | 'nats'>;
 
@@ -49,8 +45,8 @@ export abstract class BaseConsoleBootstrap {
 
         const microservice = await NestFactory.createMicroservice<MicroserviceOptions>(this._appModule, {
             ...nestOptions,
-            transport: Transport.NATS,
             options: this._buildNatsTransportOptions(this._options.nats),
+            transport: Transport.NATS,
         });
 
         await microservice.listen();
@@ -92,9 +88,7 @@ export abstract class BaseConsoleBootstrap {
     }
 
     private _buildNatsTransportOptions(natsOptions: ConsoleBootstrapNatsOptions | undefined): NatsTransportOptions {
-        const transportOptions: NatsTransportOptions = {
-            servers: this._resolveNatsServers(natsOptions?.servers),
-        };
+        const transportOptions: NatsTransportOptions = { servers: this._resolveNatsServers(natsOptions?.servers) };
 
         if (natsOptions?.queue) {
             transportOptions.queue = natsOptions.queue;
