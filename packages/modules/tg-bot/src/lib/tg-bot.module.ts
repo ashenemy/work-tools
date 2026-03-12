@@ -1,8 +1,4 @@
 import { Module } from '@nestjs/common';
 
-@Module({
-    controllers: [],
-    providers: [],
-    exports: [],
-})
+@Module({ controllers: [], exports: [], providers: [] })
 export class WorkToolsTgBotServiceModule {}
